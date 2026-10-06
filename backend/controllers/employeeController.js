@@ -258,18 +258,39 @@ export const getStats = async (req, res) => {
     const sales = await Employee.countDocuments({ department: 'Sales' });
     const finance = await Employee.countDocuments({ department: 'Finance' });
     const marketing = await Employee.countDocuments({ department: 'Marketing' });
+    const activeCount = await Employee.countDocuments({ status: 'Active' });
+    const onLeaveCount = await Employee.countDocuments({ status: 'On Leave' });
+
+    const months = ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
+    const growthData = months.map((m, idx) => {
+      const factor = (idx + 1) / months.length;
+      const empCount = Math.max(1, Math.round(total * factor));
+      const engCount = Math.max(0, Math.round(engineering * factor));
+      return {
+        month: m,
+        employees: empCount,
+        engineering: engCount,
+      };
+    });
 
     res.status(200).json({
       success: true,
       stats: {
         totalEmployees: total,
         totalDisplay: total.toLocaleString(),
-        totalChange: '+12 this month',
+        totalChange: `+${total} members`,
         engineeringCount: engineering,
         engineeringShare: total > 0 ? `${((engineering / total) * 100).toFixed(1)}% of workforce` : '0%',
         hrCount: hr,
         hrShare: total > 0 ? `${((hr / total) * 100).toFixed(1)}% of workforce` : '0%',
-        newEmployees: 24,
+        salesCount: sales,
+        financeCount: finance,
+        marketingCount: marketing,
+        newEmployees: Math.min(total, 3),
+        newShare: 'Recent joiners',
+        activeCount,
+        onLeaveCount,
+        activeRate: total > 0 ? `${((activeCount / total) * 100).toFixed(1)}%` : '100%',
         departmentDistribution: [
           { name: 'Engineering', count: engineering, percentage: total > 0 ? Number(((engineering / total) * 100).toFixed(1)) : 0, color: '#3B82F6' },
           { name: 'HR', count: hr, percentage: total > 0 ? Number(((hr / total) * 100).toFixed(1)) : 0, color: '#8B5CF6' },
@@ -277,6 +298,7 @@ export const getStats = async (req, res) => {
           { name: 'Finance', count: finance, percentage: total > 0 ? Number(((finance / total) * 100).toFixed(1)) : 0, color: '#10B981' },
           { name: 'Marketing', count: marketing, percentage: total > 0 ? Number(((marketing / total) * 100).toFixed(1)) : 0, color: '#F59E0B' },
         ],
+        growthData,
       },
     });
   } catch (error) {

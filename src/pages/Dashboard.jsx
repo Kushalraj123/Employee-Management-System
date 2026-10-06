@@ -98,21 +98,20 @@ export default function Dashboard() {
   };
 
   const departmentData = stats?.departmentDistribution || [
-    { name: 'Engineering', count: 428, percentage: 34.3, color: '#3B82F6' },
-    { name: 'HR', count: 86, percentage: 6.9, color: '#8B5CF6' },
-    { name: 'Sales', count: 312, percentage: 25.0, color: '#06B6D4' },
-    { name: 'Finance', count: 184, percentage: 14.7, color: '#10B981' },
-    { name: 'Marketing', count: 238, percentage: 19.1, color: '#F59E0B' },
+    { name: 'Engineering', count: 0, percentage: 0, color: '#3B82F6' },
+    { name: 'HR', count: 0, percentage: 0, color: '#8B5CF6' },
+    { name: 'Sales', count: 0, percentage: 0, color: '#06B6D4' },
+    { name: 'Finance', count: 0, percentage: 0, color: '#10B981' },
+    { name: 'Marketing', count: 0, percentage: 0, color: '#F59E0B' },
   ];
 
   const growthData = stats?.growthData || [
-    { month: 'Apr', employees: 1080, engineering: 370 },
-    { month: 'May', employees: 1115, engineering: 382 },
-    { month: 'Jun', employees: 1150, engineering: 395 },
-    { month: 'Jul', employees: 1182, engineering: 405 },
-    { month: 'Aug', employees: 1210, engineering: 415 },
-    { month: 'Sep', employees: 1236, engineering: 422 },
-    { month: 'Oct', employees: 1248, engineering: 428 },
+    { month: 'May', employees: 1, engineering: 1 },
+    { month: 'Jun', employees: 2, engineering: 1 },
+    { month: 'Jul', employees: 3, engineering: 2 },
+    { month: 'Aug', employees: 4, engineering: 2 },
+    { month: 'Sep', employees: 5, engineering: 3 },
+    { month: 'Oct', employees: stats?.totalEmployees || 6, engineering: stats?.engineeringCount || 3 },
   ];
 
   return (
@@ -168,45 +167,49 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           <StatsCard
             title="Total Employees"
-            value={stats?.totalDisplay || '1,248'}
-            subtitle="Total active workforce"
+            value={stats?.totalEmployees ?? 0}
+            subtitle={
+              stats?.activeCount !== undefined
+                ? `${stats.activeCount} Active • ${stats.onLeaveCount || 0} On Leave`
+                : 'Total active workforce'
+            }
             icon={Users}
-            trend="+12 this month"
+            trend={stats?.activeRate ? `${stats.activeRate} Active` : '100% Active'}
             trendType="positive"
-            sparkline={[30, 40, 45, 55, 60, 68, 75, 82, 90, 96]}
+            sparkline={[1, 2, 3, 4, 4, 5, 6, stats?.totalEmployees || 6]}
             accentColor="blue"
           />
 
           <StatsCard
             title="Engineering"
-            value={stats?.engineeringCount || 428}
-            subtitle="34.3% of workforce"
+            value={stats?.engineeringCount ?? 0}
+            subtitle={stats?.engineeringShare || '0% of workforce'}
             icon={Cpu}
-            trend="+8 hires"
+            trend="Core Tech"
             trendType="positive"
-            sparkline={[50, 52, 58, 62, 70, 78, 85, 92]}
+            sparkline={[1, 1, 2, 2, 3, stats?.engineeringCount || 3]}
             accentColor="indigo"
           />
 
           <StatsCard
             title="People & HR"
-            value={stats?.hrCount || 86}
-            subtitle="6.9% of workforce"
+            value={stats?.hrCount ?? 0}
+            subtitle={stats?.hrShare || '0% of workforce'}
             icon={UserCheck}
-            trend="98.5% retention"
+            trend="Talent Ops"
             trendType="positive"
-            sparkline={[60, 64, 62, 70, 75, 80, 86]}
+            sparkline={[1, 1, 1, 1, 1, stats?.hrCount || 1]}
             accentColor="violet"
           />
 
           <StatsCard
             title="New Employees"
-            value={stats?.newEmployees || 24}
-            subtitle="This month onboarded"
+            value={stats?.newEmployees ?? 0}
+            subtitle={stats?.newShare || 'Recent additions'}
             icon={UserPlus}
-            trend="+18% vs last month"
+            trend="Onboarded"
             trendType="positive"
-            sparkline={[10, 14, 12, 18, 16, 20, 24]}
+            sparkline={[0, 1, 1, 2, 2, stats?.newEmployees || 3]}
             accentColor="emerald"
           />
         </div>
@@ -228,22 +231,17 @@ export default function Dashboard() {
             </p>
 
             <div className="mt-4 flex flex-wrap items-center gap-4 text-xs font-mono text-slate-300">
-              <div className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-blue-400" />
-                <span>Engineering (428)</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-purple-400" />
-                <span>Talent & HR (86)</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-cyan-400" />
-                <span>Sales (312)</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                <span>Finance (184)</span>
-              </div>
+              {departmentData.map((dept) => (
+                <div key={dept.name} className="flex items-center gap-1.5">
+                  <span
+                    className="h-2 w-2 rounded-full"
+                    style={{ backgroundColor: dept.color }}
+                  />
+                  <span>
+                    {dept.name} ({dept.count})
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -266,13 +264,13 @@ export default function Dashboard() {
                   Employee Growth Trend
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  7-month organization headcount velocity and expansion trajectory.
+                  Headcount velocity and organization growth trajectory.
                 </p>
               </div>
 
               <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
                 <TrendingUp className="h-3.5 w-3.5" />
-                <span>+15.5% H2 Growth</span>
+                <span>{stats?.activeRate ? `${stats.activeRate} Active Rate` : '100% Active'}</span>
               </div>
             </div>
 
@@ -420,7 +418,9 @@ export default function Dashboard() {
 
               {/* Center Donut Label */}
               <div className="pointer-events-none absolute flex flex-col items-center justify-center text-center">
-                <span className="text-xl font-extrabold text-white">5</span>
+                <span className="text-xl font-extrabold text-white">
+                  {departmentData.filter((d) => d.count > 0).length || departmentData.length}
+                </span>
                 <span className="text-[10px] uppercase font-mono text-slate-400">
                   Depts
                 </span>

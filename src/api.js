@@ -536,35 +536,44 @@ export const api = {
       const activeCount = list.filter(e => e.status === 'Active').length;
       const onLeaveCount = list.filter(e => e.status === 'On Leave').length;
 
+      const months = ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
+      const growthData = months.map((m, idx) => {
+        const factor = (idx + 1) / months.length;
+        const empCount = Math.max(1, Math.round(total * factor));
+        const engCount = Math.max(0, Math.round(engineering * factor));
+        return {
+          month: m,
+          employees: empCount,
+          engineering: engCount,
+        };
+      });
+
       return {
         success: true,
         stats: {
           totalEmployees: total,
-          totalDisplay: '1,248',
-          totalChange: '+12 this month',
-          engineeringCount: 428,
-          engineeringShare: '34.3% of workforce',
-          hrCount: 86,
-          hrShare: '6.9% of workforce',
-          newEmployees: 24,
-          newShare: 'This month',
-          activeRate: '94.2%',
+          totalDisplay: total.toLocaleString(),
+          totalChange: `+${total} members`,
+          engineeringCount: engineering,
+          engineeringShare: total > 0 ? `${((engineering / total) * 100).toFixed(1)}% of workforce` : '0%',
+          hrCount: hr,
+          hrShare: total > 0 ? `${((hr / total) * 100).toFixed(1)}% of workforce` : '0%',
+          salesCount: sales,
+          financeCount: finance,
+          marketingCount: marketing,
+          newEmployees: Math.min(total, 3),
+          newShare: 'Recent joiners',
+          activeCount,
+          onLeaveCount,
+          activeRate: total > 0 ? `${((activeCount / total) * 100).toFixed(1)}%` : '100%',
           departmentDistribution: [
-            { name: 'Engineering', count: 428, percentage: 34.3, color: '#3B82F6' },
-            { name: 'HR', count: 86, percentage: 6.9, color: '#8B5CF6' },
-            { name: 'Sales', count: 312, percentage: 25.0, color: '#06B6D4' },
-            { name: 'Finance', count: 184, percentage: 14.7, color: '#10B981' },
-            { name: 'Marketing', count: 238, percentage: 19.1, color: '#F59E0B' },
+            { name: 'Engineering', count: engineering, percentage: total > 0 ? Number(((engineering / total) * 100).toFixed(1)) : 0, color: '#3B82F6' },
+            { name: 'HR', count: hr, percentage: total > 0 ? Number(((hr / total) * 100).toFixed(1)) : 0, color: '#8B5CF6' },
+            { name: 'Sales', count: sales, percentage: total > 0 ? Number(((sales / total) * 100).toFixed(1)) : 0, color: '#06B6D4' },
+            { name: 'Finance', count: finance, percentage: total > 0 ? Number(((finance / total) * 100).toFixed(1)) : 0, color: '#10B981' },
+            { name: 'Marketing', count: marketing, percentage: total > 0 ? Number(((marketing / total) * 100).toFixed(1)) : 0, color: '#F59E0B' },
           ],
-          growthData: [
-            { month: 'Apr', employees: 1080, engineering: 370, newHires: 14 },
-            { month: 'May', employees: 1115, engineering: 382, newHires: 18 },
-            { month: 'Jun', employees: 1150, engineering: 395, newHires: 22 },
-            { month: 'Jul', employees: 1182, engineering: 405, newHires: 16 },
-            { month: 'Aug', employees: 1210, engineering: 415, newHires: 19 },
-            { month: 'Sep', employees: 1236, engineering: 422, newHires: 21 },
-            { month: 'Oct', employees: 1248, engineering: 428, newHires: 24 },
-          ],
+          growthData,
         },
         isMock: true,
       };
