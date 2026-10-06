@@ -13,72 +13,33 @@ export default function StatsCard({
   accentColor = 'blue', // 'blue', 'indigo', 'violet', 'emerald', 'amber'
   onClick,
 }) {
-  const cardRef = useRef(null);
-  const [rotateX, setRotateX] = useState(0);
-  const [rotateY, setRotateY] = useState(0);
-  const [mousePos, setMousePos] = useState({ x: '50%', y: '50%' });
   const [isHovered, setIsHovered] = useState(false);
-
-  const handleMouseMove = (e) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    // Subtle 2-4 degree tilt
-    const rX = ((y - centerY) / centerY) * -3.5;
-    const rY = ((x - centerX) / centerX) * 3.5;
-
-    setRotateX(rX);
-    setRotateY(rY);
-    setMousePos({ x: `${x}px`, y: `${y}px` });
-  };
-
-  const handleMouseEnter = () => setIsHovered(true);
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    setRotateX(0);
-    setRotateY(0);
-  };
 
   const colorStyles = {
     blue: {
-      border: 'hover:border-blue-500/40',
-      glow: 'shadow-blue-500/10',
+      border: 'hover:border-blue-400 dark:hover:border-blue-500/40',
       iconBg: 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20',
       sparkline: '#3B82F6',
-      badge: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20',
     },
     indigo: {
-      border: 'hover:border-indigo-500/40',
-      glow: 'shadow-indigo-500/10',
+      border: 'hover:border-indigo-400 dark:hover:border-indigo-500/40',
       iconBg: 'bg-indigo-50 text-indigo-600 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20',
       sparkline: '#6366F1',
-      badge: 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20',
     },
     violet: {
-      border: 'hover:border-violet-500/40',
-      glow: 'shadow-violet-500/10',
+      border: 'hover:border-purple-400 dark:hover:border-purple-500/40',
       iconBg: 'bg-purple-50 text-purple-600 border-purple-200 dark:bg-violet-500/10 dark:text-violet-400 dark:border-violet-500/20',
       sparkline: '#8B5CF6',
-      badge: 'text-purple-600 dark:text-violet-400 bg-purple-50 dark:bg-violet-500/10 border-purple-200 dark:border-violet-500/20',
     },
     emerald: {
-      border: 'hover:border-emerald-500/40',
-      glow: 'shadow-emerald-500/10',
+      border: 'hover:border-emerald-400 dark:hover:border-emerald-500/40',
       iconBg: 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20',
       sparkline: '#10B981',
-      badge: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20',
     },
     amber: {
-      border: 'hover:border-amber-500/40',
-      glow: 'shadow-amber-500/10',
+      border: 'hover:border-amber-400 dark:hover:border-amber-500/40',
       iconBg: 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20',
       sparkline: '#F59E0B',
-      badge: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20',
     },
   };
 
@@ -100,89 +61,69 @@ export default function StatsCard({
     .join(' ');
 
   return (
-    <div className="card-3d-wrap" onClick={onClick}>
-      <motion.div
-        ref={cardRef}
-        onMouseMove={handleMouseMove}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        style={{
-          transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) ${
-            isHovered ? 'translateY(-4px) translateZ(6px)' : 'translateY(0) translateZ(0)'
-          }`,
-        }}
-        className={`relative overflow-hidden rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/95 dark:bg-slate-900/70 p-5 backdrop-blur-xl transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md dark:shadow-lg ${
-          currentTheme.border
-        } ${currentTheme.glow}`}
-      >
-        {/* Dynamic Specular Sheen */}
-        {isHovered && (
-          <div
-            className="pointer-events-none absolute inset-0 z-0 opacity-40 transition-opacity duration-300"
-            style={{
-              background: `radial-gradient(350px circle at ${mousePos.x} ${mousePos.y}, rgba(99, 102, 241, 0.08), transparent 60%)`,
-            }}
-          />
-        )}
-
-        <div className="relative z-10 flex items-start justify-between">
-          <div>
-            <p className="text-xs font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
-              {title}
-            </p>
-            <h3 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              {value}
-            </h3>
-          </div>
-
-          <div
-            className={`flex h-11 w-11 items-center justify-center rounded-xl border p-2.5 transition-transform duration-300 ${
-              currentTheme.iconBg
-            } ${isHovered ? 'scale-110 rotate-3' : ''}`}
-          >
-            {Icon && <Icon className="h-full w-full" />}
-          </div>
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-slate-900/70 p-5 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md dark:shadow-lg ${currentTheme.border}`}
+    >
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-xs font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+            {title}
+          </p>
+          <h3 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            {value}
+          </h3>
         </div>
 
-        {/* Bottom sparkline & trend row */}
-        <div className="relative z-10 mt-4 flex items-end justify-between border-t border-slate-100 dark:border-white/5 pt-3">
-          <div className="flex flex-col">
-            {trend && (
-              <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                {trendType === 'positive' ? (
-                  <TrendingUp className="h-3.5 w-3.5" />
-                ) : (
-                  <TrendingDown className="h-3.5 w-3.5 text-rose-500 dark:text-rose-400" />
-                )}
-                <span>{trend}</span>
-              </span>
-            )}
-            <span className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              {subtitle}
+        <div
+          className={`flex h-11 w-11 items-center justify-center rounded-xl border p-2.5 transition-transform duration-200 ${
+            currentTheme.iconBg
+          } ${isHovered ? 'scale-105' : ''}`}
+        >
+          {Icon && <Icon className="h-full w-full" />}
+        </div>
+      </div>
+
+      {/* Bottom sparkline & trend row */}
+      <div className="mt-4 flex items-end justify-between border-t border-slate-100 dark:border-white/5 pt-3">
+        <div className="flex flex-col">
+          {trend && (
+            <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+              {trendType === 'positive' ? (
+                <TrendingUp className="h-3.5 w-3.5" />
+              ) : (
+                <TrendingDown className="h-3.5 w-3.5 text-rose-500 dark:text-rose-400" />
+              )}
+              <span>{trend}</span>
             </span>
-          </div>
-
-          {/* Mini Sparkline Chart */}
-          <div className="shrink-0">
-            <svg
-              width={svgWidth}
-              height={svgHeight}
-              className="overflow-visible"
-              aria-hidden="true"
-            >
-              <polyline
-                fill="none"
-                stroke={currentTheme.sparkline}
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                points={points}
-                opacity={isHovered ? 1 : 0.85}
-              />
-            </svg>
-          </div>
+          )}
+          <span className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            {subtitle}
+          </span>
         </div>
-      </motion.div>
+
+        {/* Mini Sparkline Chart */}
+        <div className="shrink-0">
+          <svg
+            width={svgWidth}
+            height={svgHeight}
+            className="overflow-visible"
+            aria-hidden="true"
+          >
+            <polyline
+              fill="none"
+              stroke={currentTheme.sparkline}
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              points={points}
+              opacity={isHovered ? 1 : 0.85}
+            />
+          </svg>
+        </div>
+      </div>
     </div>
   );
 }

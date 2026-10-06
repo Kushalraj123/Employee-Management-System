@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Mail,
@@ -10,34 +10,10 @@ import {
   Sparkles,
   Award,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { getInitials, getAvatarGradient } from '../utils/avatar';
 
 export default function EmployeeCard({ employee, onEdit, onDelete }) {
-  const cardRef = useRef(null);
-  const [rotateX, setRotateX] = useState(0);
-  const [rotateY, setRotateY] = useState(0);
-  const [mousePos, setMousePos] = useState({ x: '50%', y: '50%' });
-  const [isHovered, setIsHovered] = useState(false);
-
   const empId = employee._id || employee.id;
-
-  const handleMouseMove = (e) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    const rX = ((y - centerY) / centerY) * -3.5;
-    const rY = ((x - centerX) / centerX) * 3.5;
-
-    setRotateX(rX);
-    setRotateY(rY);
-    setMousePos({ x: `${x}px`, y: `${y}px` });
-  };
 
   const departmentStyles = {
     Engineering: 'border-blue-200 dark:border-blue-500/30 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10',
@@ -61,35 +37,8 @@ export default function EmployeeCard({ employee, onEdit, onDelete }) {
     'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-500/15 dark:text-slate-300 dark:border-slate-500/30';
 
   return (
-    <div className="card-3d-wrap h-full">
-      <motion.div
-        ref={cardRef}
-        onMouseMove={handleMouseMove}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => {
-          setIsHovered(false);
-          setRotateX(0);
-          setRotateY(0);
-        }}
-        style={{
-          transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) ${
-            isHovered
-              ? 'translateY(-6px) translateZ(8px)'
-              : 'translateY(0) translateZ(0)'
-          }`,
-        }}
-        className="group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/95 dark:bg-slate-900/70 p-5 backdrop-blur-xl transition-all duration-200 shadow-sm hover:shadow-md dark:shadow-xl hover:border-indigo-300 dark:hover:border-indigo-500/30"
-      >
-        {/* Specular Sheen Reflection */}
-        {isHovered && (
-          <div
-            className="pointer-events-none absolute inset-0 z-0 opacity-30 transition-opacity duration-300"
-            style={{
-              background: `radial-gradient(400px circle at ${mousePos.x} ${mousePos.y}, rgba(99, 102, 241, 0.08), transparent 60%)`,
-            }}
-          />
-        )}
-
+    <div className="h-full">
+      <div className="group relative flex h-full flex-col justify-between rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-slate-900/70 p-5 transition-all duration-200 shadow-sm hover:shadow-md dark:shadow-xl hover:border-slate-300 dark:hover:border-white/20">
         <div className="relative z-10">
           {/* Top Row: Department and Status Badges */}
           <div className="flex items-center justify-between gap-2">
@@ -113,7 +62,7 @@ export default function EmployeeCard({ employee, onEdit, onDelete }) {
               <div
                 className={`h-14 w-14 rounded-2xl bg-gradient-to-br ${getAvatarGradient(
                   employee.name
-                )} flex items-center justify-center font-bold text-base tracking-wider ring-2 ring-slate-200 dark:ring-white/10 group-hover:ring-indigo-500/40 transition-all shadow-md`}
+                )} flex items-center justify-center font-bold text-base tracking-wider ring-2 ring-slate-200 dark:ring-white/10 group-hover:ring-indigo-500/40 transition-all shadow-md text-white`}
               >
                 {getInitials(employee.name)}
               </div>
@@ -210,7 +159,7 @@ export default function EmployeeCard({ employee, onEdit, onDelete }) {
             </button>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
