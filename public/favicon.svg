@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="nexusGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="50%" stop-color="#6366F1" />
+      <stop offset="100%" stop-color="#8B5CF6" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  <rect width="100" height="100" rx="24" fill="#0A0D14" />
+  <path d="M28 72 V28 L72 72 V28" stroke="url(#nexusGrad)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+  <circle cx="28" cy="28" r="6" fill="#60A5FA" />
+  <circle cx="28" cy="72" r="6" fill="#3B82F6" />
+  <circle cx="72" cy="28" r="6" fill="#8B5CF6" />
+  <circle cx="72" cy="72" r="6" fill="#A78BFA" />
+</svg>
