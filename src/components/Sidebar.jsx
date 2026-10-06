@@ -57,32 +57,53 @@ export default function Sidebar({
             onClick={() => setMobileOpen(false)}
             className="flex items-center gap-3 group"
           >
-            {/* Geometric "N" connected nodes Logo */}
-            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 p-0.5 shadow-md group-hover:shadow-indigo-500/40 transition-all duration-300">
-              <div className="flex h-full w-full items-center justify-center rounded-[10px] bg-slate-900/60 dark:bg-slate-950/60 backdrop-blur-sm">
-                <svg
-                  viewBox="0 0 40 40"
-                  className="h-6 w-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M10 30 V10 L30 30 V10" stroke="url(#logoGradient)" />
-                  <circle cx="10" cy="10" r="2.5" fill="#38BDF8" stroke="none" />
-                  <circle cx="10" cy="30" r="2.5" fill="#6366F1" stroke="none" />
-                  <circle cx="30" cy="10" r="2.5" fill="#8B5CF6" stroke="none" />
-                  <circle cx="30" cy="30" r="2.5" fill="#C084FC" stroke="none" />
-                  <defs>
-                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#38BDF8" />
-                      <stop offset="50%" stopColor="#6366F1" />
-                      <stop offset="100%" stopColor="#A855F7" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-              </div>
+            {/* Modern 3D Ribbon NEXUS Logo */}
+            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600 p-2 shadow-md shadow-indigo-500/25 ring-1 ring-white/20 group-hover:scale-105 group-hover:shadow-indigo-500/40 transition-all duration-300">
+              <svg
+                viewBox="0 0 32 32"
+                fill="none"
+                className="h-full w-full"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {/* 3D Geometric N Facets */}
+                <path
+                  d="M6 26V6L13 10.5V17.5L26 26H18L11 21.5V26H6Z"
+                  fill="url(#nexusGrad1)"
+                />
+                <path
+                  d="M26 6V26L19 21.5V14.5L6 6H14L21 10.5V6H26Z"
+                  fill="url(#nexusGrad2)"
+                  fillOpacity="0.95"
+                />
+                <circle cx="6" cy="6" r="1.75" fill="#38BDF8" />
+                <circle cx="26" cy="26" r="1.75" fill="#C084FC" />
+                <defs>
+                  <linearGradient
+                    id="nexusGrad1"
+                    x1="6"
+                    y1="6"
+                    x2="26"
+                    y2="26"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stopColor="#FFFFFF" />
+                    <stop offset="0.6" stopColor="#EEF2FF" />
+                    <stop offset="1" stopColor="#C7D2FE" />
+                  </linearGradient>
+                  <linearGradient
+                    id="nexusGrad2"
+                    x1="26"
+                    y1="6"
+                    x2="6"
+                    y2="26"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stopColor="#38BDF8" />
+                    <stop offset="0.5" stopColor="#818CF8" />
+                    <stop offset="1" stopColor="#C084FC" />
+                  </linearGradient>
+                </defs>
+              </svg>
             </div>
 
             {!collapsed && (
