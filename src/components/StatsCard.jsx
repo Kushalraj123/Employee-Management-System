@@ -48,37 +48,37 @@ export default function StatsCard({
     blue: {
       border: 'hover:border-blue-500/40',
       glow: 'shadow-blue-500/10',
-      iconBg: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+      iconBg: 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20',
       sparkline: '#3B82F6',
-      badge: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
+      badge: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20',
     },
     indigo: {
       border: 'hover:border-indigo-500/40',
       glow: 'shadow-indigo-500/10',
-      iconBg: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+      iconBg: 'bg-indigo-50 text-indigo-600 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20',
       sparkline: '#6366F1',
-      badge: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20',
+      badge: 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20',
     },
     violet: {
       border: 'hover:border-violet-500/40',
       glow: 'shadow-violet-500/10',
-      iconBg: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
+      iconBg: 'bg-purple-50 text-purple-600 border-purple-200 dark:bg-violet-500/10 dark:text-violet-400 dark:border-violet-500/20',
       sparkline: '#8B5CF6',
-      badge: 'text-violet-400 bg-violet-500/10 border-violet-500/20',
+      badge: 'text-purple-600 dark:text-violet-400 bg-purple-50 dark:bg-violet-500/10 border-purple-200 dark:border-violet-500/20',
     },
     emerald: {
       border: 'hover:border-emerald-500/40',
       glow: 'shadow-emerald-500/10',
-      iconBg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+      iconBg: 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20',
       sparkline: '#10B981',
-      badge: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+      badge: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20',
     },
     amber: {
       border: 'hover:border-amber-500/40',
       glow: 'shadow-amber-500/10',
-      iconBg: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+      iconBg: 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20',
       sparkline: '#F59E0B',
-      badge: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+      badge: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20',
     },
   };
 
@@ -111,7 +111,7 @@ export default function StatsCard({
             isHovered ? 'translateY(-4px) translateZ(6px)' : 'translateY(0) translateZ(0)'
           }`,
         }}
-        className={`relative overflow-hidden rounded-2xl border border-white/5 dark:border-white/10 bg-slate-900/60 dark:bg-slate-900/70 p-5 backdrop-blur-xl transition-all duration-200 cursor-pointer shadow-lg ${
+        className={`relative overflow-hidden rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/95 dark:bg-slate-900/70 p-5 backdrop-blur-xl transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md dark:shadow-lg ${
           currentTheme.border
         } ${currentTheme.glow}`}
       >
@@ -120,17 +120,17 @@ export default function StatsCard({
           <div
             className="pointer-events-none absolute inset-0 z-0 opacity-40 transition-opacity duration-300"
             style={{
-              background: `radial-gradient(350px circle at ${mousePos.x} ${mousePos.y}, rgba(255, 255, 255, 0.08), transparent 60%)`,
+              background: `radial-gradient(350px circle at ${mousePos.x} ${mousePos.y}, rgba(99, 102, 241, 0.08), transparent 60%)`,
             }}
           />
         )}
 
         <div className="relative z-10 flex items-start justify-between">
           <div>
-            <p className="text-xs font-semibold tracking-wider text-slate-400 uppercase">
+            <p className="text-xs font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
               {title}
             </p>
-            <h3 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+            <h3 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
               {value}
             </h3>
           </div>
@@ -145,14 +145,14 @@ export default function StatsCard({
         </div>
 
         {/* Bottom sparkline & trend row */}
-        <div className="relative z-10 mt-4 flex items-end justify-between border-t border-slate-200/40 dark:border-white/5 pt-3">
+        <div className="relative z-10 mt-4 flex items-end justify-between border-t border-slate-100 dark:border-white/5 pt-3">
           <div className="flex flex-col">
             {trend && (
-              <span className="flex items-center gap-1 text-xs font-semibold text-emerald-400">
+              <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                 {trendType === 'positive' ? (
                   <TrendingUp className="h-3.5 w-3.5" />
                 ) : (
-                  <TrendingDown className="h-3.5 w-3.5 text-rose-400" />
+                  <TrendingDown className="h-3.5 w-3.5 text-rose-500 dark:text-rose-400" />
                 )}
                 <span>{trend}</span>
               </span>
@@ -177,7 +177,7 @@ export default function StatsCard({
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 points={points}
-                opacity={isHovered ? 1 : 0.8}
+                opacity={isHovered ? 1 : 0.85}
               />
             </svg>
           </div>

@@ -23,17 +23,17 @@ export default function EmployeeTable({
   onDelete,
 }) {
   const departmentColors = {
-    Engineering: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-    HR: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-    Sales: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
-    Finance: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-    Marketing: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    Engineering: 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20',
+    HR: 'bg-purple-50 text-purple-600 border-purple-200 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20',
+    Sales: 'bg-cyan-50 text-cyan-600 border-cyan-200 dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/20',
+    Finance: 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20',
+    Marketing: 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20',
   };
 
   const statusColors = {
-    Active: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-    'On Leave': 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-    Inactive: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
+    Active: 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/30',
+    'On Leave': 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-500/30',
+    Inactive: 'bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-500/15 dark:text-rose-400 dark:border-rose-500/30',
   };
 
   const isAllSelected =
@@ -54,17 +54,17 @@ export default function EmployeeTable({
   };
 
   return (
-    <div className="w-full overflow-hidden rounded-2xl border border-white/5 dark:border-white/10 bg-slate-900/60 dark:bg-slate-900/70 backdrop-blur-xl shadow-2xl">
+    <div className="w-full overflow-hidden rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/95 dark:bg-slate-900/70 backdrop-blur-xl shadow-sm dark:shadow-2xl">
       <div className="w-full overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-white/10 bg-slate-950/40 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <tr className="border-b border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-slate-950/40 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
               <th className="py-4 pl-6 pr-3 w-12">
                 <input
                   type="checkbox"
                   checked={isAllSelected}
                   onChange={handleSelectAll}
-                  className="h-4 w-4 rounded border-white/20 bg-slate-900 text-indigo-600 focus:ring-indigo-500/20 focus:ring-offset-0 cursor-pointer"
+                  className="h-4 w-4 rounded border-slate-300 dark:border-white/20 bg-white dark:bg-slate-900 text-indigo-600 focus:ring-indigo-500/20 focus:ring-offset-0 cursor-pointer"
                 />
               </th>
               <th className="py-4 px-4 font-mono">Employee</th>
@@ -75,16 +75,16 @@ export default function EmployeeTable({
               <th className="py-4 pr-6 pl-4 text-right font-mono">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5 text-sm">
+          <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-sm">
             {employees.map((emp, idx) => {
               const empId = emp._id || emp.id;
               const isSelected = selectedIds.includes(empId);
               const deptStyle =
                 departmentColors[emp.department] ||
-                'bg-slate-500/10 text-slate-300 border-slate-500/20';
+                'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-500/10 dark:text-slate-300 dark:border-slate-500/20';
               const stStyle =
                 statusColors[emp.status] ||
-                'bg-slate-500/10 text-slate-300 border-slate-500/20';
+                'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-500/10 dark:text-slate-300 dark:border-slate-500/20';
 
               return (
                 <motion.tr
@@ -94,8 +94,8 @@ export default function EmployeeTable({
                   transition={{ duration: 0.2, delay: idx * 0.03 }}
                   className={`group transition-colors duration-150 ${
                     isSelected
-                      ? 'bg-indigo-950/30'
-                      : 'hover:bg-white/[0.03]'
+                      ? 'bg-indigo-50/80 dark:bg-indigo-950/30'
+                      : 'hover:bg-slate-50/80 dark:hover:bg-white/[0.03]'
                   }`}
                 >
                   {/* Select Checkbox */}
@@ -104,7 +104,7 @@ export default function EmployeeTable({
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => handleSelectOne(empId)}
-                      className="h-4 w-4 rounded border-white/20 bg-slate-900 text-indigo-600 focus:ring-indigo-500/20 focus:ring-offset-0 cursor-pointer"
+                      className="h-4 w-4 rounded border-slate-300 dark:border-white/20 bg-white dark:bg-slate-900 text-indigo-600 focus:ring-indigo-500/20 focus:ring-offset-0 cursor-pointer"
                     />
                   </td>
 
@@ -115,29 +115,29 @@ export default function EmployeeTable({
                         <div
                           className={`h-10 w-10 rounded-xl bg-gradient-to-br ${getAvatarGradient(
                             emp.name
-                          )} flex items-center justify-center font-bold text-xs tracking-wider shadow-md ring-2 ring-white/10 group-hover:ring-indigo-500/40 transition-all`}
+                          )} flex items-center justify-center font-bold text-xs tracking-wider shadow-md ring-2 ring-slate-200 dark:ring-white/10 group-hover:ring-indigo-500/40 transition-all`}
                         >
                           {getInitials(emp.name)}
                         </div>
                         <span
-                          className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-slate-900 ${
+                          className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-slate-900 ${
                             emp.status === 'Active'
-                              ? 'bg-emerald-400'
+                              ? 'bg-emerald-500'
                               : emp.status === 'On Leave'
-                              ? 'bg-amber-400'
-                              : 'bg-rose-400'
+                              ? 'bg-amber-500'
+                              : 'bg-rose-500'
                           }`}
                         />
                       </div>
                       <div className="min-w-0">
                         <Link
                           to={`/employees/${empId}`}
-                          className="font-semibold text-white group-hover:text-indigo-300 transition-colors flex items-center gap-1.5"
+                          className="font-semibold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors flex items-center gap-1.5"
                         >
                           <span className="truncate">{emp.name}</span>
                         </Link>
-                        <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
-                          <span className="font-mono text-[10px] text-slate-500">
+                        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                          <span className="font-mono text-[10px] text-slate-400">
                             ID: {empId.substring(0, 8)}
                           </span>
                           <span>•</span>
@@ -159,7 +159,7 @@ export default function EmployeeTable({
 
                   {/* Designation */}
                   <td className="py-4 px-4 whitespace-nowrap">
-                    <span className="text-slate-300 font-medium">
+                    <span className="text-slate-700 dark:text-slate-300 font-medium">
                       {emp.designation}
                     </span>
                   </td>
@@ -175,7 +175,7 @@ export default function EmployeeTable({
                   </td>
 
                   {/* Joined Date */}
-                  <td className="py-4 px-4 whitespace-nowrap text-xs text-slate-400">
+                  <td className="py-4 px-4 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
                     {new Date(emp.joinDate || emp.createdAt || Date.now()).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric',
@@ -188,7 +188,7 @@ export default function EmployeeTable({
                     <div className="flex items-center justify-end gap-1.5">
                       <Link
                         to={`/employees/${empId}`}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/5 bg-slate-900/60 text-slate-400 hover:text-white hover:border-indigo-500/40 hover:bg-indigo-500/20 transition-all"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white hover:border-indigo-300 dark:hover:border-indigo-500/40 hover:bg-indigo-50 dark:hover:bg-indigo-500/20 shadow-sm transition-all"
                         title="View Profile"
                       >
                         <Eye className="h-4 w-4" />
@@ -196,7 +196,7 @@ export default function EmployeeTable({
 
                       <button
                         onClick={() => onEdit && onEdit(emp)}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/5 bg-slate-900/60 text-slate-400 hover:text-indigo-300 hover:border-indigo-500/40 hover:bg-indigo-500/20 transition-all"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 hover:border-indigo-300 dark:hover:border-indigo-500/40 hover:bg-indigo-50 dark:hover:bg-indigo-500/20 shadow-sm transition-all"
                         title="Edit Employee"
                       >
                         <Edit2 className="h-4 w-4" />
@@ -204,7 +204,7 @@ export default function EmployeeTable({
 
                       <button
                         onClick={() => onDelete && onDelete(emp)}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/5 bg-slate-900/60 text-slate-400 hover:text-rose-400 hover:border-rose-500/40 hover:bg-rose-500/20 transition-all"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-300 dark:hover:border-rose-500/40 hover:bg-rose-50 dark:hover:bg-rose-500/20 shadow-sm transition-all"
                         title="Delete Employee"
                       >
                         <Trash2 className="h-4 w-4" />

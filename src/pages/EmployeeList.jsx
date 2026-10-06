@@ -148,11 +148,11 @@ export default function EmployeeList() {
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2.5">
-            <Users className="h-7 w-7 text-indigo-400" />
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+            <Users className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
             Employees
           </h1>
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             Manage your organization's people, designations, and departmental permissions.
           </p>
         </div>
@@ -186,16 +186,16 @@ export default function EmployeeList() {
 
       {/* Bulk Action Bar (when selected) */}
       {selectedIds.length > 0 && (
-        <div className="flex items-center justify-between rounded-2xl border border-indigo-500/30 bg-indigo-950/40 p-4 backdrop-blur-xl shadow-lg animate-in fade-in slide-in-from-top-2">
-          <div className="flex items-center gap-2 text-xs font-semibold text-indigo-300">
-            <CheckCircle2 className="h-4 w-4 text-indigo-400" />
+        <div className="flex items-center justify-between rounded-2xl border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50/90 dark:bg-indigo-950/40 p-4 backdrop-blur-xl shadow-lg animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center gap-2 text-xs font-semibold text-indigo-700 dark:text-indigo-300">
+            <CheckCircle2 className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
             <span>{selectedIds.length} employees selected</span>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSelectedIds([])}
-              className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white hover:bg-white/5"
+              className="rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-transparent px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
             >
               Deselect All
             </button>

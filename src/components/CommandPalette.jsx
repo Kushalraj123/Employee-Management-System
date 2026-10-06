@@ -77,7 +77,7 @@ export default function CommandPalette({ isOpen, onClose, onAddEmployee }) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-slate-950/80 backdrop-blur-md"
+          className="fixed inset-0 bg-slate-950/60 dark:bg-slate-950/80 backdrop-blur-md"
         />
 
         {/* Modal */}
@@ -85,22 +85,22 @@ export default function CommandPalette({ isOpen, onClose, onAddEmployee }) {
           initial={{ opacity: 0, scale: 0.96, y: -10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: -10 }}
-          className="relative w-full max-w-xl overflow-hidden rounded-3xl border border-white/10 bg-slate-900/95 backdrop-blur-2xl shadow-2xl z-10"
+          className="relative w-full max-w-xl overflow-hidden rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl shadow-2xl z-10"
         >
           {/* Search Input Bar */}
-          <div className="flex items-center border-b border-white/10 px-4 py-3.5">
-            <Search className="h-5 w-5 text-indigo-400 shrink-0 mr-3" />
+          <div className="flex items-center border-b border-slate-200 dark:border-white/10 px-4 py-3.5 bg-slate-50/50 dark:bg-transparent">
+            <Search className="h-5 w-5 text-indigo-600 dark:text-indigo-400 shrink-0 mr-3" />
             <input
               type="text"
               autoFocus
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search employees, roles, departments, or quick pages..."
-              className="w-full bg-transparent text-sm text-white placeholder-slate-500 focus:outline-none"
+              className="w-full bg-transparent text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none"
             />
             <button
               onClick={onClose}
-              className="rounded-lg p-1 text-slate-400 hover:text-white hover:bg-white/10"
+              className="rounded-lg p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10"
             >
               <X className="h-4 w-4" />
             </button>
@@ -114,15 +114,15 @@ export default function CommandPalette({ isOpen, onClose, onAddEmployee }) {
                   onClose();
                   if (onAddEmployee) onAddEmployee();
                 }}
-                className="flex w-full items-center justify-between rounded-xl p-2.5 text-xs text-indigo-300 hover:bg-indigo-600/20 hover:text-white transition-colors"
+                className="flex w-full items-center justify-between rounded-xl p-2.5 text-xs text-indigo-600 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-600/20 transition-colors"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/20 text-indigo-400">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-transparent">
                     <Plus className="h-4 w-4" />
                   </div>
                   <span className="font-semibold">+ Add New Employee to Directory</span>
                 </div>
-                <ArrowRight className="h-3.5 w-3.5 text-slate-500" />
+                <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
               </button>
             </div>
 
@@ -139,26 +139,26 @@ export default function CommandPalette({ isOpen, onClose, onAddEmployee }) {
                       <button
                         key={empId}
                         onClick={() => handleSelect(`/employees/${empId}`)}
-                        className="flex w-full items-center justify-between rounded-xl p-2 hover:bg-white/5 transition-colors text-left group"
+                        className="flex w-full items-center justify-between rounded-xl p-2 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors text-left group"
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <div
                             className={`h-8 w-8 rounded-lg bg-gradient-to-br ${getAvatarGradient(
                               emp.name
-                            )} flex items-center justify-center font-bold text-[11px] ring-1 ring-white/10 shrink-0`}
+                            )} flex items-center justify-center font-bold text-[11px] ring-1 ring-slate-200 dark:ring-white/10 shrink-0`}
                           >
                             {getInitials(emp.name)}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-xs font-bold text-white group-hover:text-indigo-300 truncate">
+                            <p className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 truncate">
                               {emp.name}
                             </p>
-                            <p className="text-[11px] text-slate-400 truncate">
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                               {emp.designation} • {emp.department}
                             </p>
                           </div>
                         </div>
-                        <span className="text-[10px] font-mono text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20 shrink-0">
+                        <span className="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-500/20 shrink-0">
                           {emp.department}
                         </span>
                       </button>
@@ -179,13 +179,13 @@ export default function CommandPalette({ isOpen, onClose, onAddEmployee }) {
                     <button
                       key={item.path}
                       onClick={() => handleSelect(item.path)}
-                      className="flex w-full items-center justify-between rounded-xl p-2 hover:bg-white/5 transition-colors text-left text-xs text-slate-300 hover:text-white"
+                      className="flex w-full items-center justify-between rounded-xl p-2 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors text-left text-xs text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                     >
                       <div className="flex items-center gap-2.5">
-                        <item.icon className="h-4 w-4 text-indigo-400" />
+                        <item.icon className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                         <span className="font-medium">{item.title}</span>
                       </div>
-                      <ArrowRight className="h-3.5 w-3.5 text-slate-500" />
+                      <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
                     </button>
                   ))}
                 </div>
@@ -193,7 +193,7 @@ export default function CommandPalette({ isOpen, onClose, onAddEmployee }) {
             )}
 
             {filteredEmployees.length === 0 && quickNav.length === 0 && (
-              <div className="p-6 text-center text-xs text-slate-400">
+              <div className="p-6 text-center text-xs text-slate-500">
                 No matching results found for "{query}"
               </div>
             )}

@@ -117,26 +117,29 @@ export default function Dashboard() {
   return (
     <div className="space-y-8">
       {/* Top Welcome Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-3xl border border-white/5 dark:border-white/10 bg-gradient-to-r from-slate-900/80 via-slate-900/60 to-indigo-950/40 p-6 sm:p-8 backdrop-blur-2xl shadow-2xl relative overflow-hidden">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-3xl border border-slate-200/80 dark:border-white/10 bg-gradient-to-r from-indigo-50/90 via-white to-purple-50/60 dark:from-slate-900/80 dark:via-slate-900/60 dark:to-indigo-950/40 p-6 sm:p-8 backdrop-blur-2xl shadow-sm dark:shadow-2xl relative overflow-hidden">
         {/* Subtle Ambient Glow */}
-        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-indigo-500/15 blur-3xl" />
+        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 blur-3xl" />
         <div className="pointer-events-none absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-purple-500/10 blur-3xl" />
 
         <div className="relative z-10">
-          <div className="flex items-center gap-2 text-xs font-semibold text-indigo-400">
+          <div className="flex items-center gap-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
             <Calendar className="h-3.5 w-3.5" />
             <span>{currentDate}</span>
-            <span className="text-slate-500">•</span>
-            <span className="flex items-center gap-1 text-emerald-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-slate-400 dark:text-slate-500">•</span>
+            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
               All Systems Operational
             </span>
           </div>
 
-          <h1 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white">
-            {getGreeting()}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-sky-400 to-purple-400">Admin</span>
+          <h1 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            {getGreeting()},{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-sky-500 to-purple-600 dark:from-indigo-400 dark:via-sky-400 dark:to-purple-400">
+              Admin
+            </span>
           </h1>
-          <p className="mt-1 text-sm sm:text-base text-slate-400 max-w-xl">
+          <p className="mt-1 text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-xl">
             Here's what's happening across your digital workplace and global talent network today.
           </p>
         </div>
@@ -144,9 +147,9 @@ export default function Dashboard() {
         <div className="relative z-10 flex flex-wrap items-center gap-3">
           <Link
             to="/reports"
-            className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950/60 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-all"
+            className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white/90 dark:bg-slate-950/60 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 transition-all shadow-sm"
           >
-            <Download className="h-4 w-4 text-indigo-400" />
+            <Download className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
             <span>Export Report</span>
           </Link>
 
@@ -216,25 +219,25 @@ export default function Dashboard() {
       )}
 
       {/* 3D Hero Element: Connected Workforce Visualizer */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/5 dark:border-white/10 bg-gradient-to-br from-slate-900/90 via-slate-950/90 to-indigo-950/40 p-6 backdrop-blur-2xl shadow-2xl">
+      <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 dark:border-white/10 bg-gradient-to-br from-white via-indigo-50/40 to-purple-50/30 dark:from-slate-900/90 dark:via-slate-950/90 dark:to-indigo-950/40 p-6 backdrop-blur-2xl shadow-sm dark:shadow-2xl">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
           <div className="max-w-md">
-            <div className="flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-400 w-fit">
+            <div className="flex items-center gap-2 rounded-full border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 w-fit">
               <Globe2 className="h-3.5 w-3.5" />
               <span>3D Interactive Topology</span>
             </div>
-            <h2 className="mt-3 text-xl sm:text-2xl font-bold tracking-tight text-white">
+            <h2 className="mt-3 text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
               Connected Enterprise Workforce
             </h2>
-            <p className="mt-2 text-xs sm:text-sm text-slate-400 leading-relaxed">
+            <p className="mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
               Real-time neural map showing cross-departmental collaboration nodes, distributed clusters, and active workforce synchronization. Move your cursor to interact in 3D space.
             </p>
 
-            <div className="mt-4 flex flex-wrap items-center gap-4 text-xs font-mono text-slate-300">
+            <div className="mt-4 flex flex-wrap items-center gap-4 text-xs font-mono text-slate-700 dark:text-slate-300">
               {departmentData.map((dept) => (
                 <div key={dept.name} className="flex items-center gap-1.5">
                   <span
-                    className="h-2 w-2 rounded-full"
+                    className="h-2.5 w-2.5 rounded-full"
                     style={{ backgroundColor: dept.color }}
                   />
                   <span>
@@ -255,20 +258,20 @@ export default function Dashboard() {
       {/* Analytics Section: Growth Area Chart & Department Donut Chart */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: Employee Growth Chart (2 Columns) */}
-        <div className="lg:col-span-2 rounded-3xl border border-white/5 dark:border-white/10 bg-slate-900/60 dark:bg-slate-900/70 p-6 backdrop-blur-xl shadow-xl flex flex-col justify-between">
+        <div className="lg:col-span-2 rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white/95 dark:bg-slate-900/70 p-6 backdrop-blur-xl shadow-sm dark:shadow-xl flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                  <Activity className="h-5 w-5 text-indigo-400" />
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Activity className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                   Employee Growth Trend
                 </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Headcount velocity and organization growth trajectory.
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
+              <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 px-3 py-1 rounded-full">
                 <TrendingUp className="h-3.5 w-3.5" />
                 <span>{stats?.activeRate ? `${stats.activeRate} Active Rate` : '100% Active'}</span>
               </div>
@@ -283,7 +286,7 @@ export default function Dashboard() {
                 >
                   <defs>
                     <linearGradient id="growthGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366F1" stopOpacity={0.4} />
+                      <stop offset="5%" stopColor="#6366F1" stopOpacity={0.35} />
                       <stop offset="95%" stopColor="#6366F1" stopOpacity={0.0} />
                     </linearGradient>
                     <linearGradient id="engGradient" x1="0" y1="0" x2="0" y2="1">
@@ -296,7 +299,7 @@ export default function Dashboard() {
                     stroke="#64748B"
                     fontSize={12}
                     tickLine={false}
-                    axisLine={{ stroke: 'rgba(255, 255, 255, 0.08)' }}
+                    axisLine={{ stroke: 'rgba(100, 116, 139, 0.2)' }}
                   />
                   <YAxis
                     stroke="#64748B"
@@ -309,15 +312,15 @@ export default function Dashboard() {
                     content={({ active, payload, label }) => {
                       if (active && payload && payload.length) {
                         return (
-                          <div className="rounded-xl border border-white/10 bg-slate-950/90 p-3 shadow-2xl backdrop-blur-xl text-xs">
-                            <p className="font-bold text-white mb-1.5">{label} 2026</p>
+                          <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white/95 dark:bg-slate-950/90 p-3 shadow-xl backdrop-blur-xl text-xs">
+                            <p className="font-bold text-slate-900 dark:text-white mb-1.5">{label} 2026</p>
                             <div className="space-y-1">
-                              <p className="text-indigo-300 font-medium">
-                                Total Employees: <span className="text-white font-bold">{payload[0]?.value}</span>
+                              <p className="text-indigo-600 dark:text-indigo-300 font-medium">
+                                Total Employees: <span className="text-slate-900 dark:text-white font-bold">{payload[0]?.value}</span>
                               </p>
                               {payload[1] && (
-                                <p className="text-sky-300 font-medium">
-                                  Engineering: <span className="text-white font-bold">{payload[1]?.value}</span>
+                                <p className="text-sky-600 dark:text-sky-300 font-medium">
+                                  Engineering: <span className="text-slate-900 dark:text-white font-bold">{payload[1]?.value}</span>
                                 </p>
                               )}
                             </div>
@@ -349,7 +352,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3 text-xs text-slate-400">
+          <div className="mt-4 flex items-center justify-between border-t border-slate-100 dark:border-white/5 pt-3 text-xs text-slate-500 dark:text-slate-400">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-indigo-500" />
@@ -360,18 +363,18 @@ export default function Dashboard() {
                 <span>Engineering Core</span>
               </span>
             </div>
-            <span className="font-mono text-slate-500">Updated: Today</span>
+            <span className="font-mono text-slate-400">Updated: Today</span>
           </div>
         </div>
 
         {/* Right: Department Distribution Donut Chart */}
-        <div className="rounded-3xl border border-white/5 dark:border-white/10 bg-slate-900/60 dark:bg-slate-900/70 p-6 backdrop-blur-xl shadow-xl flex flex-col justify-between">
+        <div className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white/95 dark:bg-slate-900/70 p-6 backdrop-blur-xl shadow-sm dark:shadow-xl flex flex-col justify-between">
           <div>
-            <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-              <Building2 className="h-5 w-5 text-indigo-400" />
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Building2 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
               Department Distribution
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Workforce allocation across business units.
             </p>
 
@@ -392,7 +395,7 @@ export default function Dashboard() {
                       <Cell
                         key={`cell-${index}`}
                         fill={entry.color}
-                        stroke="rgba(8, 11, 17, 0.8)"
+                        stroke="rgba(255, 255, 255, 0.8)"
                         strokeWidth={2}
                       />
                     ))}
@@ -402,9 +405,9 @@ export default function Dashboard() {
                       if (active && payload && payload.length) {
                         const data = payload[0].payload;
                         return (
-                          <div className="rounded-xl border border-white/10 bg-slate-950/90 p-2.5 shadow-xl text-xs backdrop-blur-lg">
-                            <p className="font-bold text-white">{data.name}</p>
-                            <p className="text-slate-300 font-mono mt-0.5">
+                          <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white/95 dark:bg-slate-950/90 p-2.5 shadow-xl text-xs backdrop-blur-lg">
+                            <p className="font-bold text-slate-900 dark:text-white">{data.name}</p>
+                            <p className="text-slate-600 dark:text-slate-300 font-mono mt-0.5">
                               {data.count} members ({data.percentage}%)
                             </p>
                           </div>
@@ -418,10 +421,10 @@ export default function Dashboard() {
 
               {/* Center Donut Label */}
               <div className="pointer-events-none absolute flex flex-col items-center justify-center text-center">
-                <span className="text-xl font-extrabold text-white">
+                <span className="text-xl font-extrabold text-slate-900 dark:text-white">
                   {departmentData.filter((d) => d.count > 0).length || departmentData.length}
                 </span>
-                <span className="text-[10px] uppercase font-mono text-slate-400">
+                <span className="text-[10px] uppercase font-mono text-slate-500 dark:text-slate-400">
                   Depts
                 </span>
               </div>
@@ -432,18 +435,18 @@ export default function Dashboard() {
               {departmentData.map((item) => (
                 <div
                   key={item.name}
-                  className="flex items-center justify-between text-xs py-1 border-b border-white/5 last:border-0"
+                  className="flex items-center justify-between text-xs py-1 border-b border-slate-100 dark:border-white/5 last:border-0"
                 >
                   <div className="flex items-center gap-2">
                     <span
                       className="h-2.5 w-2.5 rounded-full"
                       style={{ backgroundColor: item.color }}
                     />
-                    <span className="text-slate-200 font-medium">{item.name}</span>
+                    <span className="text-slate-700 dark:text-slate-200 font-medium">{item.name}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-slate-400 font-mono">{item.count}</span>
-                    <span className="text-indigo-400 font-bold font-mono w-10 text-right">
+                    <span className="text-slate-500 dark:text-slate-400 font-mono">{item.count}</span>
+                    <span className="text-indigo-600 dark:text-indigo-400 font-bold font-mono w-10 text-right">
                       {item.percentage}%
                     </span>
                   </div>
@@ -455,21 +458,21 @@ export default function Dashboard() {
       </div>
 
       {/* Recently Added Employees Section */}
-      <div className="rounded-3xl border border-white/5 dark:border-white/10 bg-slate-900/60 dark:bg-slate-900/70 p-6 backdrop-blur-xl shadow-xl space-y-4">
+      <div className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white/95 dark:bg-slate-900/70 p-6 backdrop-blur-xl shadow-sm dark:shadow-xl space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-indigo-400" />
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
               Recently Added Employees
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Latest talent onboarded to NEXUS digital workplace.
             </p>
           </div>
 
           <Link
             to="/employees"
-            className="flex items-center gap-1.5 text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
+            className="flex items-center gap-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors"
           >
             <span>View All Directory</span>
             <ChevronRight className="h-4 w-4" />
@@ -480,7 +483,7 @@ export default function Dashboard() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-white/5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <tr className="border-b border-slate-200 dark:border-white/5 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 bg-slate-50/60 dark:bg-transparent">
                 <th className="py-3 px-3 font-mono">Employee</th>
                 <th className="py-3 px-3 font-mono">Department</th>
                 <th className="py-3 px-3 font-mono">Designation</th>
@@ -489,57 +492,57 @@ export default function Dashboard() {
                 <th className="py-3 pr-3 text-right font-mono">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5 text-sm">
+            <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-sm">
               {recentEmployees.map((emp) => {
                 const empId = emp._id || emp.id;
                 return (
                   <tr
                     key={empId}
-                    className="hover:bg-white/[0.02] transition-colors group"
+                    className="hover:bg-slate-50/80 dark:hover:bg-white/[0.02] transition-colors group"
                   >
                     <td className="py-3 px-3">
                       <div className="flex items-center gap-3">
                         <div
                           className={`h-9 w-9 rounded-xl bg-gradient-to-br ${getAvatarGradient(
                             emp.name
-                          )} flex items-center justify-center font-bold text-xs tracking-wider ring-1 ring-white/10 shadow-sm shrink-0`}
+                          )} flex items-center justify-center font-bold text-xs tracking-wider ring-1 ring-slate-200 dark:ring-white/10 shadow-sm shrink-0`}
                         >
                           {getInitials(emp.name)}
                         </div>
                         <div className="min-w-0">
                           <Link
                             to={`/employees/${empId}`}
-                            className="font-semibold text-white group-hover:text-indigo-300 transition-colors truncate block"
+                            className="font-semibold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors truncate block"
                           >
                             {emp.name}
                           </Link>
-                          <span className="text-[11px] text-slate-400 truncate block">
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 truncate block">
                             {emp.email}
                           </span>
                         </div>
                       </div>
                     </td>
                     <td className="py-3 px-3 whitespace-nowrap">
-                      <span className="rounded-md bg-white/5 px-2.5 py-1 text-xs font-semibold text-slate-300 border border-white/10">
+                      <span className="rounded-md bg-slate-100 dark:bg-white/5 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10">
                         {emp.department}
                       </span>
                     </td>
-                    <td className="py-3 px-3 whitespace-nowrap text-slate-300 text-xs">
+                    <td className="py-3 px-3 whitespace-nowrap text-slate-700 dark:text-slate-300 text-xs">
                       {emp.designation}
                     </td>
                     <td className="py-3 px-3 whitespace-nowrap">
                       <span
                         className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold border ${
                           emp.status === 'Active'
-                            ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
-                            : 'bg-amber-500/15 text-amber-400 border-amber-500/30'
+                            ? 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/30'
+                            : 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-500/30'
                         }`}
                       >
                         <span className="h-1.5 w-1.5 rounded-full bg-current" />
                         {emp.status || 'Active'}
                       </span>
                     </td>
-                    <td className="py-3 px-3 whitespace-nowrap text-xs text-slate-400">
+                    <td className="py-3 px-3 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
                       {new Date(
                         emp.joinDate || emp.createdAt || Date.now()
                       ).toLocaleDateString('en-US', {
@@ -551,9 +554,9 @@ export default function Dashboard() {
                     <td className="py-3 pr-3 text-right whitespace-nowrap">
                       <Link
                         to={`/employees/${empId}`}
-                        className="inline-flex items-center gap-1 rounded-lg border border-white/5 bg-slate-950/60 px-2.5 py-1.5 text-xs font-semibold text-slate-300 hover:text-white hover:border-indigo-500/30 transition-all"
+                        className="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-950/60 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:border-indigo-300 dark:hover:border-indigo-500/30 shadow-sm transition-all"
                       >
-                        <Eye className="h-3.5 w-3.5 text-indigo-400" />
+                        <Eye className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
                         <span>View</span>
                       </Link>
                     </td>

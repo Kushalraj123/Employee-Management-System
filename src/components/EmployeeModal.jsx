@@ -169,7 +169,7 @@ export default function EmployeeModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-slate-950/80 backdrop-blur-md"
+          className="fixed inset-0 bg-slate-950/60 dark:bg-slate-950/80 backdrop-blur-md"
         />
 
         {/* Modal Container */}
@@ -178,16 +178,16 @@ export default function EmployeeModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.2 }}
-          className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-slate-900/95 backdrop-blur-2xl shadow-2xl z-10 my-8"
+          className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl shadow-2xl z-10 my-8"
         >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-white/10 px-6 py-5 bg-slate-950/40">
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 px-6 py-5 bg-slate-50/80 dark:bg-slate-950/40">
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-indigo-400" />
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                 {isEditing ? 'Edit Employee' : 'Add Employee'}
               </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 {isEditing
                   ? 'Update existing workforce records and profile details.'
                   : 'Create a new employee profile in your organization.'}
@@ -197,7 +197,7 @@ export default function EmployeeModal({
             <button
               onClick={onClose}
               disabled={isSubmitting}
-              className="rounded-xl p-2 text-slate-400 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50"
+              className="rounded-xl p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors disabled:opacity-50"
               aria-label="Close modal"
             >
               <X className="h-5 w-5" />
@@ -209,9 +209,9 @@ export default function EmployeeModal({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Full Name */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <User className="h-3.5 w-3.5 text-indigo-400" />
-                  Full Name <span className="text-rose-400">*</span>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <User className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                  Full Name <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -220,14 +220,14 @@ export default function EmployeeModal({
                   onChange={handleChange}
                   onBlur={handleBlur}
                   placeholder="Enter employee name"
-                  className={`w-full rounded-xl border bg-slate-950/60 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
+                  className={`w-full rounded-xl border bg-slate-50 dark:bg-slate-950/60 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 transition-all ${
                     errors.name && touched.name
                       ? 'border-rose-500/60 focus:ring-rose-500/20'
-                      : 'border-white/10 focus:border-indigo-500 focus:ring-indigo-500/20'
+                      : 'border-slate-200 dark:border-white/10 focus:border-indigo-500 focus:ring-indigo-500/20'
                   }`}
                 />
                 {errors.name && touched.name && (
-                  <p className="text-[11px] font-medium text-rose-400 mt-1">
+                  <p className="text-[11px] font-medium text-rose-500 mt-1">
                     {errors.name}
                   </p>
                 )}
@@ -235,9 +235,9 @@ export default function EmployeeModal({
 
               {/* Email Address */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <Mail className="h-3.5 w-3.5 text-indigo-400" />
-                  Work Email <span className="text-rose-400">*</span>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Mail className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                  Work Email <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="email"
@@ -246,14 +246,14 @@ export default function EmployeeModal({
                   onChange={handleChange}
                   onBlur={handleBlur}
                   placeholder="employee@example.com"
-                  className={`w-full rounded-xl border bg-slate-950/60 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
+                  className={`w-full rounded-xl border bg-slate-50 dark:bg-slate-950/60 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 transition-all ${
                     errors.email && touched.email
                       ? 'border-rose-500/60 focus:ring-rose-500/20'
-                      : 'border-white/10 focus:border-indigo-500 focus:ring-indigo-500/20'
+                      : 'border-slate-200 dark:border-white/10 focus:border-indigo-500 focus:ring-indigo-500/20'
                   }`}
                 />
                 {errors.email && touched.email && (
-                  <p className="text-[11px] font-medium text-rose-400 mt-1">
+                  <p className="text-[11px] font-medium text-rose-500 mt-1">
                     {errors.email}
                   </p>
                 )}
@@ -261,19 +261,19 @@ export default function EmployeeModal({
 
               {/* Department */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <Building2 className="h-3.5 w-3.5 text-indigo-400" />
-                  Department <span className="text-rose-400">*</span>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Building2 className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                  Department <span className="text-rose-500">*</span>
                 </label>
                 <select
                   name="department"
                   value={formData.department}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-3.5 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer"
+                  className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-950/60 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer"
                 >
                   {departments.map((dept) => (
-                    <option key={dept} value={dept} className="bg-slate-900 text-white">
+                    <option key={dept} value={dept} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
                       {dept}
                     </option>
                   ))}
@@ -282,9 +282,9 @@ export default function EmployeeModal({
 
               {/* Designation */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <Briefcase className="h-3.5 w-3.5 text-indigo-400" />
-                  Designation / Role <span className="text-rose-400">*</span>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Briefcase className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                  Designation / Role <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -293,14 +293,14 @@ export default function EmployeeModal({
                   onChange={handleChange}
                   onBlur={handleBlur}
                   placeholder="e.g. Software Engineer"
-                  className={`w-full rounded-xl border bg-slate-950/60 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-all ${
+                  className={`w-full rounded-xl border bg-slate-50 dark:bg-slate-950/60 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 transition-all ${
                     errors.designation && touched.designation
                       ? 'border-rose-500/60 focus:ring-rose-500/20'
-                      : 'border-white/10 focus:border-indigo-500 focus:ring-indigo-500/20'
+                      : 'border-slate-200 dark:border-white/10 focus:border-indigo-500 focus:ring-indigo-500/20'
                   }`}
                 />
                 {errors.designation && touched.designation && (
-                  <p className="text-[11px] font-medium text-rose-400 mt-1">
+                  <p className="text-[11px] font-medium text-rose-500 mt-1">
                     {errors.designation}
                   </p>
                 )}
@@ -308,8 +308,8 @@ export default function EmployeeModal({
 
               {/* Phone */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <Phone className="h-3.5 w-3.5 text-indigo-400" />
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Phone className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
                   Phone Number
                 </label>
                 <input
@@ -318,24 +318,24 @@ export default function EmployeeModal({
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="+91 98765 43210"
-                  className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                  className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-950/60 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
                 />
               </div>
 
               {/* Gender */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <Users className="h-3.5 w-3.5 text-indigo-400" />
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Users className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
                   Gender
                 </label>
                 <select
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-3.5 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer"
+                  className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-950/60 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer"
                 >
                   {genders.map((g) => (
-                    <option key={g} value={g} className="bg-slate-900 text-white">
+                    <option key={g} value={g} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
                       {g}
                     </option>
                   ))}
@@ -344,18 +344,18 @@ export default function EmployeeModal({
 
               {/* Status */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-indigo-400" />
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
                   Status
                 </label>
                 <select
                   name="status"
                   value={formData.status}
                   onChange={handleChange}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-3.5 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer"
+                  className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-950/60 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all cursor-pointer"
                 >
                   {statuses.map((st) => (
-                    <option key={st} value={st} className="bg-slate-900 text-white">
+                    <option key={st} value={st} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
                       {st}
                     </option>
                   ))}
@@ -364,8 +364,8 @@ export default function EmployeeModal({
 
               {/* Join Date */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <Calendar className="h-3.5 w-3.5 text-indigo-400" />
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Calendar className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
                   Date Joined
                 </label>
                 <input
@@ -373,14 +373,14 @@ export default function EmployeeModal({
                   name="joinDate"
                   value={formData.joinDate}
                   onChange={handleChange}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-3.5 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                  className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-950/60 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
                 />
               </div>
 
               {/* Annual Salary */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <span className="font-bold text-indigo-400 font-mono text-sm leading-none">₹</span>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <span className="font-bold text-indigo-600 dark:text-indigo-400 font-mono text-sm leading-none">₹</span>
                   Annual Compensation (INR ₹)
                 </label>
                 <input
@@ -389,15 +389,15 @@ export default function EmployeeModal({
                   value={formData.salary}
                   onChange={handleChange}
                   placeholder="1400000"
-                  className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-3.5 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                  className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-950/60 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
                 />
               </div>
             </div>
 
             {/* Bio & Skills */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <FileText className="h-3.5 w-3.5 text-indigo-400" />
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                <FileText className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
                 Bio & Technical Notes
               </label>
               <textarea
@@ -406,17 +406,17 @@ export default function EmployeeModal({
                 value={formData.bio}
                 onChange={handleChange}
                 placeholder="Brief summary of responsibilities, focus areas, and skill sets..."
-                className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none"
+                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-950/60 px-3.5 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none"
               />
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-white/10">
               <button
                 type="button"
                 onClick={onClose}
                 disabled={isSubmitting}
-                className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-all disabled:opacity-50"
+                className="rounded-xl border border-slate-200 dark:border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-all disabled:opacity-50 shadow-sm"
               >
                 Cancel
               </button>

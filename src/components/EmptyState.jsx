@@ -9,20 +9,20 @@ export default function EmptyState({
   isFilter = false,
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-3xl border border-white/5 dark:border-white/10 bg-slate-900/40 p-10 sm:p-16 text-center backdrop-blur-xl">
-      <div className="relative flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-tr from-indigo-500/20 to-purple-500/10 border border-indigo-500/30 text-indigo-400 shadow-xl shadow-indigo-950/40">
+    <div className="flex flex-col items-center justify-center rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white/95 dark:bg-slate-900/40 p-10 sm:p-16 text-center backdrop-blur-xl shadow-sm">
+      <div className="relative flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-tr from-indigo-50 to-purple-50 dark:from-indigo-500/20 dark:to-purple-500/10 border border-indigo-200 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-400 shadow-sm">
         {isFilter ? <SearchX className="h-9 w-9" /> : <Users className="h-9 w-9" />}
         <span className="absolute -top-1 -right-1 flex h-4 w-4">
-          <span className="relative inline-flex h-4 w-4 rounded-full bg-indigo-500/80 items-center justify-center text-[10px] text-white">
+          <span className="relative inline-flex h-4 w-4 rounded-full bg-indigo-600 dark:bg-indigo-500/80 items-center justify-center text-[10px] text-white">
             +
           </span>
         </span>
       </div>
 
-      <h3 className="mt-6 text-lg sm:text-xl font-bold text-white">
+      <h3 className="mt-6 text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
         {title}
       </h3>
-      <p className="mt-2 max-w-sm text-sm text-slate-400 leading-relaxed">
+      <p className="mt-2 max-w-sm text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
         {message}
       </p>
 

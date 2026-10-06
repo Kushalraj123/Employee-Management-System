@@ -280,11 +280,11 @@ export default function Reports() {
       {/* Header and Export Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2.5">
-            <BarChart3 className="h-7 w-7 text-indigo-400" />
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2.5">
+            <BarChart3 className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
             Executive Reports & Analytics
           </h1>
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             Workforce compensation, retention trends, and exportable organization data.
           </p>
         </div>
@@ -292,17 +292,17 @@ export default function Reports() {
         <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={exportPDF}
-            className="flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 px-4 py-2.5 text-xs sm:text-sm font-semibold text-rose-300 hover:text-white transition-all cursor-pointer shadow-lg shadow-rose-950/30"
+            className="flex items-center gap-2 rounded-xl border border-rose-200 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 px-4 py-2.5 text-xs sm:text-sm font-semibold text-rose-600 dark:text-rose-300 hover:text-rose-700 dark:hover:text-white transition-all cursor-pointer shadow-sm"
           >
-            <FileText className="h-4 w-4 text-rose-400" />
+            <FileText className="h-4 w-4 text-rose-600 dark:text-rose-400" />
             <span>Export PDF</span>
           </button>
 
           <button
             onClick={exportCSV}
-            className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-900/60 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-200 hover:text-white hover:bg-slate-800 transition-all cursor-pointer"
+            className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/60 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-sm"
           >
-            <FileSpreadsheet className="h-4 w-4 text-emerald-400" />
+            <FileSpreadsheet className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             <span>Export CSV</span>
           </button>
 
@@ -318,44 +318,44 @@ export default function Reports() {
 
       {/* KPI Highlight Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="rounded-2xl border border-white/5 bg-slate-900/60 p-5 backdrop-blur-xl">
-          <span className="text-xs font-mono text-slate-400 uppercase">Retention Rate</span>
-          <p className="mt-1 text-2xl font-bold text-white">98.4%</p>
-          <span className="mt-1 text-xs text-emerald-400 flex items-center gap-1 font-semibold">
+        <div className="rounded-2xl border border-slate-200/80 dark:border-white/5 bg-white/95 dark:bg-slate-900/60 p-5 backdrop-blur-xl shadow-sm">
+          <span className="text-xs font-mono text-slate-500 dark:text-slate-400 uppercase">Retention Rate</span>
+          <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">98.4%</p>
+          <span className="mt-1 text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-semibold">
             <TrendingUp className="h-3 w-3" /> Top 5% in SaaS Tech
           </span>
         </div>
 
-        <div className="rounded-2xl border border-white/5 bg-slate-900/60 p-5 backdrop-blur-xl">
-          <span className="text-xs font-mono text-slate-400 uppercase">Avg Compensation</span>
-          <p className="mt-1 text-2xl font-bold text-emerald-400">₹18,50,000</p>
-          <span className="mt-1 text-xs text-slate-400">Competitive Market Index: 1.14</span>
+        <div className="rounded-2xl border border-slate-200/80 dark:border-white/5 bg-white/95 dark:bg-slate-900/60 p-5 backdrop-blur-xl shadow-sm">
+          <span className="text-xs font-mono text-slate-500 dark:text-slate-400 uppercase">Avg Compensation</span>
+          <p className="mt-1 text-2xl font-bold text-emerald-600 dark:text-emerald-400">₹18,50,000</p>
+          <span className="mt-1 text-xs text-slate-500 dark:text-slate-400">Competitive Market Index: 1.14</span>
         </div>
 
-        <div className="rounded-2xl border border-white/5 bg-slate-900/60 p-5 backdrop-blur-xl">
-          <span className="text-xs font-mono text-slate-400 uppercase">Onboarding Velocity</span>
-          <p className="mt-1 text-2xl font-bold text-white">4.2 Days</p>
-          <span className="mt-1 text-xs text-emerald-400 flex items-center gap-1 font-semibold">
+        <div className="rounded-2xl border border-slate-200/80 dark:border-white/5 bg-white/95 dark:bg-slate-900/60 p-5 backdrop-blur-xl shadow-sm">
+          <span className="text-xs font-mono text-slate-500 dark:text-slate-400 uppercase">Onboarding Velocity</span>
+          <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">4.2 Days</p>
+          <span className="mt-1 text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-semibold">
             <TrendingUp className="h-3 w-3" /> 35% faster than benchmark
           </span>
         </div>
 
-        <div className="rounded-2xl border border-white/5 bg-slate-900/60 p-5 backdrop-blur-xl">
-          <span className="text-xs font-mono text-slate-400 uppercase">Diversity Index</span>
-          <p className="mt-1 text-2xl font-bold text-indigo-400">89 / 100</p>
-          <span className="mt-1 text-xs text-slate-400">Global cross-functional parity</span>
+        <div className="rounded-2xl border border-slate-200/80 dark:border-white/5 bg-white/95 dark:bg-slate-900/60 p-5 backdrop-blur-xl shadow-sm">
+          <span className="text-xs font-mono text-slate-500 dark:text-slate-400 uppercase">Diversity Index</span>
+          <p className="mt-1 text-2xl font-bold text-indigo-600 dark:text-indigo-400">89 / 100</p>
+          <span className="mt-1 text-xs text-slate-500 dark:text-slate-400">Global cross-functional parity</span>
         </div>
       </div>
 
       {/* Salary Distribution Bar Chart */}
-      <div className="rounded-3xl border border-white/5 bg-slate-900/60 p-6 backdrop-blur-xl shadow-xl">
+      <div className="rounded-3xl border border-slate-200/80 dark:border-white/5 bg-white/95 dark:bg-slate-900/60 p-6 backdrop-blur-xl shadow-sm dark:shadow-xl">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-              <span className="font-bold text-emerald-400 font-mono text-lg">₹</span>
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono text-lg">₹</span>
               Compensation Benchmark by Department (INR ₹ in Lakhs)
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Average vs Median base salary distributions across departments.
             </p>
           </div>
@@ -372,7 +372,7 @@ export default function Reports() {
                 stroke="#64748B"
                 fontSize={12}
                 tickLine={false}
-                axisLine={{ stroke: 'rgba(255, 255, 255, 0.08)' }}
+                axisLine={{ stroke: 'rgba(100, 116, 139, 0.2)' }}
               />
               <YAxis
                 stroke="#64748B"
@@ -385,13 +385,13 @@ export default function Reports() {
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
                     return (
-                      <div className="rounded-xl border border-white/10 bg-slate-950/90 p-3 shadow-2xl text-xs backdrop-blur-xl">
-                        <p className="font-bold text-white mb-1.5">{label}</p>
-                        <p className="text-indigo-300">
-                          Average: <span className="text-white font-bold">₹{Number(payload[0]?.value || 0).toLocaleString('en-IN')}</span>
+                      <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white/95 dark:bg-slate-950/90 p-3 shadow-xl text-xs backdrop-blur-xl">
+                        <p className="font-bold text-slate-900 dark:text-white mb-1.5">{label}</p>
+                        <p className="text-indigo-600 dark:text-indigo-300">
+                          Average: <span className="text-slate-900 dark:text-white font-bold">₹{Number(payload[0]?.value || 0).toLocaleString('en-IN')}</span>
                         </p>
-                        <p className="text-emerald-300">
-                          Median: <span className="text-white font-bold">₹{Number(payload[1]?.value || 0).toLocaleString('en-IN')}</span>
+                        <p className="text-emerald-600 dark:text-emerald-300">
+                          Median: <span className="text-slate-900 dark:text-white font-bold">₹{Number(payload[1]?.value || 0).toLocaleString('en-IN')}</span>
                         </p>
                       </div>
                     );
@@ -401,7 +401,7 @@ export default function Reports() {
               />
               <Legend
                 wrapperStyle={{ paddingTop: '15px' }}
-                formatter={(value) => <span className="text-xs text-slate-300 font-medium">{value}</span>}
+                formatter={(value) => <span className="text-xs text-slate-700 dark:text-slate-300 font-medium">{value}</span>}
               />
               <Bar dataKey="avgSalary" name="Average Salary" fill="#6366F1" radius={[8, 8, 0, 0]} />
               <Bar dataKey="medianSalary" name="Median Salary" fill="#10B981" radius={[8, 8, 0, 0]} />

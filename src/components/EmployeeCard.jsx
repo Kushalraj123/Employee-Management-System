@@ -40,25 +40,25 @@ export default function EmployeeCard({ employee, onEdit, onDelete }) {
   };
 
   const departmentStyles = {
-    Engineering: 'border-blue-500/30 text-blue-400 bg-blue-500/10',
-    HR: 'border-purple-500/30 text-purple-400 bg-purple-500/10',
-    Sales: 'border-cyan-500/30 text-cyan-400 bg-cyan-500/10',
-    Finance: 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10',
-    Marketing: 'border-amber-500/30 text-amber-400 bg-amber-500/10',
+    Engineering: 'border-blue-200 dark:border-blue-500/30 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10',
+    HR: 'border-purple-200 dark:border-purple-500/30 text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10',
+    Sales: 'border-cyan-200 dark:border-cyan-500/30 text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-500/10',
+    Finance: 'border-emerald-200 dark:border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10',
+    Marketing: 'border-amber-200 dark:border-amber-500/30 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10',
   };
 
   const statusStyles = {
-    Active: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-    'On Leave': 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-    Inactive: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
+    Active: 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/30',
+    'On Leave': 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-500/30',
+    Inactive: 'bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-500/15 dark:text-rose-400 dark:border-rose-500/30',
   };
 
   const deptClass =
     departmentStyles[employee.department] ||
-    'border-slate-500/30 text-slate-300 bg-slate-500/10';
+    'border-slate-200 dark:border-slate-500/30 text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-500/10';
   const statusClass =
     statusStyles[employee.status] ||
-    'bg-slate-500/15 text-slate-300 border-slate-500/30';
+    'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-500/15 dark:text-slate-300 dark:border-slate-500/30';
 
   return (
     <div className="card-3d-wrap h-full">
@@ -78,14 +78,14 @@ export default function EmployeeCard({ employee, onEdit, onDelete }) {
               : 'translateY(0) translateZ(0)'
           }`,
         }}
-        className="group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-white/5 dark:border-white/10 bg-slate-900/60 dark:bg-slate-900/70 p-5 backdrop-blur-xl transition-all duration-200 shadow-xl hover:border-indigo-500/30 hover:shadow-indigo-950/40"
+        className="group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/95 dark:bg-slate-900/70 p-5 backdrop-blur-xl transition-all duration-200 shadow-sm hover:shadow-md dark:shadow-xl hover:border-indigo-300 dark:hover:border-indigo-500/30"
       >
         {/* Specular Sheen Reflection */}
         {isHovered && (
           <div
             className="pointer-events-none absolute inset-0 z-0 opacity-30 transition-opacity duration-300"
             style={{
-              background: `radial-gradient(400px circle at ${mousePos.x} ${mousePos.y}, rgba(255, 255, 255, 0.1), transparent 60%)`,
+              background: `radial-gradient(400px circle at ${mousePos.x} ${mousePos.y}, rgba(99, 102, 241, 0.08), transparent 60%)`,
             }}
           />
         )}
@@ -113,7 +113,7 @@ export default function EmployeeCard({ employee, onEdit, onDelete }) {
               <div
                 className={`h-14 w-14 rounded-2xl bg-gradient-to-br ${getAvatarGradient(
                   employee.name
-                )} flex items-center justify-center font-bold text-base tracking-wider ring-2 ring-white/10 group-hover:ring-indigo-500/40 transition-all shadow-md`}
+                )} flex items-center justify-center font-bold text-base tracking-wider ring-2 ring-slate-200 dark:ring-white/10 group-hover:ring-indigo-500/40 transition-all shadow-md`}
               >
                 {getInitials(employee.name)}
               </div>
@@ -130,27 +130,27 @@ export default function EmployeeCard({ employee, onEdit, onDelete }) {
             <div className="min-w-0 flex-1">
               <Link
                 to={`/employees/${empId}`}
-                className="text-base font-bold text-white group-hover:text-indigo-300 transition-colors truncate block"
+                className="text-base font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors truncate block"
               >
                 {employee.name}
               </Link>
-              <p className="text-xs font-medium text-slate-400 truncate mt-0.5">
+              <p className="text-xs font-medium text-slate-600 dark:text-slate-400 truncate mt-0.5">
                 {employee.designation}
               </p>
-              <p className="text-[11px] font-mono text-slate-500 mt-0.5">
+              <p className="text-[11px] font-mono text-slate-400 mt-0.5">
                 ID: {empId.substring(0, 8)}
               </p>
             </div>
           </div>
 
           {/* Quick Info & Skills */}
-          <div className="mt-4 space-y-1.5 border-t border-white/5 pt-3 text-xs text-slate-400">
+          <div className="mt-4 space-y-1.5 border-t border-slate-100 dark:border-white/5 pt-3 text-xs text-slate-500 dark:text-slate-400">
             <div className="flex items-center gap-2 truncate">
-              <Mail className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+              <Mail className="h-3.5 w-3.5 text-slate-400 shrink-0" />
               <span className="truncate">{employee.email}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Calendar className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+              <Calendar className="h-3.5 w-3.5 text-slate-400 shrink-0" />
               <span>
                 Joined{' '}
                 {new Date(
@@ -169,13 +169,13 @@ export default function EmployeeCard({ employee, onEdit, onDelete }) {
               {employee.skills.slice(0, 3).map((skill, idx) => (
                 <span
                   key={idx}
-                  className="rounded-md bg-white/5 px-2 py-0.5 text-[10px] font-medium text-slate-300 border border-white/5"
+                  className="rounded-md bg-slate-100 dark:bg-white/5 px-2 py-0.5 text-[10px] font-medium text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/5"
                 >
                   {skill}
                 </span>
               ))}
               {employee.skills.length > 3 && (
-                <span className="rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] text-slate-400">
+                <span className="rounded-md bg-slate-100 dark:bg-white/5 px-1.5 py-0.5 text-[10px] text-slate-500 dark:text-slate-400">
                   +{employee.skills.length - 3}
                 </span>
               )}
@@ -184,26 +184,26 @@ export default function EmployeeCard({ employee, onEdit, onDelete }) {
         </div>
 
         {/* Card Actions Footer */}
-        <div className="relative z-10 mt-5 flex items-center justify-between border-t border-white/5 pt-3">
+        <div className="relative z-10 mt-5 flex items-center justify-between border-t border-slate-100 dark:border-white/5 pt-3">
           <Link
             to={`/employees/${empId}`}
-            className="flex items-center gap-1.5 rounded-xl border border-white/5 bg-slate-950/60 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white hover:border-indigo-500/30 hover:bg-indigo-600/20 transition-all"
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-slate-950/60 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:border-indigo-300 dark:hover:border-indigo-500/30 hover:bg-indigo-50 dark:hover:bg-indigo-600/20 shadow-sm transition-all"
           >
-            <Eye className="h-3.5 w-3.5 text-indigo-400" />
+            <Eye className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
             Profile
           </Link>
 
           <div className="flex items-center gap-1">
             <button
               onClick={() => onEdit && onEdit(employee)}
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/5 bg-slate-950/60 text-slate-400 hover:text-indigo-300 hover:border-indigo-500/30 hover:bg-indigo-500/20 transition-all"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 hover:border-indigo-300 dark:hover:border-indigo-500/30 hover:bg-indigo-50 dark:hover:bg-indigo-500/20 shadow-sm transition-all"
               title="Edit Profile"
             >
               <Edit2 className="h-3.5 w-3.5" />
             </button>
             <button
               onClick={() => onDelete && onDelete(employee)}
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/5 bg-slate-950/60 text-slate-400 hover:text-rose-400 hover:border-rose-500/30 hover:bg-rose-500/20 transition-all"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-300 dark:hover:border-rose-500/30 hover:bg-rose-50 dark:hover:bg-rose-500/20 shadow-sm transition-all"
               title="Delete Profile"
             >
               <Trash2 className="h-3.5 w-3.5" />
