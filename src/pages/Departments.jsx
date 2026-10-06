@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Building2,
@@ -20,63 +20,33 @@ export default function Departments() {
   const [selectedDept, setSelectedDept] = useState('Engineering');
   const [loading, setLoading] = useState(true);
 
-  const departmentsInfo = [
+  const baseDepartments = [
     {
       name: 'Engineering',
-      lead: 'Elena Rostova',
-      leadRole: 'Principal Architect & VP Tech',
-      leadAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
-      count: 428,
-      budget: '₹48.5 Cr',
-      growth: '+18.4%',
       icon: Cpu,
       color: 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/30',
       description: 'Distributed infrastructure, cloud platforms, AI engineering, and frontend web applications.',
     },
     {
       name: 'HR',
-      lead: 'Sarah Chen',
-      leadRole: 'Chief People Officer',
-      leadAvatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
-      count: 86,
-      budget: '₹8.2 Cr',
-      growth: '+6.2%',
       icon: UserCheck,
       color: 'bg-purple-50 text-purple-600 border-purple-200 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/30',
       description: 'Global talent acquisition, employee experience, benefits, and leadership development.',
     },
     {
       name: 'Sales',
-      lead: 'Devon Wright',
-      leadRole: 'VP Enterprise Sales',
-      leadAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-      count: 312,
-      budget: '₹22.0 Cr',
-      growth: '+14.1%',
       icon: Briefcase,
       color: 'bg-cyan-50 text-cyan-600 border-cyan-200 dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/30',
       description: 'Enterprise accounts, global pipeline velocity, customer success, and revenue expansion.',
     },
     {
       name: 'Finance',
-      lead: 'Amina Al-Mansoor',
-      leadRole: 'Director of Strategic Finance',
-      leadAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
-      count: 184,
-      budget: '₹12.8 Cr',
-      growth: '+9.5%',
       icon: DollarSign,
       color: 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/30',
       description: 'Fiscal planning, forecasting, investor relations, and capital allocation.',
     },
     {
       name: 'Marketing',
-      lead: 'Liam Gallagher',
-      leadRole: 'Head of Brand & Growth',
-      leadAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-      count: 238,
-      budget: '₹16.4 Cr',
-      growth: '+11.8%',
       icon: TrendingUp,
       color: 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/30',
       description: 'Brand campaigns, developer marketing, product growth, and corporate communications.',
@@ -98,8 +68,53 @@ export default function Departments() {
     fetch();
   }, []);
 
+  // Compute dynamic metrics for each department based on live database records
+  const dynamicDepartments = useMemo(() => {
+    const totalCount = employees.length || 1;
+
+    return baseDepartments.map((dept) => {
+      const deptMembers = employees.filter(
+        (e) => (e.department || '').toLowerCase() === dept.name.toLowerCase()
+      );
+      const count = deptMembers.length;
+      const share = Math.round((count / totalCount) * 100);
+
+      // Compute total department compensation budget
+      const totalSalary = deptMembers.reduce(
+        (acc, cur) => acc + Number(cur.salary || 1400000),
+        0
+      );
+
+      let formattedBudget = '₹0';
+      if (totalSalary >= 10000000) {
+        formattedBudget = `₹${(totalSalary / 10000000).toFixed(2)} Cr`;
+      } else if (totalSalary > 0) {
+        formattedBudget = `₹${(totalSalary / 100000).toFixed(1)} L`;
+      }
+
+      // Pick senior lead dynamically from members or first member
+      let leadMember = deptMembers.find((m) =>
+        /lead|principal|vp|manager|director|head/i.test(m.designation || '')
+      ) || deptMembers[0];
+
+      const leadName = leadMember ? leadMember.name : 'Unassigned';
+      const leadRole = leadMember
+        ? leadMember.designation
+        : `${dept.name} Lead (Open)`;
+
+      return {
+        ...dept,
+        count,
+        budget: formattedBudget,
+        growth: `${share}% of team`,
+        lead: leadName,
+        leadRole: leadRole,
+      };
+    });
+  }, [employees]);
+
   const filteredMembers = employees.filter(
-    (e) => e.department.toLowerCase() === selectedDept.toLowerCase()
+    (e) => (e.department || '').toLowerCase() === selectedDept.toLowerCase()
   );
 
   return (
@@ -111,13 +126,13 @@ export default function Departments() {
           Department Analytics & Structure
         </h1>
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-          Organizational hierarchy, budgetary allocations, and business unit leadership across NEXUS.
+          Real-time organizational hierarchy, live headcount, and budgetary calculations across NEXUS.
         </p>
       </div>
 
       {/* Departments Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {departmentsInfo.map((dept) => {
+        {dynamicDepartments.map((dept) => {
           const Icon = dept.icon;
           const isSelected = selectedDept === dept.name;
 
@@ -155,12 +170,12 @@ export default function Departments() {
                     Headcount
                   </span>
                   <p className="text-base font-bold text-slate-900 dark:text-white mt-0.5">
-                    {dept.count} Members
+                    {dept.count} {dept.count === 1 ? 'Member' : 'Members'}
                   </p>
                 </div>
                 <div>
                   <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase">
-                    Annual Budget
+                    Annual Payroll
                   </span>
                   <p className="text-base font-bold text-indigo-600 dark:text-indigo-400 mt-0.5">
                     {dept.budget}
@@ -193,7 +208,7 @@ export default function Departments() {
           <div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <Users className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-              <span>{selectedDept} Team Roster</span>
+              <span>{selectedDept} Team Roster ({filteredMembers.length})</span>
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Active members currently assigned to the {selectedDept} department.
@@ -204,40 +219,46 @@ export default function Departments() {
             to={`/employees?department=${encodeURIComponent(selectedDept)}`}
             className="flex items-center gap-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300"
           >
-            <span>Manage All in Directory</span>
+            <span>Manage in Directory</span>
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
 
         {/* Member list */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-          {filteredMembers.map((emp) => (
-            <Link
-              key={emp._id || emp.id}
-              to={`/employees/${emp._id || emp.id}`}
-              className="flex items-center gap-3 rounded-xl border border-slate-200/80 dark:border-white/5 bg-slate-50 dark:bg-slate-950/50 p-3.5 hover:border-indigo-300 dark:hover:border-indigo-500/30 hover:bg-white dark:hover:bg-slate-900/80 shadow-sm transition-all group"
-            >
-              <div
-                className={`h-10 w-10 rounded-xl bg-gradient-to-br ${getAvatarGradient(
-                  emp.name
-                )} flex items-center justify-center font-bold text-xs tracking-wider ring-1 ring-slate-200 dark:ring-white/10 shadow-sm shrink-0 text-white`}
+        {filteredMembers.length === 0 ? (
+          <div className="py-8 text-center text-xs text-slate-500 dark:text-slate-400">
+            No employees currently assigned to {selectedDept}.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+            {filteredMembers.map((emp) => (
+              <Link
+                key={emp._id || emp.id}
+                to={`/employees/${emp._id || emp.id}`}
+                className="flex items-center gap-3 rounded-xl border border-slate-200/80 dark:border-white/5 bg-slate-50 dark:bg-slate-950/50 p-3.5 hover:border-indigo-300 dark:hover:border-indigo-500/30 hover:bg-white dark:hover:bg-slate-900/80 shadow-sm transition-all group"
               >
-                {getInitials(emp.name)}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors truncate">
-                  {emp.name}
-                </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                  {emp.designation}
-                </p>
-              </div>
-              <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/20">
-                {emp.status}
-              </span>
-            </Link>
-          ))}
-        </div>
+                <div
+                  className={`h-10 w-10 rounded-xl bg-gradient-to-br ${getAvatarGradient(
+                    emp.name
+                  )} flex items-center justify-center font-bold text-xs tracking-wider ring-1 ring-slate-200 dark:ring-white/10 shadow-sm shrink-0 text-white`}
+                >
+                  {getInitials(emp.name)}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors truncate">
+                    {emp.name}
+                  </p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                    {emp.designation}
+                  </p>
+                </div>
+                <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/20">
+                  {emp.status}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   BarChart3,
   Download,
@@ -21,8 +21,6 @@ import {
   YAxis,
   Tooltip,
   Legend,
-  AreaChart,
-  Area,
 } from 'recharts';
 import { useToast } from '../context/ToastContext';
 import api from '../api';
@@ -46,14 +44,64 @@ export default function Reports() {
     fetch();
   }, []);
 
-  // Salary breakdown by department (in INR)
-  const salaryData = [
-    { department: 'Engineering', avgSalary: 2450000, medianSalary: 2200000, min: 1400000, max: 3600000 },
-    { department: 'HR', avgSalary: 1450000, medianSalary: 1300000, min: 900000, max: 2200000 },
-    { department: 'Sales', avgSalary: 1950000, medianSalary: 1800000, min: 1100000, max: 3000000 },
-    { department: 'Finance', avgSalary: 1750000, medianSalary: 1600000, min: 1000000, max: 2600000 },
-    { department: 'Marketing', avgSalary: 1650000, medianSalary: 1550000, min: 950000, max: 2400000 },
-  ];
+  // Dynamically calculate salary breakdown by department from database
+  const salaryData = useMemo(() => {
+    const departments = ['Engineering', 'HR', 'Sales', 'Finance', 'Marketing'];
+
+    return departments.map((deptName) => {
+      const deptEmployees = employees.filter(
+        (e) => (e.department || '').toLowerCase() === deptName.toLowerCase()
+      );
+
+      const salaries = deptEmployees
+        .map((e) => Number(e.salary || 1400000))
+        .sort((a, b) => a - b);
+
+      const count = salaries.length;
+      if (count === 0) {
+        return {
+          department: deptName,
+          avgSalary: 0,
+          medianSalary: 0,
+          count: 0,
+        };
+      }
+
+      const total = salaries.reduce((acc, val) => acc + val, 0);
+      const avgSalary = Math.round(total / count);
+      const medianSalary =
+        count % 2 === 0
+          ? Math.round((salaries[count / 2 - 1] + salaries[count / 2]) / 2)
+          : salaries[Math.floor(count / 2)];
+
+      return {
+        department: deptName,
+        avgSalary,
+        medianSalary,
+        count,
+      };
+    });
+  }, [employees]);
+
+  // Overall dynamic KPIs
+  const reportMetrics = useMemo(() => {
+    const total = employees.length || 1;
+    const activeCount = employees.filter((e) => (e.status || 'Active') === 'Active').length;
+    const activeRate = ((activeCount / total) * 100).toFixed(1);
+
+    const totalSalary = employees.reduce(
+      (acc, e) => acc + Number(e.salary || 1400000),
+      0
+    );
+    const avgSalary = Math.round(totalSalary / total);
+
+    return {
+      totalEmployees: employees.length,
+      activeRate: `${activeRate}%`,
+      avgSalaryFormatted: `₹${avgSalary.toLocaleString('en-IN')}`,
+      avgSalaryRaw: avgSalary,
+    };
+  }, [employees]);
 
   const exportCSV = () => {
     if (!employees.length) return;
@@ -65,7 +113,7 @@ export default function Reports() {
       e.department,
       `"${e.designation}"`,
       e.status,
-      e.salary || 95000,
+      e.salary || 1400000,
       e.joinDate || e.createdAt,
     ]);
 
@@ -88,6 +136,7 @@ export default function Reports() {
           organization: 'NEXUS HR Enterprise',
           generatedAt: new Date().toISOString(),
           totalWorkforce: employees.length,
+          metrics: reportMetrics,
           employees: employees,
         },
         null,
@@ -216,26 +265,26 @@ export default function Reports() {
             </div>
             <div class="meta">
               <div><strong>Generated Date:</strong> ${new Date().toLocaleDateString('en-IN', { dateStyle: 'long' })}</div>
-              <div><strong>Status:</strong> Verified Enterprise Records</div>
+              <div><strong>Status:</strong> Verified Live Enterprise Records</div>
             </div>
           </div>
 
           <div class="kpi-grid">
             <div class="kpi-card">
               <div class="kpi-title">Total Workforce</div>
-              <div class="kpi-value">${employees.length} Members</div>
+              <div class="kpi-value">${reportMetrics.totalEmployees} Members</div>
             </div>
             <div class="kpi-card">
-              <div class="kpi-title">Retention Rate</div>
-              <div class="kpi-value">98.4%</div>
+              <div class="kpi-title">Active Rate</div>
+              <div class="kpi-value">${reportMetrics.activeRate}</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-title">Avg Compensation</div>
-              <div class="kpi-value">₹18,50,000</div>
+              <div class="kpi-value">${reportMetrics.avgSalaryFormatted}</div>
             </div>
             <div class="kpi-card">
-              <div class="kpi-title">Diversity Index</div>
-              <div class="kpi-value">89 / 100</div>
+              <div class="kpi-title">Organization Status</div>
+              <div class="kpi-value">Live Sync</div>
             </div>
           </div>
 
@@ -285,7 +334,7 @@ export default function Reports() {
             Executive Reports & Analytics
           </h1>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-            Workforce compensation, retention trends, and exportable organization data.
+            Live workforce compensation benchmarks, retention metrics, and exportable organization data.
           </p>
         </div>
 
@@ -319,31 +368,31 @@ export default function Reports() {
       {/* KPI Highlight Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <div className="rounded-2xl border border-slate-200/80 dark:border-white/5 bg-white/95 dark:bg-slate-900/60 p-5 backdrop-blur-xl shadow-sm">
-          <span className="text-xs font-mono text-slate-500 dark:text-slate-400 uppercase">Retention Rate</span>
-          <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">98.4%</p>
-          <span className="mt-1 text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-semibold">
-            <TrendingUp className="h-3 w-3" /> Top 5% in SaaS Tech
+          <span className="text-xs font-mono text-slate-500 dark:text-slate-400 uppercase">Total Workforce</span>
+          <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">{reportMetrics.totalEmployees} Members</p>
+          <span className="mt-1 text-xs text-indigo-600 dark:text-indigo-400 flex items-center gap-1 font-semibold">
+            <Users className="h-3 w-3" /> Live Database Records
           </span>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200/80 dark:border-white/5 bg-white/95 dark:bg-slate-900/60 p-5 backdrop-blur-xl shadow-sm">
+          <span className="text-xs font-mono text-slate-500 dark:text-slate-400 uppercase">Active Status Rate</span>
+          <p className="mt-1 text-2xl font-bold text-emerald-600 dark:text-emerald-400">{reportMetrics.activeRate}</p>
+          <span className="mt-1 text-xs text-slate-500 dark:text-slate-400">Current operational capacity</span>
         </div>
 
         <div className="rounded-2xl border border-slate-200/80 dark:border-white/5 bg-white/95 dark:bg-slate-900/60 p-5 backdrop-blur-xl shadow-sm">
           <span className="text-xs font-mono text-slate-500 dark:text-slate-400 uppercase">Avg Compensation</span>
-          <p className="mt-1 text-2xl font-bold text-emerald-600 dark:text-emerald-400">₹18,50,000</p>
-          <span className="mt-1 text-xs text-slate-500 dark:text-slate-400">Competitive Market Index: 1.14</span>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200/80 dark:border-white/5 bg-white/95 dark:bg-slate-900/60 p-5 backdrop-blur-xl shadow-sm">
-          <span className="text-xs font-mono text-slate-500 dark:text-slate-400 uppercase">Onboarding Velocity</span>
-          <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">4.2 Days</p>
+          <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">{reportMetrics.avgSalaryFormatted}</p>
           <span className="mt-1 text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-semibold">
-            <TrendingUp className="h-3 w-3" /> 35% faster than benchmark
+            <TrendingUp className="h-3 w-3" /> Dynamic average
           </span>
         </div>
 
         <div className="rounded-2xl border border-slate-200/80 dark:border-white/5 bg-white/95 dark:bg-slate-900/60 p-5 backdrop-blur-xl shadow-sm">
-          <span className="text-xs font-mono text-slate-500 dark:text-slate-400 uppercase">Diversity Index</span>
-          <p className="mt-1 text-2xl font-bold text-indigo-600 dark:text-indigo-400">89 / 100</p>
-          <span className="mt-1 text-xs text-slate-500 dark:text-slate-400">Global cross-functional parity</span>
+          <span className="text-xs font-mono text-slate-500 dark:text-slate-400 uppercase">Tracked Business Units</span>
+          <p className="mt-1 text-2xl font-bold text-indigo-600 dark:text-indigo-400">5 Departments</p>
+          <span className="mt-1 text-xs text-slate-500 dark:text-slate-400">Cross-departmental tracking</span>
         </div>
       </div>
 
@@ -356,7 +405,7 @@ export default function Reports() {
               Compensation Benchmark by Department (INR ₹ in Lakhs)
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Average vs Median base salary distributions across departments.
+              Live calculated Average vs Median base salary distributions across departments.
             </p>
           </div>
         </div>
@@ -392,6 +441,9 @@ export default function Reports() {
                         </p>
                         <p className="text-emerald-600 dark:text-emerald-300">
                           Median: <span className="text-slate-900 dark:text-white font-bold">₹{Number(payload[1]?.value || 0).toLocaleString('en-IN')}</span>
+                        </p>
+                        <p className="text-slate-500 text-[10px] mt-1">
+                          Headcount: {payload[0]?.payload?.count} members
                         </p>
                       </div>
                     );
