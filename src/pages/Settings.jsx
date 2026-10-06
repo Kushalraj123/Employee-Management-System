@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   Settings as SettingsIcon,
   Database,
@@ -23,7 +24,9 @@ export default function Settings() {
   const { showSuccess, showError, showInfo } = useToast();
 
   const [apiUrl, setApiUrl] = useState(
-    import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+    (typeof window !== 'undefined' && localStorage.getItem('nexus_custom_api_url')) ||
+    import.meta.env.VITE_API_URL ||
+    'http://localhost:5000/api'
   );
   const [testingConnection, setTestingConnection] = useState(false);
   const [connectionResult, setConnectionResult] = useState(null);
@@ -33,25 +36,33 @@ export default function Settings() {
     setTestingConnection(true);
     setConnectionResult(null);
     try {
-      const res = await api.checkBackendHealth();
-      if (res.isLive) {
+      const cleanUrl = (apiUrl || '').trim().replace(/\/+$/, '');
+      const healthUrl = cleanUrl.endsWith('/api')
+        ? `${cleanUrl}/health`
+        : `${cleanUrl}/api/health`;
+      const res = await axios.get(healthUrl, { timeout: 15000 });
+      if (res.status === 200) {
+        localStorage.setItem('nexus_custom_api_url', cleanUrl);
         setConnectionResult({
           status: 'success',
-          message: 'Connected to Live Node.js + Express + MongoDB Atlas backend successfully!',
+          message:
+            res.data.database === 'MongoDB Connected'
+              ? 'Connected to Live Node.js + Express + MongoDB Atlas backend successfully!'
+              : `Backend server reached at ${cleanUrl}! (Database status: ${res.data.database})`,
         });
         showSuccess('Backend live and responsive');
       } else {
-        setConnectionResult({
-          status: 'fallback',
-          message: 'Backend server not detected at specified endpoint. NEXUS Local Hybrid Store is active and managing data with full CRUD persistence.',
-        });
-        showInfo('NEXUS Local Hybrid Store is active');
+        throw new Error('Unexpected response status: ' + res.status);
       }
     } catch (err) {
       setConnectionResult({
-        status: 'error',
-        message: err.message || 'Connection error',
+        status: 'fallback',
+        message:
+          'Backend server not detected at specified endpoint (' +
+          (err.message || 'connection timeout') +
+          '). NEXUS Local Hybrid Store is active and managing data with full CRUD persistence.',
       });
+      showInfo('NEXUS Local Hybrid Store is active');
     } finally {
       setTestingConnection(false);
     }

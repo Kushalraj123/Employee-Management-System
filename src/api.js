@@ -1,14 +1,17 @@
 import axios from 'axios';
 import { getGenderAvatar } from './utils/avatar';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL =
+  (typeof window !== 'undefined' && localStorage.getItem('nexus_custom_api_url')) ||
+  import.meta.env.VITE_API_URL ||
+  'http://localhost:5000/api';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 4000,
+  timeout: 15000,
 });
 
 // Seed data for initial experience & offline/mock fallback
@@ -280,7 +283,7 @@ export const api = {
   // Check whether backend is live
   async checkBackendHealth() {
     try {
-      const response = await apiClient.get('/health', { timeout: 1500 });
+      const response = await apiClient.get('/health', { timeout: 15000 });
       return { isLive: true, data: response.data };
     } catch (err) {
       return { isLive: false, error: err.message };
