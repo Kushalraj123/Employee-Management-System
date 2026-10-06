@@ -12,7 +12,7 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/nexus_
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000', '*'],
+  origin: true,
   credentials: true,
 }));
 app.use(express.json());
