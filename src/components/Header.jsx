@@ -218,14 +218,12 @@ export default function Header({ setMobileOpen, onOpenSearch, isBackendLive = fa
         <div className="relative">
           <button
             onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-            className="flex items-center gap-2 rounded-xl p-1 hover:bg-white/5 transition-colors"
+            className="flex items-center gap-2 rounded-xl p-1 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
             aria-label="User Profile"
           >
-            <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-              alt="Admin"
-              className="h-9 w-9 rounded-xl object-cover ring-2 ring-indigo-500/40"
-            />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 font-bold text-xs text-white shadow-sm ring-2 ring-indigo-500/30">
+              AD
+            </div>
             <ChevronDown className="hidden sm:block h-3.5 w-3.5 text-slate-400" />
           </button>
 
@@ -240,27 +238,27 @@ export default function Header({ setMobileOpen, onOpenSearch, isBackendLive = fa
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute right-0 top-12 z-50 w-56 rounded-2xl border border-white/10 bg-slate-900/95 backdrop-blur-2xl shadow-2xl p-2"
+                  className="absolute right-0 top-12 z-50 w-56 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/95 backdrop-blur-2xl shadow-2xl p-2"
                 >
-                  <div className="px-3 py-2 border-b border-white/5">
-                    <p className="text-xs font-bold text-white">Administrator</p>
-                    <p className="text-[11px] text-slate-400">admin@nexus.io</p>
+                  <div className="px-3 py-2 border-b border-slate-100 dark:border-white/5">
+                    <p className="text-xs font-bold text-slate-900 dark:text-white">Administrator</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">admin@nexus.io</p>
                   </div>
                   <div className="py-1 space-y-0.5">
                     <Link
                       to="/settings"
                       onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-slate-300 hover:bg-white/5 hover:text-white"
+                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-indigo-600 dark:hover:text-white"
                     >
-                      <Shield className="h-3.5 w-3.5 text-indigo-400" />
+                      <Shield className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
                       Admin Governance
                     </Link>
                     <Link
                       to="/settings"
                       onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-slate-300 hover:bg-white/5 hover:text-white"
+                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-indigo-600 dark:hover:text-white"
                     >
-                      <Database className="h-3.5 w-3.5 text-indigo-400" />
+                      <Database className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
                       API & Database Config
                     </Link>
                   </div>

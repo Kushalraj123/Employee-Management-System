@@ -47,15 +47,19 @@ export default function Sidebar({
         }`}
       >
         {/* Top Logo & Branding */}
-        <div className="flex h-20 items-center justify-between px-5 border-b border-slate-200/80 dark:border-white/5">
+        <div
+          className={`flex h-20 items-center ${
+            collapsed ? 'justify-center px-2' : 'justify-between px-5'
+          } border-b border-slate-200/80 dark:border-white/5 relative`}
+        >
           <NavLink
             to="/"
             onClick={() => setMobileOpen(false)}
-            className="flex items-center gap-3 group overflow-hidden"
+            className="flex items-center gap-3 group"
           >
             {/* Geometric "N" connected nodes Logo */}
             <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 p-0.5 shadow-md group-hover:shadow-indigo-500/40 transition-all duration-300">
-              <div className="flex h-full w-full items-center justify-center rounded-[10px] bg-white/10 dark:bg-slate-950/40 backdrop-blur-sm">
+              <div className="flex h-full w-full items-center justify-center rounded-[10px] bg-slate-900/60 dark:bg-slate-950/60 backdrop-blur-sm">
                 <svg
                   viewBox="0 0 40 40"
                   className="h-6 w-6 text-white"
@@ -106,7 +110,11 @@ export default function Sidebar({
           {/* Desktop Collapse Toggle */}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="hidden lg:flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className={`hidden lg:flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${
+              collapsed
+                ? 'absolute -right-3.5 top-6.5 z-50 bg-white dark:bg-slate-900 shadow-md border border-slate-200 dark:border-slate-700'
+                : ''
+            }`}
             title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
             aria-label="Toggle Sidebar"
           >
@@ -190,11 +198,9 @@ export default function Sidebar({
             }`}
           >
             <div className="relative shrink-0">
-              <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-                alt="Admin Avatar"
-                className="h-10 w-10 rounded-xl object-cover ring-2 ring-indigo-500/30 shadow-sm"
-              />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 font-bold text-xs text-white shadow-sm ring-2 ring-indigo-500/20">
+                AD
+              </div>
               <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white dark:border-slate-950 bg-emerald-500 shadow-sm" />
             </div>
 
