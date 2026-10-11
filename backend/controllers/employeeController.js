@@ -1,50 +1,112 @@
 import Employee from '../models/Employee.js';
+import { memoryStore } from '../store.js';
+import mongoose from 'mongoose';
 
-// Get all employees with search, department filter, status filter, and sorting
+// Gender-specific default avatar pools
+const MALE_AVATARS = [
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
+];
+
+const FEMALE_AVATARS = [
+  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+];
+
+const assignAvatar = (gender, name) => {
+  const seed = (name || 'Nexus').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  if (gender === 'Female') {
+    return FEMALE_AVATARS[seed % FEMALE_AVATARS.length];
+  }
+  return MALE_AVATARS[seed % MALE_AVATARS.length];
+};
+
+// Mask sensitive salary information if accessed by another regular employee
+const sanitizeForRole = (employee, user) => {
+  if (!employee) return employee;
+  const isDoc = employee.toObject ? employee.toObject() : { ...employee };
+
+  // If user is not HR or Admin and not the owner of this record, mask salary
+  if (user && user.role === 'employee') {
+    const isOwner = (user.employeeId && (user.employeeId === isDoc._id || user.employeeId === isDoc.id)) ||
+                    (user.email && user.email.toLowerCase() === isDoc.email?.toLowerCase());
+    if (!isOwner) {
+      delete isDoc.salary;
+      delete isDoc.salaryStructure;
+      isDoc.isSalaryConfidential = true;
+    }
+  }
+  return isDoc;
+};
+
+// Get all employees with filtering and sorting
 export const getEmployees = async (req, res) => {
   try {
     const { search, department, status, sort } = req.query;
+    let list = [];
 
-    let query = {};
+    if (mongoose.connection.readyState === 1) {
+      try {
+        let query = {};
+        if (search) {
+          query.$or = [
+            { name: { $regex: search, $options: 'i' } },
+            { email: { $regex: search, $options: 'i' } },
+            { designation: { $regex: search, $options: 'i' } },
+          ];
+        }
+        if (department && department !== 'All Departments') query.department = department;
+        if (status && status !== 'All Statuses') query.status = status;
 
+        let sortOptions = { createdAt: -1 };
+        if (sort === 'Oldest') sortOptions = { createdAt: 1 };
+        else if (sort === 'Name A–Z' || sort === 'Name A-Z') sortOptions = { name: 1 };
+        else if (sort === 'Name Z–A' || sort === 'Name Z-A') sortOptions = { name: -1 };
+        else if (sort === 'Department') sortOptions = { department: 1 };
+
+        list = await Employee.find(query).sort(sortOptions);
+      } catch (dbErr) {
+        list = [...memoryStore.employees];
+      }
+    } else {
+      list = [...memoryStore.employees];
+    }
+
+    // In-memory filters if needed
     if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { designation: { $regex: search, $options: 'i' } },
-      ];
+      const q = search.toLowerCase();
+      list = list.filter(e =>
+        e.name.toLowerCase().includes(q) ||
+        e.email.toLowerCase().includes(q) ||
+        e.designation.toLowerCase().includes(q) ||
+        e.department.toLowerCase().includes(q)
+      );
     }
-
     if (department && department !== 'All Departments') {
-      query.department = department;
+      list = list.filter(e => e.department.toLowerCase() === department.toLowerCase());
     }
-
     if (status && status !== 'All Statuses') {
-      query.status = status;
+      list = list.filter(e => e.status.toLowerCase() === status.toLowerCase());
     }
 
-    let sortOptions = { createdAt: -1 };
-    if (sort === 'Oldest') {
-      sortOptions = { createdAt: 1 };
-    } else if (sort === 'Name A–Z' || sort === 'Name A-Z') {
-      sortOptions = { name: 1 };
-    } else if (sort === 'Name Z–A' || sort === 'Name Z-A') {
-      sortOptions = { name: -1 };
-    } else if (sort === 'Department') {
-      sortOptions = { department: 1 };
-    }
+    // Sanitize salary for role
+    const sanitized = list.map(emp => sanitizeForRole(emp, req.user));
 
-    const employees = await Employee.find(query).sort(sortOptions);
-
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      count: employees.length,
-      data: employees,
+      count: sanitized.length,
+      data: sanitized,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: 'Server error retrieving employees',
+      message: 'Failed to retrieve employee directory.',
       error: error.message,
     });
   }
@@ -53,104 +115,119 @@ export const getEmployees = async (req, res) => {
 // Get single employee by ID
 export const getEmployeeById = async (req, res) => {
   try {
-    const employee = await Employee.findById(req.params.id);
-    if (!employee) {
-      return res.status(404).json({
-        success: false,
-        message: 'Employee not found',
-      });
+    const { id } = req.params;
+    let employee = null;
+
+    if (mongoose.connection.readyState === 1) {
+      try {
+        employee = await Employee.findById(id);
+      } catch (e) {}
     }
-    res.status(200).json({
+
+    if (!employee) {
+      employee = memoryStore.employees.find(e => e._id === id || e.id === id || e.employeeId === id);
+    }
+
+    if (!employee) {
+      return res.status(404).json({ success: false, message: 'Employee not found.' });
+    }
+
+    const sanitized = sanitizeForRole(employee, req.user);
+
+    return res.status(200).json({
       success: true,
-      data: employee,
+      data: sanitized,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Invalid Employee ID format or server error',
-      error: error.message,
-    });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
-const MALE_AVATARS = [
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80',
-];
-
-const FEMALE_AVATARS = [
-  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=150&auto=format&fit=crop&q=80',
-];
-
-const resolveAvatar = (name, gender, avatar) => {
-  if (avatar && !avatar.includes('dicebear.com')) return avatar;
-  let hash = 0;
-  const str = (name || 'Employee').trim().toLowerCase();
-  for (let i = 0; i < str.length; i++) hash = (hash * 31 + str.charCodeAt(i)) % 10000;
-  const g = (gender || 'Male').toLowerCase();
-  if (g === 'female') return FEMALE_AVATARS[Math.abs(hash) % FEMALE_AVATARS.length];
-  if (g === 'male') return MALE_AVATARS[Math.abs(hash) % MALE_AVATARS.length];
-  return (Math.abs(hash) % 2 === 0 ? MALE_AVATARS : FEMALE_AVATARS)[Math.abs(hash) % 6];
-};
-
-// Create new employee
+// Create employee
 export const createEmployee = async (req, res) => {
   try {
-    const { name, email, department, designation, gender, phone, status, joinDate, salary, bio, skills, avatar } = req.body;
+    const data = req.body;
 
-    // Check duplicate email
-    const existing = await Employee.findOne({ email: email.toLowerCase() });
-    if (existing) {
-      return res.status(409).json({
-        success: false,
-        message: 'An employee with this email address already exists in the system.',
-      });
-    }
-
-    const employee = await Employee.create({
-      name,
-      email,
-      department,
-      designation,
-      gender: gender || 'Male',
-      phone,
-      status,
-      joinDate: joinDate || Date.now(),
-      salary: Number(salary) || 95000,
-      avatar: resolveAvatar(name, gender, avatar),
-      bio,
-      skills: skills || ['Communication', 'Teamwork'],
-    });
-
-    res.status(201).json({
-      success: true,
-      message: 'Employee created successfully',
-      data: employee,
-    });
-  } catch (error) {
-    if (error.name === 'ValidationError') {
-      const messages = Object.values(error.errors).map(val => val.message);
+    if (!data.name || !data.email || !data.designation) {
       return res.status(400).json({
         success: false,
-        message: messages.join(', '),
+        message: 'Name, email address, and designation are mandatory.',
       });
     }
-    res.status(500).json({
-      success: false,
-      message: 'Server error creating employee',
-      error: error.message,
+
+    // Duplicate email check
+    const emailExists = memoryStore.employees.some(
+      e => e.email.toLowerCase() === data.email.trim().toLowerCase()
+    );
+    if (emailExists) {
+      return res.status(409).json({
+        success: false,
+        message: 'An employee with this email address already exists.',
+      });
+    }
+
+    const newId = 'emp_' + Date.now();
+    const avatar = data.avatar || assignAvatar(data.gender, data.name);
+    const salary = Number(data.salary) || 1200000;
+
+    const salaryStructure = {
+      basicSalary: Math.round(salary * 0.5 / 12),
+      hra: Math.round(salary * 0.2 / 12),
+      allowances: Math.round(salary * 0.15 / 12),
+      bonus: 5000,
+      deductions: Math.round(salary * 0.08 / 12),
+      netSalary: Math.round(salary * 0.77 / 12),
+    };
+
+    const newEmployee = {
+      _id: newId,
+      id: newId,
+      employeeId: `NEX-${Math.floor(1000 + Math.random() * 9000)}`,
+      name: data.name.trim(),
+      email: data.email.trim().toLowerCase(),
+      department: data.department || 'Engineering',
+      designation: data.designation.trim(),
+      gender: data.gender || 'Male',
+      phone: data.phone || '+91 98765 43210',
+      status: data.status || 'Active',
+      joinDate: data.joinDate || new Date().toISOString().split('T')[0],
+      salary,
+      salaryStructure,
+      performanceScore: Number(data.performanceScore) || 90,
+      avatar,
+      bio: data.bio || 'Enterprise contributor at NEXUS HR.',
+      skills: Array.isArray(data.skills) && data.skills.length ? data.skills : ['System Design', 'Collaboration'],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const saved = await Employee.create(newEmployee);
+        newEmployee._id = saved._id;
+      } catch (e) {}
+    }
+
+    memoryStore.employees.unshift(newEmployee);
+
+    // Initial leave balance
+    memoryStore.leaveBalances[newEmployee._id] = {
+      casualTotal: 12,
+      casualUsed: 0,
+      sickTotal: 10,
+      sickUsed: 0,
+      earnedTotal: 15,
+      earnedUsed: 0,
+      unpaidUsed: 0,
+    };
+
+    return res.status(201).json({
+      success: true,
+      message: `Employee ${newEmployee.name} created successfully.`,
+      data: newEmployee,
     });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -158,68 +235,72 @@ export const createEmployee = async (req, res) => {
 export const updateEmployee = async (req, res) => {
   try {
     const { id } = req.params;
+    const updates = req.body;
 
-    // Check if email is being updated to an existing one
-    if (req.body.email) {
-      const existing = await Employee.findOne({
-        email: req.body.email.toLowerCase(),
-        _id: { $ne: id },
-      });
-      if (existing) {
-        return res.status(409).json({
-          success: false,
-          message: 'This email is already in use by another employee.',
-        });
-      }
+    const index = memoryStore.employees.findIndex(e => e._id === id || e.id === id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, message: 'Employee not found.' });
     }
 
-    const employee = await Employee.findByIdAndUpdate(id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!employee) {
-      return res.status(404).json({
-        success: false,
-        message: 'Employee not found',
-      });
+    if (updates.salary) {
+      const salary = Number(updates.salary);
+      updates.salaryStructure = {
+        basicSalary: Math.round(salary * 0.5 / 12),
+        hra: Math.round(salary * 0.2 / 12),
+        allowances: Math.round(salary * 0.15 / 12),
+        bonus: 5000,
+        deductions: Math.round(salary * 0.08 / 12),
+        netSalary: Math.round(salary * 0.77 / 12),
+      };
     }
 
-    res.status(200).json({
+    const updated = {
+      ...memoryStore.employees[index],
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+
+    memoryStore.employees[index] = updated;
+
+    if (mongoose.connection.readyState === 1) {
+      try {
+        await Employee.findByIdAndUpdate(id, updates);
+      } catch (e) {}
+    }
+
+    return res.status(200).json({
       success: true,
-      message: 'Employee updated successfully',
-      data: employee,
+      message: 'Employee updated successfully.',
+      data: updated,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Server error updating employee',
-      error: error.message,
-    });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
 // Delete employee
 export const deleteEmployee = async (req, res) => {
   try {
-    const employee = await Employee.findByIdAndDelete(req.params.id);
-    if (!employee) {
-      return res.status(404).json({
-        success: false,
-        message: 'Employee not found',
-      });
+    const { id } = req.params;
+    const initialLen = memoryStore.employees.length;
+    memoryStore.employees = memoryStore.employees.filter(e => e._id !== id && e.id !== id);
+
+    if (memoryStore.employees.length === initialLen) {
+      return res.status(404).json({ success: false, message: 'Employee not found.' });
     }
 
-    res.status(200).json({
+    if (mongoose.connection.readyState === 1) {
+      try {
+        await Employee.findByIdAndDelete(id);
+      } catch (e) {}
+    }
+
+    return res.status(200).json({
       success: true,
-      message: 'Employee removed successfully',
+      message: 'Employee deleted successfully.',
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Server error deleting employee',
-      error: error.message,
-    });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -227,62 +308,65 @@ export const deleteEmployee = async (req, res) => {
 export const bulkDeleteEmployees = async (req, res) => {
   try {
     const { ids } = req.body;
-    if (!ids || !Array.isArray(ids) || ids.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide an array of IDs to delete',
-      });
+    if (!Array.isArray(ids) || !ids.length) {
+      return res.status(400).json({ success: false, message: 'Array of employee IDs is required.' });
     }
 
-    await Employee.deleteMany({ _id: { $in: ids } });
+    memoryStore.employees = memoryStore.employees.filter(e => !ids.includes(e._id) && !ids.includes(e.id));
 
-    res.status(200).json({
+    if (mongoose.connection.readyState === 1) {
+      try {
+        await Employee.deleteMany({ _id: { $in: ids } });
+      } catch (e) {}
+    }
+
+    return res.status(200).json({
       success: true,
-      message: `${ids.length} employees deleted successfully`,
+      message: `${ids.length} employees deleted successfully.`,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Server error performing bulk deletion',
-      error: error.message,
-    });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// Stats aggregation
+// Dashboard stats
 export const getStats = async (req, res) => {
   try {
-    const total = await Employee.countDocuments();
-    const engineering = await Employee.countDocuments({ department: 'Engineering' });
-    const hr = await Employee.countDocuments({ department: 'HR' });
-    const sales = await Employee.countDocuments({ department: 'Sales' });
-    const finance = await Employee.countDocuments({ department: 'Finance' });
-    const marketing = await Employee.countDocuments({ department: 'Marketing' });
-    const activeCount = await Employee.countDocuments({ status: 'Active' });
-    const onLeaveCount = await Employee.countDocuments({ status: 'On Leave' });
+    const list = memoryStore.employees;
+    const total = list.length;
+    const engineering = list.filter(e => e.department === 'Engineering').length;
+    const hr = list.filter(e => e.department === 'HR').length;
+    const sales = list.filter(e => e.department === 'Sales').length;
+    const finance = list.filter(e => e.department === 'Finance').length;
+    const marketing = list.filter(e => e.department === 'Marketing').length;
+    const activeCount = list.filter(e => e.status === 'Active').length;
+    const onLeaveCount = list.filter(e => e.status === 'On Leave').length;
+
+    const departmentDistribution = [
+      { name: 'Engineering', count: engineering, percentage: total > 0 ? Number(((engineering / total) * 100).toFixed(1)) : 0, color: '#3B82F6' },
+      { name: 'HR', count: hr, percentage: total > 0 ? Number(((hr / total) * 100).toFixed(1)) : 0, color: '#8B5CF6' },
+      { name: 'Sales', count: sales, percentage: total > 0 ? Number(((sales / total) * 100).toFixed(1)) : 0, color: '#06B6D4' },
+      { name: 'Finance', count: finance, percentage: total > 0 ? Number(((finance / total) * 100).toFixed(1)) : 0, color: '#10B981' },
+      { name: 'Marketing', count: marketing, percentage: total > 0 ? Number(((marketing / total) * 100).toFixed(1)) : 0, color: '#F59E0B' },
+    ];
 
     const months = ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
-    const growthData = months.map((m, idx) => {
-      const factor = (idx + 1) / months.length;
-      const empCount = Math.max(1, Math.round(total * factor));
-      const engCount = Math.max(0, Math.round(engineering * factor));
-      return {
-        month: m,
-        employees: empCount,
-        engineering: engCount,
-      };
-    });
+    const growthData = months.map((m, idx) => ({
+      month: m,
+      employees: Math.max(1, Math.round(total * ((idx + 1) / months.length))),
+      engineering: Math.max(0, Math.round(engineering * ((idx + 1) / months.length))),
+    }));
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       stats: {
         totalEmployees: total,
         totalDisplay: total.toLocaleString(),
         totalChange: `+${total} members`,
         engineeringCount: engineering,
-        engineeringShare: total > 0 ? `${((engineering / total) * 100).toFixed(1)}% of workforce` : '0%',
+        engineeringShare: total > 0 ? `${((engineering / total) * 100).toFixed(1)}%` : '0%',
         hrCount: hr,
-        hrShare: total > 0 ? `${((hr / total) * 100).toFixed(1)}% of workforce` : '0%',
+        hrShare: total > 0 ? `${((hr / total) * 100).toFixed(1)}%` : '0%',
         salesCount: sales,
         financeCount: finance,
         marketingCount: marketing,
@@ -291,21 +375,11 @@ export const getStats = async (req, res) => {
         activeCount,
         onLeaveCount,
         activeRate: total > 0 ? `${((activeCount / total) * 100).toFixed(1)}%` : '100%',
-        departmentDistribution: [
-          { name: 'Engineering', count: engineering, percentage: total > 0 ? Number(((engineering / total) * 100).toFixed(1)) : 0, color: '#3B82F6' },
-          { name: 'HR', count: hr, percentage: total > 0 ? Number(((hr / total) * 100).toFixed(1)) : 0, color: '#8B5CF6' },
-          { name: 'Sales', count: sales, percentage: total > 0 ? Number(((sales / total) * 100).toFixed(1)) : 0, color: '#06B6D4' },
-          { name: 'Finance', count: finance, percentage: total > 0 ? Number(((finance / total) * 100).toFixed(1)) : 0, color: '#10B981' },
-          { name: 'Marketing', count: marketing, percentage: total > 0 ? Number(((marketing / total) * 100).toFixed(1)) : 0, color: '#F59E0B' },
-        ],
+        departmentDistribution,
         growthData,
       },
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Error computing statistics',
-      error: error.message,
-    });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };

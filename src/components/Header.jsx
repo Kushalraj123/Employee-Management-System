@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import {
   Search,
   Bell,
@@ -13,55 +13,78 @@ import {
   ExternalLink,
   Shield,
   Command,
+  LogOut,
+  User,
+  Clock,
+  Briefcase,
+  UserCheck,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import api from '../api';
 
-export default function Header({ setMobileOpen, onOpenSearch, isBackendLive = false }) {
+export default function Header({ setMobileOpen, onOpenSearch, isBackendLive = false, onToggleLayout }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { theme, toggleTheme, isDark } = useTheme();
+  const { user, role, demoLogin, logout } = useAuth();
+  const { showSuccess } = useToast();
+
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(2);
+  const [notifications, setNotifications] = useState([]);
 
-  // Generate dynamic page title & breadcrumbs
+  useEffect(() => {
+    const fetchNotifs = async () => {
+      try {
+        const res = await api.getNotifications();
+        setNotifications(res.data || []);
+        setUnreadCount(res.unreadCount || 0);
+      } catch (e) {}
+    };
+    fetchNotifs();
+  }, [location.pathname]);
+
+  // Dynamic breadcrumb & page titles
   const getPageMeta = () => {
     const path = location.pathname;
     if (path === '/') return { title: 'Dashboard Overview', breadcrumb: 'Overview' };
-    if (path.startsWith('/employees/new')) return { title: 'Add New Employee', breadcrumb: 'Employees / New' };
-    if (path.includes('/edit')) return { title: 'Edit Employee', breadcrumb: 'Employees / Edit' };
+    if (path === '/employees') return { title: 'Workforce Directory', breadcrumb: 'Employees / Directory' };
     if (path.startsWith('/employees/')) return { title: 'Employee Profile', breadcrumb: 'Employees / Details' };
-    if (path === '/employees') return { title: 'Employee Management', breadcrumb: 'Workforce / Directory' };
+    if (path === '/attendance') return { title: 'Attendance Time Tracker', breadcrumb: 'Time & Absence / Punch' };
+    if (path === '/attendance/calendar') return { title: 'Monthly Attendance Calendar', breadcrumb: 'Time / Calendar' };
+    if (path === '/leave/apply') return { title: 'Leave Application & Balances', breadcrumb: 'Leaves / Apply' };
+    if (path === '/leave/approvals') return { title: 'Leave Approval Management', breadcrumb: 'Leaves / Approvals' };
+    if (path === '/payroll') return { title: 'Payroll & Compensation', breadcrumb: 'Finance / Payroll' };
+    if (path.startsWith('/payroll/slips/')) return { title: 'Official Salary Slip', breadcrumb: 'Payroll / Slip' };
+    if (path === '/announcements') return { title: 'Company Announcements', breadcrumb: 'Company / Bulletins' };
+    if (path === '/performance/reviews') return { title: 'Performance Evaluations', breadcrumb: 'Growth / Reviews' };
+    if (path === '/performance/goals') return { title: 'Goals & OKRs', breadcrumb: 'Growth / Goals' };
+    if (path === '/notifications') return { title: 'Notification Center', breadcrumb: 'System / Notifications' };
+    if (path === '/users') return { title: 'User Governance & Roles', breadcrumb: 'Admin / Users' };
     if (path === '/departments') return { title: 'Department Analytics', breadcrumb: 'Organization / Departments' };
-    if (path === '/reports') return { title: 'Executive Reports', breadcrumb: 'Intelligence / Reports' };
-    if (path === '/settings') return { title: 'System Settings', breadcrumb: 'System / Configuration' };
-    return { title: 'NEXUS Workplace', breadcrumb: 'Platform' };
+    if (path === '/reports') return { title: 'Executive Intelligence Reports', breadcrumb: 'Analytics / Reports' };
+    if (path === '/settings') return { title: 'System Settings & Policy', breadcrumb: 'System / Settings' };
+    if (path === '/profile') return { title: 'My Account Profile', breadcrumb: 'Account / Profile' };
+    return { title: 'NEXUS HR Enterprise', breadcrumb: 'Platform' };
   };
 
   const { title, breadcrumb } = getPageMeta();
 
-  const notifications = [
-    {
-      id: 1,
-      title: 'New Employee Onboarded',
-      desc: 'Lucas Dupont joined Engineering as 3D/WebGL Developer',
-      time: '12m ago',
-      unread: true,
-    },
-    {
-      id: 2,
-      title: 'Performance Review Cycle',
-      desc: 'Q3 engineering reviews have been submitted for 428 members',
-      time: '1h ago',
-      unread: true,
-    },
-    {
-      id: 3,
-      title: 'System Synced',
-      desc: 'Database state updated and synced with cloud clusters',
-      time: '3h ago',
-      unread: false,
-    },
-  ];
+  const handleRoleSwitch = async (targetRole) => {
+    await demoLogin(targetRole);
+    showSuccess(`Switched to ${targetRole.toUpperCase()} permissions.`);
+    setUserDropdownOpen(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-slate-950/80 backdrop-blur-xl px-4 sm:px-8 transition-colors">
@@ -81,7 +104,7 @@ export default function Header({ setMobileOpen, onOpenSearch, isBackendLive = fa
             <span className="text-slate-400">/</span>
             <span className="text-slate-500 dark:text-slate-400">{breadcrumb}</span>
           </div>
-          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white mt-0.5">
+          <h1 className="text-base sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white mt-0.5">
             {title}
           </h1>
         </div>
@@ -89,7 +112,7 @@ export default function Header({ setMobileOpen, onOpenSearch, isBackendLive = fa
 
       {/* Right Controls */}
       <div className="flex items-center gap-2 sm:gap-3.5">
-        {/* Backend / Hybrid Status Pill */}
+        {/* Backend Status Pill */}
         <div className="hidden md:flex items-center gap-1.5 rounded-full border border-indigo-200 dark:border-indigo-500/20 bg-indigo-50/90 dark:bg-indigo-950/30 px-3 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-300 shadow-sm">
           <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
           <Database className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
@@ -99,114 +122,82 @@ export default function Header({ setMobileOpen, onOpenSearch, isBackendLive = fa
         {/* Global Search Button */}
         <button
           onClick={onOpenSearch}
-          className="flex items-center gap-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/60 px-3.5 py-2 text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-indigo-500/40 shadow-sm transition-all duration-200"
-          title="Search anything (Ctrl+K)"
+          className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900/60 px-3 py-2 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm"
+          title="Search Workforce (Ctrl+K)"
         >
-          <Search className="h-4 w-4 text-slate-400" />
-          <span className="hidden sm:inline font-medium">Search directory...</span>
-          <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded bg-slate-100 dark:bg-white/10 px-1.5 py-0.5 text-[10px] font-mono text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-transparent">
+          <Search className="h-4 w-4" />
+          <span className="hidden lg:inline text-slate-400">Search...</span>
+          <kbd className="hidden lg:inline-flex items-center gap-0.5 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-mono text-slate-500">
             <Command className="h-2.5 w-2.5" /> K
           </kbd>
         </button>
 
-        {/* Theme Toggle Button */}
+        {/* Layout Toggle Button */}
+        {onToggleLayout && (
+          <button
+            onClick={onToggleLayout}
+            className="flex h-10 items-center gap-1.5 px-3 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/60 text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm"
+            title="Switch to Horizontal Navigation"
+          >
+            <SlidersHorizontal className="h-4 w-4 text-indigo-500" />
+            <span className="hidden sm:inline">Horizontal Menu</span>
+          </button>
+        )}
+
+        {/* Light / Dark Theme Toggle */}
         <button
           onClick={toggleTheme}
-          className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 shadow-sm transition-all duration-200"
-          title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`}
-          aria-label="Toggle Theme"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm"
+          title={isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
         >
-          <motion.div
-            initial={false}
-            animate={{ rotate: isDark ? 0 : 180, scale: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            {isDark ? (
-              <Sun className="h-4.5 w-4.5 text-amber-400" />
-            ) : (
-              <Moon className="h-4.5 w-4.5 text-indigo-500" />
-            )}
-          </motion.div>
+          {isDark ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-indigo-600" />}
         </button>
 
-        {/* Notifications Dropdown */}
+        {/* Notification Bell Dropdown */}
         <div className="relative">
           <button
             onClick={() => setNotificationsOpen(!notificationsOpen)}
-            className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 shadow-sm transition-all duration-200"
-            aria-label="Notifications"
+            className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm"
+            title="Notifications"
           >
-            <Bell className="h-4.5 w-4.5" />
-            <span className="absolute top-2 right-2 flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-indigo-500" />
-            </span>
+            <Bell className="h-4 w-4" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-sm font-mono">
+                {unreadCount}
+              </span>
+            )}
           </button>
 
           <AnimatePresence>
             {notificationsOpen && (
               <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setNotificationsOpen(false)}
-                />
+                <div className="fixed inset-0 z-40" onClick={() => setNotificationsOpen(false)} />
                 <motion.div
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute right-0 top-12 z-50 w-80 sm:w-96 rounded-2xl border border-white/10 bg-slate-900/95 backdrop-blur-2xl shadow-2xl p-4"
+                  className="absolute right-0 top-12 z-50 w-80 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/95 backdrop-blur-2xl shadow-2xl p-4"
                 >
-                  <div className="flex items-center justify-between pb-3 border-b border-white/5">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-white text-sm">Notifications</span>
-                      <span className="rounded-full bg-indigo-500/20 px-2 py-0.5 text-[10px] font-bold text-indigo-400 border border-indigo-500/30">
-                        2 New
-                      </span>
-                    </div>
-                    <button
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/5">
+                    <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                      Notifications
+                    </span>
+                    <Link
+                      to="/notifications"
                       onClick={() => setNotificationsOpen(false)}
-                      className="text-xs text-indigo-400 hover:text-indigo-300"
+                      className="text-[11px] text-indigo-500 hover:text-indigo-400 font-semibold"
                     >
-                      Mark all read
-                    </button>
+                      View All &rarr;
+                    </Link>
                   </div>
 
-                  <div className="mt-3 space-y-2">
-                    {notifications.map((notif) => (
-                      <div
-                        key={notif.id}
-                        className={`group flex items-start gap-3 rounded-xl p-2.5 transition-colors ${
-                          notif.unread ? 'bg-indigo-500/10 border border-indigo-500/20' : 'hover:bg-white/5'
-                        }`}
-                      >
-                        <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/20 text-indigo-400">
-                          <Sparkles className="h-3.5 w-3.5" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-white truncate">
-                            {notif.title}
-                          </p>
-                          <p className="text-[11px] text-slate-400 line-clamp-2 mt-0.5">
-                            {notif.desc}
-                          </p>
-                          <span className="text-[10px] text-slate-500 mt-1 block">
-                            {notif.time}
-                          </span>
-                        </div>
+                  <div className="py-2 space-y-2 max-h-64 overflow-y-auto">
+                    {notifications.slice(0, 3).map((n) => (
+                      <div key={n._id} className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-100 dark:border-slate-800 text-xs">
+                        <span className="font-bold text-slate-900 dark:text-white block">{n.title}</span>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{n.message}</p>
                       </div>
                     ))}
-                  </div>
-
-                  <div className="mt-3 pt-2 border-t border-white/5 text-center">
-                    <Link
-                      to="/reports"
-                      onClick={() => setNotificationsOpen(false)}
-                      className="text-xs font-medium text-indigo-400 hover:text-indigo-300 flex items-center justify-center gap-1"
-                    >
-                      View All Activity
-                      <ExternalLink className="h-3 w-3" />
-                    </Link>
                   </div>
                 </motion.div>
               </>
@@ -214,15 +205,18 @@ export default function Header({ setMobileOpen, onOpenSearch, isBackendLive = fa
           </AnimatePresence>
         </div>
 
-        {/* User Profile Quick Menu */}
+        {/* User Dropdown & Quick Role Switcher */}
         <div className="relative">
           <button
             onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-            className="flex items-center gap-2 rounded-xl p-1 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
-            aria-label="User Profile"
+            className="flex items-center gap-2 rounded-xl p-1.5 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 font-bold text-xs text-white shadow-sm ring-2 ring-indigo-500/30">
-              AD
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 font-bold text-xs text-white shadow-sm ring-2 ring-indigo-500/30 overflow-hidden">
+              <img
+                src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'}
+                alt={user?.name || 'User'}
+                className="w-full h-full object-cover"
+              />
             </div>
             <ChevronDown className="hidden sm:block h-3.5 w-3.5 text-slate-400" />
           </button>
@@ -230,37 +224,72 @@ export default function Header({ setMobileOpen, onOpenSearch, isBackendLive = fa
           <AnimatePresence>
             {userDropdownOpen && (
               <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setUserDropdownOpen(false)}
-                />
+                <div className="fixed inset-0 z-40" onClick={() => setUserDropdownOpen(false)} />
                 <motion.div
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute right-0 top-12 z-50 w-56 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/95 backdrop-blur-2xl shadow-2xl p-2"
+                  className="absolute right-0 top-12 z-50 w-64 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/95 backdrop-blur-2xl shadow-2xl p-2.5"
                 >
                   <div className="px-3 py-2 border-b border-slate-100 dark:border-white/5">
-                    <p className="text-xs font-bold text-slate-900 dark:text-white">Administrator</p>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400">admin@nexus.io</p>
+                    <p className="text-xs font-bold text-slate-900 dark:text-white">{user?.name || 'Enterprise User'}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">{user?.email}</p>
+                    <div className="mt-1.5 inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                      Active: {role}
+                    </div>
                   </div>
+
+                  {/* Switch Demo Roles in 1-Click */}
+                  <div className="py-2 border-b border-slate-100 dark:border-white/5 space-y-1">
+                    <span className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                      Quick Demo Role Switch
+                    </span>
+                    <button
+                      onClick={() => handleRoleSwitch('admin')}
+                      className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                        role === 'admin' ? 'bg-indigo-600 text-white' : 'text-slate-300 hover:bg-slate-800'
+                      }`}
+                    >
+                      <Shield className="w-3.5 h-3.5" />
+                      <span>Switch to Admin</span>
+                    </button>
+                    <button
+                      onClick={() => handleRoleSwitch('hr')}
+                      className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                        role === 'hr' ? 'bg-purple-600 text-white' : 'text-slate-300 hover:bg-slate-800'
+                      }`}
+                    >
+                      <Briefcase className="w-3.5 h-3.5" />
+                      <span>Switch to HR Lead</span>
+                    </button>
+                    <button
+                      onClick={() => handleRoleSwitch('employee')}
+                      className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                        role === 'employee' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800'
+                      }`}
+                    >
+                      <UserCheck className="w-3.5 h-3.5" />
+                      <span>Switch to Employee</span>
+                    </button>
+                  </div>
+
                   <div className="py-1 space-y-0.5">
                     <Link
-                      to="/settings"
+                      to="/profile"
                       onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-indigo-600 dark:hover:text-white"
+                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5"
                     >
-                      <Shield className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
-                      Admin Governance
+                      <User className="h-3.5 w-3.5 text-indigo-400" />
+                      <span>My Profile</span>
                     </Link>
-                    <Link
-                      to="/settings"
-                      onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-indigo-600 dark:hover:text-white"
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-rose-500 hover:bg-rose-500/10 transition-colors"
                     >
-                      <Database className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
-                      API & Database Config
-                    </Link>
+                      <LogOut className="h-3.5 w-3.5" />
+                      <span>Sign Out</span>
+                    </button>
                   </div>
                 </motion.div>
               </>

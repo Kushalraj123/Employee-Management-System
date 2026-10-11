@@ -25,6 +25,7 @@ import EmployeeModal from '../components/EmployeeModal';
 import DeleteModal from '../components/DeleteModal';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 import api from '../api';
 import { getInitials, getAvatarGradient } from '../utils/avatar';
 
@@ -32,6 +33,7 @@ export default function EmployeeDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
+  const { user, isAdmin, isHR } = useAuth();
 
   const [employee, setEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -121,20 +123,24 @@ export default function EmployeeDetails() {
             <Printer className="h-4 w-4 text-slate-500" />
             <span className="hidden sm:inline">Print Badge</span>
           </button>
-          <button
-            onClick={() => setEditModalOpen(true)}
-            className="flex items-center gap-1.5 rounded-xl border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 px-3.5 py-2 text-xs font-semibold text-indigo-600 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors shadow-sm"
-          >
-            <Edit2 className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-            <span>Edit Profile</span>
-          </button>
-          <button
-            onClick={() => setDeleteModalOpen(true)}
-            className="flex items-center gap-1.5 rounded-xl border border-rose-200 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-500/10 px-3.5 py-2 text-xs font-semibold text-rose-600 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors shadow-sm"
-          >
-            <Trash2 className="h-4 w-4 text-rose-600 dark:text-rose-400" />
-            <span>Delete</span>
-          </button>
+          {(isAdmin || isHR) && (
+            <>
+              <button
+                onClick={() => setEditModalOpen(true)}
+                className="flex items-center gap-1.5 rounded-xl border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 px-3.5 py-2 text-xs font-semibold text-indigo-600 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors shadow-sm"
+              >
+                <Edit2 className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                <span>Edit Profile</span>
+              </button>
+              <button
+                onClick={() => setDeleteModalOpen(true)}
+                className="flex items-center gap-1.5 rounded-xl border border-rose-200 dark:border-rose-500/30 bg-rose-50 dark:bg-rose-500/10 px-3.5 py-2 text-xs font-semibold text-rose-600 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors shadow-sm"
+              >
+                <Trash2 className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+                <span>Delete</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -320,9 +326,15 @@ export default function EmployeeDetails() {
 
               <div className="space-y-1">
                 <span className="text-xs text-slate-500 dark:text-slate-400 font-mono uppercase">Compensation (Annual)</span>
-                <p className="font-semibold text-emerald-600 dark:text-emerald-400">
-                  ₹{Number(employee.salary || 1400000).toLocaleString('en-IN')} / yr (INR)
-                </p>
+                {(!isAdmin && !isHR && user?.employeeId !== (employee._id || employee.id) && user?.email?.toLowerCase() !== employee.email?.toLowerCase()) ? (
+                  <p className="font-semibold text-slate-400 italic text-xs">
+                    Confidential &bull; Restricted to HR/Admin
+                  </p>
+                ) : (
+                  <p className="font-semibold text-emerald-600 dark:text-emerald-400">
+                    ₹{Number(employee.salary || 1400000).toLocaleString('en-IN')} / yr (INR)
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1">

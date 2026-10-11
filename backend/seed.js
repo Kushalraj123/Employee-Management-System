@@ -1,115 +1,130 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import bcrypt from 'bcryptjs';
+import User from './models/User.js';
 import Employee from './models/Employee.js';
+import Department from './models/Department.js';
+import AttendancePolicy from './models/AttendancePolicy.js';
+import Attendance from './models/Attendance.js';
+import LeaveRequest from './models/LeaveRequest.js';
+import LeaveBalance from './models/LeaveBalance.js';
+import Payroll from './models/Payroll.js';
+import Announcement from './models/Announcement.js';
+import PerformanceReview from './models/PerformanceReview.js';
+import Goal from './models/Goal.js';
+import { memoryStore } from './store.js';
 
 dotenv.config();
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/nexus_hr';
 
-const SEED_EMPLOYEES = [
-  {
-    name: 'Elena Rostova',
-    email: 'elena.rostova@nexus.io',
-    department: 'Engineering',
-    designation: 'Principal Architect & VP Tech',
-    gender: 'Female',
-    phone: '+91 98201 23456',
-    status: 'Active',
-    joinDate: new Date('2022-03-15'),
-    salary: 2850000,
-    performanceScore: 98,
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
-    bio: 'Leads distributed systems engineering and AI integration for core enterprise platforms.',
-    skills: ['Kubernetes', 'Go', 'React', 'Cloud Architecture', 'System Design'],
-  },
-  {
-    name: 'Marcus Vance',
-    email: 'marcus.vance@nexus.io',
-    department: 'Engineering',
-    designation: 'Senior Full-Stack Engineer',
-    gender: 'Male',
-    phone: '+91 98450 34567',
-    status: 'Active',
-    joinDate: new Date('2023-01-10'),
-    salary: 2100000,
-    performanceScore: 94,
-    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
-    bio: 'Specialist in high-throughput React frontends and Node.js microservices.',
-    skills: ['TypeScript', 'Node.js', 'PostgreSQL', 'GraphQL', 'Next.js'],
-  },
-  {
-    name: 'Sarah Chen',
-    email: 'sarah.chen@nexus.io',
-    department: 'HR',
-    designation: 'Chief People Officer',
-    gender: 'Female',
-    phone: '+91 98100 45678',
-    status: 'Active',
-    joinDate: new Date('2021-08-01'),
-    salary: 2400000,
-    performanceScore: 96,
-    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
-    bio: 'Directs global talent acquisition, workplace culture, and leadership development programs.',
-    skills: ['Talent Strategy', 'People Analytics', 'Compensation', 'Culture Building'],
-  },
-  {
-    name: 'Devon Wright',
-    email: 'devon.wright@nexus.io',
-    department: 'Sales',
-    designation: 'VP Enterprise Sales',
-    gender: 'Male',
-    phone: '+91 99887 56789',
-    status: 'Active',
-    joinDate: new Date('2022-11-20'),
-    salary: 2500000,
-    performanceScore: 91,
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    bio: 'Drives global enterprise revenue growth and strategic customer partnerships.',
-    skills: ['Enterprise SaaS', 'Key Account Strategy', 'Pipeline Mgmt', 'Negotiation'],
-  },
-  {
-    name: 'Amina Al-Mansoor',
-    email: 'amina.mansoor@nexus.io',
-    department: 'Finance',
-    designation: 'Director of Strategic Finance',
-    gender: 'Female',
-    phone: '+91 97654 67890',
-    status: 'Active',
-    joinDate: new Date('2022-05-14'),
-    salary: 2250000,
-    performanceScore: 95,
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
-    bio: 'Oversees financial planning, operational budgeting, and corporate fiscal governance.',
-    skills: ['Financial Modeling', 'Forecasting', 'Cap Table Management', 'Tax Strategy'],
-  },
-  {
-    name: 'Lucas Dupont',
-    email: 'lucas.dupont@nexus.io',
-    department: 'Engineering',
-    designation: 'Frontend 3D/WebGL Developer',
-    gender: 'Male',
-    phone: '+91 98312 90123',
-    status: 'Active',
-    joinDate: new Date('2024-02-15'),
-    salary: 1750000,
-    performanceScore: 97,
-    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
-    bio: 'Creates interactive 3D web applications, animations, and high-performance visual tools.',
-    skills: ['Three.js', 'WebGL', 'GLSL Shaders', 'React Three Fiber', 'TailwindCSS'],
-  }
-];
-
 const seedDB = async () => {
   try {
-    await mongoose.connect(MONGODB_URI);
-    console.log('Connected to MongoDB for seeding...');
-    await Employee.deleteMany();
-    console.log('Cleared existing employee collection...');
-    await Employee.insertMany(SEED_EMPLOYEES);
-    console.log(`✅ Successfully seeded ${SEED_EMPLOYEES.length} employees into MongoDB!`);
+    console.log('Connecting to MongoDB Atlas for seeding...');
+    await mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 8000 });
+    console.log('✅ Connected to MongoDB Atlas.');
+
+    // Clear existing collections
+    await Promise.all([
+      User.deleteMany(),
+      Employee.deleteMany(),
+      Department.deleteMany(),
+      AttendancePolicy.deleteMany(),
+      Attendance.deleteMany(),
+      LeaveRequest.deleteMany(),
+      LeaveBalance.deleteMany(),
+      Payroll.deleteMany(),
+      Announcement.deleteMany(),
+      PerformanceReview.deleteMany(),
+      Goal.deleteMany(),
+    ]);
+    console.log('🧹 Cleaned existing database collections.');
+
+    // Seed Departments
+    await Department.insertMany(memoryStore.departments);
+    console.log('🏢 Departments seeded.');
+
+    // Seed Attendance Policy
+    await AttendancePolicy.create(memoryStore.attendancePolicy);
+    console.log('⏰ Attendance Policy seeded.');
+
+    // Seed Employees
+    await Employee.insertMany(memoryStore.employees);
+    console.log('👥 Employees seeded.');
+
+    // Seed Users with hashed passwords
+    const salt = await bcrypt.genSalt(10);
+    const hashedAdminPassword = await bcrypt.hash('Admin@123', salt);
+    const hashedHrPassword = await bcrypt.hash('Hr@123', salt);
+    const hashedEmpPassword = await bcrypt.hash('Emp@123', salt);
+
+    const usersToInsert = [
+      {
+        name: 'NEXUS Administrator',
+        email: 'admin@nexus.io',
+        password: hashedAdminPassword,
+        role: 'admin',
+        employeeId: 'emp_003',
+        status: 'Active',
+      },
+      {
+        name: 'Sarah Chen',
+        email: 'sarah.chen@nexus.io',
+        password: hashedHrPassword,
+        role: 'hr',
+        employeeId: 'emp_003',
+        status: 'Active',
+      },
+      {
+        name: 'Marcus Vance',
+        email: 'marcus.vance@nexus.io',
+        password: hashedEmpPassword,
+        role: 'employee',
+        employeeId: 'emp_002',
+        status: 'Active',
+      },
+    ];
+
+    await User.insertMany(usersToInsert);
+    console.log('🔐 Users & Credentials seeded (Admin, HR, Employee).');
+
+    // Seed Attendance
+    await Attendance.insertMany(memoryStore.attendance);
+    console.log('📅 Attendance records seeded.');
+
+    // Seed Leave Requests & Balances
+    await LeaveRequest.insertMany(memoryStore.leaveRequests);
+    const balances = Object.keys(memoryStore.leaveBalances).map(empId => ({
+      employeeId: empId,
+      ...memoryStore.leaveBalances[empId],
+    }));
+    await LeaveBalance.insertMany(balances);
+    console.log('🏖️ Leaves & Balances seeded.');
+
+    // Seed Payroll
+    await Payroll.insertMany(memoryStore.payrolls);
+    console.log('💰 Payroll records seeded.');
+
+    // Seed Announcements
+    await Announcement.insertMany(memoryStore.announcements);
+    console.log('📢 Announcements seeded.');
+
+    // Seed Performance Reviews & Goals
+    await PerformanceReview.insertMany(memoryStore.performanceReviews);
+    await Goal.insertMany(memoryStore.goals);
+    console.log('🎯 Reviews & Goals seeded.');
+
+    console.log('\n========================================');
+    console.log('🎉 SEEDING COMPLETE! NEXUS HR IS READY.');
+    console.log('Default credentials:');
+    console.log('  Admin:    admin@nexus.io     / Admin@123');
+    console.log('  HR:       sarah.chen@nexus.io / Hr@123');
+    console.log('  Employee: marcus.vance@nexus.io / Emp@123');
+    console.log('========================================\n');
+
     process.exit(0);
   } catch (error) {
-    console.error('❌ Seeding failed:', error);
+    console.error('❌ Seeding encountered error:', error.message);
     process.exit(1);
   }
 };

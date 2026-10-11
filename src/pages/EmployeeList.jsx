@@ -19,10 +19,12 @@ import LoadingSkeleton from '../components/LoadingSkeleton';
 import EmptyState from '../components/EmptyState';
 import ErrorState from '../components/ErrorState';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 import api from '../api';
 
 export default function EmployeeList() {
   const { showSuccess, showError, showInfo } = useToast();
+  const { isAdmin, isHR } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Filters and state
@@ -158,13 +160,15 @@ export default function EmployeeList() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={handleOpenAdd}
-            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
-          >
-            <UserPlus className="h-4 w-4" />
-            <span>+ Add Employee</span>
-          </button>
+          {(isAdmin || isHR) && (
+            <button
+              onClick={handleOpenAdd}
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+            >
+              <UserPlus className="h-4 w-4" />
+              <span>+ Add Employee</span>
+            </button>
+          )}
         </div>
       </div>
 

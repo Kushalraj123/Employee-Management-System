@@ -2,7 +2,20 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
+
+import authRoutes from './routes/authRoutes.js';
 import employeeRoutes from './routes/employeeRoutes.js';
+import attendanceRoutes from './routes/attendanceRoutes.js';
+import leaveRoutes from './routes/leaveRoutes.js';
+import payrollRoutes from './routes/payrollRoutes.js';
+import announcementRoutes from './routes/announcementRoutes.js';
+import performanceRoutes from './routes/performanceRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import departmentRoutes from './routes/departmentRoutes.js';
+import reportRoutes from './routes/reportRoutes.js';
+import settingsRoutes from './routes/settingsRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
+import { errorHandler } from './middleware/errorHandler.js';
 
 dotenv.config();
 
@@ -21,40 +34,71 @@ app.use(express.json());
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'healthy',
-    service: 'NEXUS HR REST API Engine',
-    database: mongoose.connection.readyState === 1 ? 'MongoDB Connected' : 'Disconnected / Standby',
+    service: 'NEXUS HR Enterprise REST Engine',
+    database: mongoose.connection.readyState === 1 ? 'MongoDB Atlas Connected' : 'High-Performance In-Memory Standby Engine',
     timestamp: new Date().toISOString(),
   });
 });
 
-// API Routes
-app.use('/api', employeeRoutes);
+// Mount Module Routes
+app.use('/api/auth', authRoutes);
+app.use('/api', employeeRoutes); // mounts /api/employees and /api/stats
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/leave', leaveRoutes);
+app.use('/api/payroll', payrollRoutes);
+app.use('/api/announcements', announcementRoutes);
+app.use('/api/performance', performanceRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/departments', departmentRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/notifications', notificationRoutes);
 
-// Root
+// Root Welcome Endpoint
 app.get('/', (req, res) => {
   res.send({
-    message: 'NEXUS HR Enterprise API Server is Online',
-    docs: '/api/employees',
+    service: 'NEXUS HR — People. Performance. Connected.',
+    version: '2.0 Enterprise',
+    status: 'Online',
+    modules: [
+      '/api/auth',
+      '/api/employees',
+      '/api/attendance',
+      '/api/leave',
+      '/api/payroll',
+      '/api/announcements',
+      '/api/performance',
+      '/api/users',
+      '/api/departments',
+      '/api/reports',
+      '/api/settings',
+      '/api/notifications',
+    ],
   });
 });
 
-// Connect to MongoDB & Start Server
+// Centralized Error Handling Middleware
+app.use(errorHandler);
+
+// Connect to MongoDB Atlas & Launch Server
 const startServer = async () => {
-  try {
-    if (process.env.MONGODB_URI) {
-      await mongoose.connect(MONGODB_URI);
+  if (process.env.MONGODB_URI) {
+    try {
+      await mongoose.connect(MONGODB_URI, {
+        serverSelectionTimeoutMS: 4000, // Quick fallback if IP is not whitelisted
+      });
       console.log('✅ Connected to MongoDB Atlas successfully!');
-    } else {
-      console.log('ℹ️ No MONGODB_URI provided in .env, running in API standby mode.');
+    } catch (error) {
+      console.warn('ℹ️ MongoDB Atlas connection standby (IP whitelist / offline mode):', error.message);
+      console.log('⚡ Active in high-performance Enterprise In-Memory & Local Hybrid Engine mode.');
     }
-  } catch (error) {
-    console.warn('⚠️ MongoDB connection failed:', error.message);
-    console.log('NEXUS Frontend will automatically utilize its high-performance Local Hybrid Store.');
+  } else {
+    console.log('ℹ️ Running in Enterprise Standby Engine mode.');
   }
 
   app.listen(PORT, () => {
     console.log(`🚀 NEXUS HR Backend Server running on port ${PORT}`);
-    console.log(`📡 API Endpoints available at http://localhost:${PORT}/api/employees`);
+    console.log(`📡 Full REST API available at http://localhost:${PORT}/api`);
   });
 };
 

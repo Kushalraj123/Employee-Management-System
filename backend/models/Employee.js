@@ -2,6 +2,12 @@ import mongoose from 'mongoose';
 
 const employeeSchema = new mongoose.Schema(
   {
+    employeeId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+    },
     name: {
       type: String,
       required: [true, 'Full name is required'],
@@ -49,7 +55,15 @@ const employeeSchema = new mongoose.Schema(
     },
     salary: {
       type: Number,
-      default: 95000,
+      default: 1200000,
+    },
+    salaryStructure: {
+      basicSalary: { type: Number, default: 60000 },
+      hra: { type: Number, default: 24000 },
+      allowances: { type: Number, default: 16000 },
+      bonus: { type: Number, default: 5000 },
+      deductions: { type: Number, default: 8000 },
+      netSalary: { type: Number, default: 97000 },
     },
     performanceScore: {
       type: Number,
@@ -69,6 +83,11 @@ const employeeSchema = new mongoose.Schema(
     skills: {
       type: [String],
       default: ['Collaboration', 'Enterprise Problem Solving'],
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
     },
   },
   {
