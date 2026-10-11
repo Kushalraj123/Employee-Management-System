@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
-import Header from './components/Header';
 import HorizontalNavbar from './components/HorizontalNavbar';
 import CommandPalette from './components/CommandPalette';
 import EmployeeModal from './components/EmployeeModal';
@@ -36,28 +34,20 @@ import { useAuth } from './context/AuthContext';
 import api from './api';
 
 export default function App() {
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBackendLive, setIsBackendLive] = useState(false);
-  const [layoutMode, setLayoutMode] = useState(() => {
-    return localStorage.getItem('nexus_nav_layout') || 'horizontal';
-  });
   const { showSuccess, showError } = useToast();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const toggleLayoutMode = () => {
-    const next = layoutMode === 'horizontal' ? 'vertical' : 'horizontal';
-    setLayoutMode(next);
-    localStorage.setItem('nexus_nav_layout', next);
-    showSuccess(`Switched to ${next === 'horizontal' ? 'Horizontal Top Menu' : 'Vertical Sidebar'} layout!`);
-  };
-
   const isLoginPage = location.pathname === '/login';
+
+  // Ensure persistent horizontal layout mode
+  useEffect(() => {
+    localStorage.removeItem('nexus_nav_layout');
+  }, []);
 
   // Test backend status on initial load
   useEffect(() => {
@@ -100,40 +90,13 @@ export default function App() {
         <div className="absolute -bottom-[20%] left-[20%] h-[500px] w-[500px] rounded-full bg-gradient-to-tr from-purple-600/10 to-indigo-600/5 blur-[120px]" />
       </div>
 
-      {/* Responsive Sidebar (Rendered only in vertical layout mode) */}
-      {layoutMode === 'vertical' && (
-        <Sidebar
-          collapsed={collapsed}
-          setCollapsed={setCollapsed}
-          mobileOpen={mobileOpen}
-          setMobileOpen={setMobileOpen}
+      {/* Main Full-Width Horizontal Layout Container */}
+      <div className="relative z-10 flex min-h-screen flex-col w-full">
+        {/* Horizontal Navigation Bar */}
+        <HorizontalNavbar
+          onOpenSearch={() => setSearchOpen(true)}
+          isBackendLive={isBackendLive}
         />
-      )}
-
-      {/* Main Content Layout Container */}
-      <div
-        className={`relative z-10 flex min-h-screen flex-col transition-all duration-300 ${
-          layoutMode === 'vertical'
-            ? collapsed ? 'lg:pl-20' : 'lg:pl-64'
-            : 'w-full'
-        }`}
-      >
-        {/* Navigation Bar: Horizontal Top Navbar or Vertical Header */}
-        {layoutMode === 'horizontal' ? (
-          <HorizontalNavbar
-            onOpenSearch={() => setSearchOpen(true)}
-            isBackendLive={isBackendLive}
-            layoutMode={layoutMode}
-            onToggleLayout={toggleLayoutMode}
-          />
-        ) : (
-          <Header
-            setMobileOpen={setMobileOpen}
-            onOpenSearch={() => setSearchOpen(true)}
-            isBackendLive={isBackendLive}
-            onToggleLayout={toggleLayoutMode}
-          />
-        )}
 
         {/* Dynamic Route View */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">

@@ -28,7 +28,6 @@ import {
   X,
   Database,
   LogOut,
-  SlidersHorizontal,
   Briefcase,
   UserCheck,
 } from 'lucide-react';
@@ -41,8 +40,6 @@ import api from '../api';
 export default function HorizontalNavbar({
   onOpenSearch,
   isBackendLive = false,
-  layoutMode = 'horizontal',
-  onToggleLayout,
 }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -122,18 +119,6 @@ export default function HorizontalNavbar({
                 </span>
               </div>
             </Link>
-
-            {/* Layout Toggle Button (Horizontal / Vertical Sidebar) */}
-            {onToggleLayout && (
-              <button
-                onClick={onToggleLayout}
-                className="hidden xl:inline-flex items-center gap-1.5 ml-4 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-900/60 text-[11px] font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-                title="Toggle between Horizontal Navbar and Vertical Sidebar layout"
-              >
-                <SlidersHorizontal className="w-3.5 h-3.5 text-indigo-500" />
-                <span>Layout: Horizontal</span>
-              </button>
-            )}
           </div>
 
           {/* Right Controls: Database status, Search, Theme, Notifications, Profile */}
