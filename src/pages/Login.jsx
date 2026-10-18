@@ -19,6 +19,8 @@ import {
   Eye,
   EyeOff,
   X,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -27,6 +29,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [activeDivision, setActiveDivision] = useState('employee'); // default open to employee
   const { login, demoLogin } = useAuth();
   const { showSuccess, showError } = useToast();
   const navigate = useNavigate();
@@ -179,51 +182,188 @@ export default function Login() {
               </span>
               <span className="text-[10px] text-slate-400">Pre-authenticated</span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() => handleQuickDemo('admin', 'admin@nexus.io')}
-                className="flex flex-col items-center justify-center p-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 hover:text-white transition-all text-xs font-semibold group shadow-sm text-center"
-                title="Sign in as Admin (admin@nexus.io)"
+                onClick={() => {
+                  setActiveDivision(null);
+                  handleQuickDemo('admin', 'admin@nexus.io');
+                }}
+                className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 hover:text-white transition-all text-xs font-semibold group shadow-sm text-center"
+                title="Sign in directly as Administrator (admin@nexus.io)"
               >
-                <Shield className="w-4 h-4 mb-0.5 text-indigo-400 group-hover:scale-110 transition-transform" />
+                <Shield className="w-4 h-4 mb-1 text-indigo-400 group-hover:scale-110 transition-transform" />
                 <span>Admin</span>
-                <span className="text-[9px] text-slate-400 font-normal">NEXUS</span>
+                <span className="text-[10px] text-slate-400 font-normal">NEXUS</span>
               </button>
 
               <button
                 type="button"
-                onClick={() => handleQuickDemo('hr', 'sarah.chen@nexus.io')}
-                className="flex flex-col items-center justify-center p-2 rounded-xl border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-white transition-all text-xs font-semibold group shadow-sm text-center"
-                title="Sign in as HR Lead (sarah.chen@nexus.io)"
+                onClick={() => setActiveDivision(activeDivision === 'hr' ? null : 'hr')}
+                className={`flex flex-col items-center justify-center p-2.5 rounded-xl border transition-all text-xs font-semibold group shadow-sm text-center ${
+                  activeDivision === 'hr'
+                    ? 'border-purple-500 bg-purple-500/25 text-white ring-1 ring-purple-500/50'
+                    : 'border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-white'
+                }`}
+                title="View HR Officer accounts"
               >
-                <Briefcase className="w-4 h-4 mb-0.5 text-purple-400 group-hover:scale-110 transition-transform" />
-                <span>HR Lead</span>
-                <span className="text-[9px] text-slate-400 font-normal">Sarah Chen</span>
+                <Briefcase className="w-4 h-4 mb-1 text-purple-400 group-hover:scale-110 transition-transform" />
+                <div className="flex items-center gap-1">
+                  <span>HR Lead</span>
+                  {activeDivision === 'hr' ? (
+                    <ChevronUp className="w-3 h-3 text-purple-400" />
+                  ) : (
+                    <ChevronDown className="w-3 h-3 text-purple-400" />
+                  )}
+                </div>
+                <span className="text-[10px] text-purple-300/80 font-normal">2 Officers</span>
               </button>
 
               <button
                 type="button"
-                onClick={() => handleQuickDemo('employee', 'marcus.vance@nexus.io')}
-                className="flex flex-col items-center justify-center p-2 rounded-xl border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 hover:text-white transition-all text-xs font-semibold group shadow-sm text-center"
-                title="Sign in as Employee 1 (marcus.vance@nexus.io)"
+                onClick={() => setActiveDivision(activeDivision === 'employee' ? null : 'employee')}
+                className={`flex flex-col items-center justify-center p-2.5 rounded-xl border transition-all text-xs font-semibold group shadow-sm text-center ${
+                  activeDivision === 'employee'
+                    ? 'border-blue-500 bg-blue-500/25 text-white ring-1 ring-blue-500/50'
+                    : 'border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 hover:text-white'
+                }`}
+                title="View Employee accounts"
               >
-                <UserCheck className="w-4 h-4 mb-0.5 text-blue-400 group-hover:scale-110 transition-transform" />
-                <span>Employee 1</span>
-                <span className="text-[9px] text-slate-400 font-normal">Marcus V.</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickDemo('employee', 'elena.rostova@nexus.io')}
-                className="flex flex-col items-center justify-center p-2 rounded-xl border border-teal-500/30 bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 hover:text-white transition-all text-xs font-semibold group shadow-sm text-center"
-                title="Sign in as Employee 2 (elena.rostova@nexus.io)"
-              >
-                <UserCheck className="w-4 h-4 mb-0.5 text-teal-400 group-hover:scale-110 transition-transform" />
-                <span>Employee 2</span>
-                <span className="text-[9px] text-slate-400 font-normal">Elena R.</span>
+                <UserCheck className="w-4 h-4 mb-1 text-blue-400 group-hover:scale-110 transition-transform" />
+                <div className="flex items-center gap-1">
+                  <span>Employee</span>
+                  {activeDivision === 'employee' ? (
+                    <ChevronUp className="w-3 h-3 text-blue-400" />
+                  ) : (
+                    <ChevronDown className="w-3 h-3 text-blue-400" />
+                  )}
+                </div>
+                <span className="text-[10px] text-blue-300/80 font-normal">2 Members</span>
               </button>
             </div>
+
+            {/* Division Sub-Menu for HR and Employee */}
+            <AnimatePresence>
+              {activeDivision === 'hr' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="mt-3 pt-3 border-t border-purple-500/20 overflow-hidden"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300 flex items-center gap-1">
+                      <span>Select HR Officer Account:</span>
+                    </span>
+                    <span className="text-[10px] text-slate-400">1-Click Sign In</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleQuickDemo('hr', 'sarah.chen@nexus.io')}
+                      className="flex items-center gap-2.5 p-2 rounded-xl border border-purple-500/30 bg-purple-950/40 hover:bg-purple-900/50 text-left transition-all group"
+                    >
+                      <img
+                        src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80"
+                        alt="Sarah Chen"
+                        className="w-8 h-8 rounded-lg object-cover ring-1 ring-purple-400/40 flex-shrink-0"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-semibold text-white group-hover:text-purple-300 transition-colors truncate">
+                          Sarah Chen
+                        </div>
+                        <div className="text-[10px] text-slate-400 truncate">
+                          Chief People Officer
+                        </div>
+                      </div>
+                      <ArrowRight className="w-3.5 h-3.5 text-purple-400 group-hover:translate-x-0.5 transition-transform flex-shrink-0" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleQuickDemo('hr', 'priya.sharma@nexus.io')}
+                      className="flex items-center gap-2.5 p-2 rounded-xl border border-purple-500/30 bg-purple-950/40 hover:bg-purple-900/50 text-left transition-all group"
+                    >
+                      <img
+                        src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=150&auto=format&fit=crop&q=80"
+                        alt="Priya Sharma"
+                        className="w-8 h-8 rounded-lg object-cover ring-1 ring-purple-400/40 flex-shrink-0"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-semibold text-white group-hover:text-purple-300 transition-colors truncate">
+                          Priya Sharma
+                        </div>
+                        <div className="text-[10px] text-slate-400 truncate">
+                          Sr. HR Business Partner
+                        </div>
+                      </div>
+                      <ArrowRight className="w-3.5 h-3.5 text-purple-400 group-hover:translate-x-0.5 transition-transform flex-shrink-0" />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {activeDivision === 'employee' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="mt-3 pt-3 border-t border-blue-500/20 overflow-hidden"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-300 flex items-center gap-1">
+                      <span>Select Employee Workstation:</span>
+                    </span>
+                    <span className="text-[10px] text-slate-400">1-Click Sign In</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleQuickDemo('employee', 'marcus.vance@nexus.io')}
+                      className="flex items-center gap-2.5 p-2 rounded-xl border border-blue-500/30 bg-blue-950/40 hover:bg-blue-900/50 text-left transition-all group"
+                    >
+                      <img
+                        src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80"
+                        alt="Marcus Vance"
+                        className="w-8 h-8 rounded-lg object-cover ring-1 ring-blue-400/40 flex-shrink-0"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-semibold text-white group-hover:text-blue-300 transition-colors truncate">
+                          Marcus Vance
+                        </div>
+                        <div className="text-[10px] text-slate-400 truncate">
+                          Senior Full-Stack Engineer
+                        </div>
+                      </div>
+                      <ArrowRight className="w-3.5 h-3.5 text-blue-400 group-hover:translate-x-0.5 transition-transform flex-shrink-0" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleQuickDemo('employee', 'elena.rostova@nexus.io')}
+                      className="flex items-center gap-2.5 p-2 rounded-xl border border-teal-500/30 bg-teal-950/40 hover:bg-teal-900/50 text-left transition-all group"
+                    >
+                      <img
+                        src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80"
+                        alt="Elena Rostova"
+                        className="w-8 h-8 rounded-lg object-cover ring-1 ring-teal-400/40 flex-shrink-0"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-semibold text-white group-hover:text-teal-300 transition-colors truncate">
+                          Elena Rostova
+                        </div>
+                        <div className="text-[10px] text-slate-400 truncate">
+                          Principal Architect & VP Tech
+                        </div>
+                      </div>
+                      <ArrowRight className="w-3.5 h-3.5 text-teal-400 group-hover:translate-x-0.5 transition-transform flex-shrink-0" />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           <div className="relative flex py-2 items-center mb-4">
@@ -237,20 +377,6 @@ export default function Login() {
             <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider mr-1">Prefill:</span>
             <button
               type="button"
-              onClick={() => { setEmail('marcus.vance@nexus.io'); setPassword('Emp@123'); }}
-              className="px-2 py-0.5 rounded-md bg-slate-800/80 hover:bg-blue-500/20 border border-slate-700/60 hover:border-blue-500/40 text-slate-300 hover:text-blue-300 text-[10px] font-medium transition-all"
-            >
-              Marcus (Emp 1)
-            </button>
-            <button
-              type="button"
-              onClick={() => { setEmail('elena.rostova@nexus.io'); setPassword('Emp@123'); }}
-              className="px-2 py-0.5 rounded-md bg-slate-800/80 hover:bg-teal-500/20 border border-slate-700/60 hover:border-teal-500/40 text-slate-300 hover:text-teal-300 text-[10px] font-medium transition-all"
-            >
-              Elena (Emp 2)
-            </button>
-            <button
-              type="button"
               onClick={() => { setEmail('admin@nexus.io'); setPassword('Admin@123'); }}
               className="px-2 py-0.5 rounded-md bg-slate-800/80 hover:bg-indigo-500/20 border border-slate-700/60 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-300 text-[10px] font-medium transition-all"
             >
@@ -261,7 +387,28 @@ export default function Login() {
               onClick={() => { setEmail('sarah.chen@nexus.io'); setPassword('Hr@123'); }}
               className="px-2 py-0.5 rounded-md bg-slate-800/80 hover:bg-purple-500/20 border border-slate-700/60 hover:border-purple-500/40 text-slate-300 hover:text-purple-300 text-[10px] font-medium transition-all"
             >
-              HR Lead
+              Sarah (HR)
+            </button>
+            <button
+              type="button"
+              onClick={() => { setEmail('priya.sharma@nexus.io'); setPassword('Hr@123'); }}
+              className="px-2 py-0.5 rounded-md bg-slate-800/80 hover:bg-purple-500/20 border border-slate-700/60 hover:border-purple-500/40 text-slate-300 hover:text-purple-300 text-[10px] font-medium transition-all"
+            >
+              Priya (HR)
+            </button>
+            <button
+              type="button"
+              onClick={() => { setEmail('marcus.vance@nexus.io'); setPassword('Emp@123'); }}
+              className="px-2 py-0.5 rounded-md bg-slate-800/80 hover:bg-blue-500/20 border border-slate-700/60 hover:border-blue-500/40 text-slate-300 hover:text-blue-300 text-[10px] font-medium transition-all"
+            >
+              Marcus (Emp)
+            </button>
+            <button
+              type="button"
+              onClick={() => { setEmail('elena.rostova@nexus.io'); setPassword('Emp@123'); }}
+              className="px-2 py-0.5 rounded-md bg-slate-800/80 hover:bg-teal-500/20 border border-slate-700/60 hover:border-teal-500/40 text-slate-300 hover:text-teal-300 text-[10px] font-medium transition-all"
+            >
+              Elena (Emp)
             </button>
           </div>
 

@@ -76,6 +76,14 @@ const seedDB = async () => {
         status: 'Active',
       },
       {
+        name: 'Priya Sharma',
+        email: 'priya.sharma@nexus.io',
+        password: hashedHrPassword,
+        role: 'hr',
+        employeeId: 'emp_007',
+        status: 'Active',
+      },
+      {
         name: 'Marcus Vance',
         email: 'marcus.vance@nexus.io',
         password: hashedEmpPassword,
