@@ -29,7 +29,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [activeDivision, setActiveDivision] = useState('employee'); // default open to employee
+  const [activeDivision, setActiveDivision] = useState(null);
   const { login, demoLogin } = useAuth();
   const { showSuccess, showError } = useToast();
   const navigate = useNavigate();
