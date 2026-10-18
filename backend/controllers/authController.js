@@ -120,21 +120,35 @@ export const login = async (req, res) => {
 
 export const demoLogin = async (req, res) => {
   try {
-    const { role = 'employee' } = req.body;
-    let targetEmail = 'marcus.vance@nexus.io';
-    if (role === 'admin') targetEmail = 'admin@nexus.io';
-    if (role === 'hr') targetEmail = 'sarah.chen@nexus.io';
+    const { role = 'employee', email } = req.body;
+    let targetEmail = email;
+    if (!targetEmail) {
+      if (role === 'admin') targetEmail = 'admin@nexus.io';
+      else if (role === 'hr') targetEmail = 'sarah.chen@nexus.io';
+      else targetEmail = 'marcus.vance@nexus.io';
+    }
 
-    let user = memoryStore.users.find(u => u.role === role) || {
-      _id: `usr_${role}`,
-      name: role.toUpperCase() + ' Demo User',
-      email: targetEmail,
-      role: role,
-      employeeId: 'emp_002',
-      status: 'Active',
-    };
+    let user = memoryStore.users.find(u => u.email.toLowerCase() === targetEmail.toLowerCase());
+    if (!user && mongoose.connection.readyState === 1) {
+      user = await User.findOne({ email: targetEmail.toLowerCase() });
+    }
+    if (!user) {
+      user = memoryStore.users.find(u => u.role === role);
+    }
+    if (!user) {
+      user = {
+        _id: `usr_${role}`,
+        name: role.toUpperCase() + ' Demo User',
+        email: targetEmail,
+        role: role,
+        employeeId: 'emp_002',
+        status: 'Active',
+      };
+    }
 
-    let employeeData = memoryStore.employees.find(e => e.email.toLowerCase() === targetEmail.toLowerCase());
+    let employeeData = memoryStore.employees.find(
+      e => e.email.toLowerCase() === targetEmail.toLowerCase() || e._id === user.employeeId
+    );
 
     const tokenPayload = {
       id: user._id || user.id,

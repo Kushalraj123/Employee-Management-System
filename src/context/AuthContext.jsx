@@ -53,10 +53,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const demoLogin = async (role = 'admin') => {
+  const demoLogin = async (role = 'admin', email = null) => {
     setLoading(true);
     try {
-      const res = await api.demoLogin(role);
+      const res = await api.demoLogin(role, email);
       const authToken = res.token;
       const userData = res.user;
 

@@ -60,11 +60,11 @@ export default function Login() {
     }
   };
 
-  const handleQuickDemo = async (role) => {
+  const handleQuickDemo = async (role, email = null) => {
     setLoading(true);
     try {
-      const res = await demoLogin(role);
-      showSuccess(`Signed in with ${role.toUpperCase()} permissions.`);
+      const res = await demoLogin(role, email);
+      showSuccess(`Signed in as ${res.user.name} (${role.toUpperCase()}).`);
       navigate('/');
     } catch (err) {
       showError('Demo login failed');
@@ -179,40 +179,90 @@ export default function Login() {
               </span>
               <span className="text-[10px] text-slate-400">Pre-authenticated</span>
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <button
                 type="button"
-                onClick={() => handleQuickDemo('admin')}
-                className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 hover:text-white transition-all text-xs font-semibold group shadow-sm"
+                onClick={() => handleQuickDemo('admin', 'admin@nexus.io')}
+                className="flex flex-col items-center justify-center p-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 hover:text-white transition-all text-xs font-semibold group shadow-sm text-center"
+                title="Sign in as Admin (admin@nexus.io)"
               >
-                <Shield className="w-4 h-4 mb-1 text-indigo-400 group-hover:scale-110 transition-transform" />
+                <Shield className="w-4 h-4 mb-0.5 text-indigo-400 group-hover:scale-110 transition-transform" />
                 <span>Admin</span>
+                <span className="text-[9px] text-slate-400 font-normal">NEXUS</span>
               </button>
 
               <button
                 type="button"
-                onClick={() => handleQuickDemo('hr')}
-                className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-white transition-all text-xs font-semibold group shadow-sm"
+                onClick={() => handleQuickDemo('hr', 'sarah.chen@nexus.io')}
+                className="flex flex-col items-center justify-center p-2 rounded-xl border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-white transition-all text-xs font-semibold group shadow-sm text-center"
+                title="Sign in as HR Lead (sarah.chen@nexus.io)"
               >
-                <Briefcase className="w-4 h-4 mb-1 text-purple-400 group-hover:scale-110 transition-transform" />
+                <Briefcase className="w-4 h-4 mb-0.5 text-purple-400 group-hover:scale-110 transition-transform" />
                 <span>HR Lead</span>
+                <span className="text-[9px] text-slate-400 font-normal">Sarah Chen</span>
               </button>
 
               <button
                 type="button"
-                onClick={() => handleQuickDemo('employee')}
-                className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 hover:text-white transition-all text-xs font-semibold group shadow-sm"
+                onClick={() => handleQuickDemo('employee', 'marcus.vance@nexus.io')}
+                className="flex flex-col items-center justify-center p-2 rounded-xl border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 hover:text-white transition-all text-xs font-semibold group shadow-sm text-center"
+                title="Sign in as Employee 1 (marcus.vance@nexus.io)"
               >
-                <UserCheck className="w-4 h-4 mb-1 text-blue-400 group-hover:scale-110 transition-transform" />
-                <span>Employee</span>
+                <UserCheck className="w-4 h-4 mb-0.5 text-blue-400 group-hover:scale-110 transition-transform" />
+                <span>Employee 1</span>
+                <span className="text-[9px] text-slate-400 font-normal">Marcus V.</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleQuickDemo('employee', 'elena.rostova@nexus.io')}
+                className="flex flex-col items-center justify-center p-2 rounded-xl border border-teal-500/30 bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 hover:text-white transition-all text-xs font-semibold group shadow-sm text-center"
+                title="Sign in as Employee 2 (elena.rostova@nexus.io)"
+              >
+                <UserCheck className="w-4 h-4 mb-0.5 text-teal-400 group-hover:scale-110 transition-transform" />
+                <span>Employee 2</span>
+                <span className="text-[9px] text-slate-400 font-normal">Elena R.</span>
               </button>
             </div>
           </div>
 
-          <div className="relative flex py-2 items-center mb-6">
+          <div className="relative flex py-2 items-center mb-4">
             <div className="flex-grow border-t border-slate-800"></div>
             <span className="flex-shrink mx-4 text-slate-500 text-[11px] uppercase font-bold tracking-wider">or sign in with credentials</span>
             <div className="flex-grow border-t border-slate-800"></div>
+          </div>
+
+          {/* Quick Credential Fill Selector */}
+          <div className="flex flex-wrap items-center justify-center gap-1.5 text-[11px] text-slate-400 mb-4">
+            <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider mr-1">Prefill:</span>
+            <button
+              type="button"
+              onClick={() => { setEmail('marcus.vance@nexus.io'); setPassword('Emp@123'); }}
+              className="px-2 py-0.5 rounded-md bg-slate-800/80 hover:bg-blue-500/20 border border-slate-700/60 hover:border-blue-500/40 text-slate-300 hover:text-blue-300 text-[10px] font-medium transition-all"
+            >
+              Marcus (Emp 1)
+            </button>
+            <button
+              type="button"
+              onClick={() => { setEmail('elena.rostova@nexus.io'); setPassword('Emp@123'); }}
+              className="px-2 py-0.5 rounded-md bg-slate-800/80 hover:bg-teal-500/20 border border-slate-700/60 hover:border-teal-500/40 text-slate-300 hover:text-teal-300 text-[10px] font-medium transition-all"
+            >
+              Elena (Emp 2)
+            </button>
+            <button
+              type="button"
+              onClick={() => { setEmail('admin@nexus.io'); setPassword('Admin@123'); }}
+              className="px-2 py-0.5 rounded-md bg-slate-800/80 hover:bg-indigo-500/20 border border-slate-700/60 hover:border-indigo-500/40 text-slate-300 hover:text-indigo-300 text-[10px] font-medium transition-all"
+            >
+              Admin
+            </button>
+            <button
+              type="button"
+              onClick={() => { setEmail('sarah.chen@nexus.io'); setPassword('Hr@123'); }}
+              className="px-2 py-0.5 rounded-md bg-slate-800/80 hover:bg-purple-500/20 border border-slate-700/60 hover:border-purple-500/40 text-slate-300 hover:text-purple-300 text-[10px] font-medium transition-all"
+            >
+              HR Lead
+            </button>
           </div>
 
           {/* Form */}

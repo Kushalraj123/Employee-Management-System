@@ -83,6 +83,14 @@ const seedDB = async () => {
         employeeId: 'emp_002',
         status: 'Active',
       },
+      {
+        name: 'Elena Rostova',
+        email: 'elena.rostova@nexus.io',
+        password: hashedEmpPassword,
+        role: 'employee',
+        employeeId: 'emp_001',
+        status: 'Active',
+      },
     ];
 
     await User.insertMany(usersToInsert);

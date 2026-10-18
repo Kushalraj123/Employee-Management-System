@@ -60,7 +60,7 @@ export const api = {
 
   // Auth
   login: (credentials) => post('/auth/login', credentials),
-  demoLogin: (role) => post('/auth/demo-login', { role }),
+  demoLogin: (role, email) => post('/auth/demo-login', { role, email }),
   forgotPassword: (email) => post('/auth/forgot-password', { email }),
   resetPassword: (payload) => post('/auth/reset-password', payload),
 
