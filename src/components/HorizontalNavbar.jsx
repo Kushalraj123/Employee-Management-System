@@ -21,7 +21,6 @@ import {
   User,
   ChevronDown,
   Search,
-  Command,
   Sun,
   Moon,
   Menu,
@@ -169,13 +168,10 @@ export default function HorizontalNavbar({
             <button
               onClick={onOpenSearch}
               className="flex h-8 w-8 sm:h-9 sm:w-auto p-0 sm:px-3 sm:py-1.5 items-center justify-center gap-2 rounded-lg sm:rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900/60 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm cursor-pointer shrink-0"
-              title="Search Workforce (Ctrl+K)"
+              title="Search Workforce"
             >
               <Search className="h-3.5 w-3.5" />
               <span className="hidden md:inline text-slate-400">Search...</span>
-              <kbd className="hidden md:inline-flex items-center gap-0.5 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-1 py-0.5 text-[9px] font-mono text-slate-500">
-                <Command className="h-2.5 w-2.5" /> K
-              </kbd>
             </button>
 
             {/* Theme Toggle */}
@@ -767,13 +763,10 @@ export default function HorizontalNavbar({
                 setMobileMenuOpen(false);
                 onOpenSearch();
               }}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-white/10 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-white/10 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
             >
-              <div className="flex items-center gap-2.5">
-                <Search className="w-4 h-4 text-indigo-500" />
-                <span className="font-semibold">Search Workforce...</span>
-              </div>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">Ctrl+K</span>
+              <Search className="w-4 h-4 text-indigo-500" />
+              <span className="font-semibold">Search Workforce...</span>
             </button>
 
             <div className="space-y-1 text-sm font-semibold">

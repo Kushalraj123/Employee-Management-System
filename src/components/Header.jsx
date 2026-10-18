@@ -12,7 +12,6 @@ import {
   CheckCircle2,
   ExternalLink,
   Shield,
-  Command,
   LogOut,
   User,
   Clock,
@@ -123,13 +122,10 @@ export default function Header({ setMobileOpen, onOpenSearch, isBackendLive = fa
         <button
           onClick={onOpenSearch}
           className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900/60 px-3 py-2 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm"
-          title="Search Workforce (Ctrl+K)"
+          title="Search Workforce"
         >
           <Search className="h-4 w-4" />
           <span className="hidden lg:inline text-slate-400">Search...</span>
-          <kbd className="hidden lg:inline-flex items-center gap-0.5 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-mono text-slate-500">
-            <Command className="h-2.5 w-2.5" /> K
-          </kbd>
         </button>
 
         {/* Layout Toggle Button */}
