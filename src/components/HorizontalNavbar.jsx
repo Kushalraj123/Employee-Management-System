@@ -126,12 +126,12 @@ export default function HorizontalNavbar({
       className="sticky top-0 z-50 w-full border-b border-slate-200/80 dark:border-white/10 bg-white/95 dark:bg-slate-950/90 backdrop-blur-2xl transition-colors shadow-sm overflow-visible"
     >
       {/* Top Header Row: Branding, Quick Tools, Search, User */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
-        <div className="flex h-16 items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 overflow-visible">
+        <div className="flex h-16 items-center justify-between gap-2 sm:gap-4">
           {/* Left: 3D Logo & Brand */}
-          <div className="flex items-center gap-3">
-            <Link to="/" className="flex items-center gap-3 group">
-              <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600 p-2 shadow-md shadow-indigo-500/25 ring-1 ring-white/20 group-hover:scale-105 group-hover:shadow-indigo-500/40 transition-all duration-300">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
+              <div className="relative flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg sm:rounded-xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600 p-1.5 sm:p-2 shadow-md shadow-indigo-500/25 ring-1 ring-white/20 group-hover:scale-105 group-hover:shadow-indigo-500/40 transition-all duration-300">
                 <svg viewBox="0 0 32 32" fill="none" className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
                   <path d="M6 26V6L13 10.5V17.5L26 26H18L11 21.5V26H6Z" fill="#FFFFFF" />
                   <path d="M26 6V26L19 21.5V14.5L6 6H14L21 10.5V6H26Z" fill="#C7D2FE" fillOpacity="0.9" />
@@ -141,11 +141,11 @@ export default function HorizontalNavbar({
               </div>
 
               <div className="flex flex-col">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-base font-extrabold tracking-tight text-slate-900 dark:text-white font-mono">
+                <div className="flex items-center gap-1 sm:gap-1.5">
+                  <span className="text-sm sm:text-base font-extrabold tracking-tight text-slate-900 dark:text-white font-mono">
                     NEXUS <span className="text-indigo-600 dark:text-indigo-400">HR</span>
                   </span>
-                  <span className="text-[10px] font-semibold px-1.5 py-0.2 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 rounded border border-indigo-200 dark:border-indigo-500/30">
+                  <span className="text-[9px] sm:text-[10px] font-semibold px-1 sm:px-1.5 py-0.2 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 rounded border border-indigo-200 dark:border-indigo-500/30">
                     2.0
                   </span>
                 </div>
@@ -156,8 +156,8 @@ export default function HorizontalNavbar({
             </Link>
           </div>
 
-          {/* Right Controls: Database status, Search, Theme, Notifications, Profile */}
-          <div className="flex items-center gap-2 sm:gap-3 overflow-visible">
+          {/* Right Controls: Database status, Search, Theme, Notifications, Profile, Hamburger */}
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 overflow-visible">
             {/* Backend / Atlas Status */}
             <div className="hidden lg:flex items-center gap-1.5 rounded-full border border-indigo-200 dark:border-indigo-500/20 bg-indigo-50/90 dark:bg-indigo-950/30 px-3 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-300 shadow-sm">
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -168,7 +168,7 @@ export default function HorizontalNavbar({
             {/* Quick Search */}
             <button
               onClick={onOpenSearch}
-              className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900/60 px-3 py-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm cursor-pointer"
+              className="flex h-8 w-8 sm:h-9 sm:w-auto p-0 sm:px-3 sm:py-1.5 items-center justify-center gap-2 rounded-lg sm:rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900/60 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm cursor-pointer shrink-0"
               title="Search Workforce (Ctrl+K)"
             >
               <Search className="h-3.5 w-3.5" />
@@ -181,21 +181,21 @@ export default function HorizontalNavbar({
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm cursor-pointer"
+              className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg sm:rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm cursor-pointer shrink-0"
               title={isDark ? 'Switch to Light' : 'Switch to Dark'}
             >
               {isDark ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-indigo-600" />}
             </button>
 
             {/* Notification Bell */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   setNotificationsOpen(!notificationsOpen);
                   setUserDropdownOpen(false);
                 }}
-                className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm cursor-pointer"
+                className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg sm:rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm cursor-pointer"
                 title="Notifications"
               >
                 <Bell className="h-4 w-4" />
@@ -245,16 +245,16 @@ export default function HorizontalNavbar({
             </div>
 
             {/* User Profile & Role Dropdown */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   setUserDropdownOpen(!userDropdownOpen);
                   setNotificationsOpen(false);
                 }}
-                className="flex items-center gap-2 rounded-xl p-1 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 sm:gap-2 rounded-lg sm:rounded-xl p-0.5 sm:p-1 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
               >
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 font-bold text-xs text-white shadow-sm ring-2 ring-indigo-500/30 overflow-hidden">
+                <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg sm:rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 font-bold text-xs text-white shadow-sm ring-1 sm:ring-2 ring-indigo-500/30 overflow-hidden shrink-0">
                   <img
                     src={user?.avatar || `https://ui-avatars.com/api/?background=6366f1&color=fff&name=${encodeURIComponent(user?.name || 'User')}`}
                     alt={user?.name || 'User'}
@@ -269,7 +269,7 @@ export default function HorizontalNavbar({
                     {role}
                   </span>
                 </div>
-                <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+                <ChevronDown className="hidden sm:block h-3.5 w-3.5 text-slate-400" />
               </button>
 
               <AnimatePresence>
@@ -314,10 +314,10 @@ export default function HorizontalNavbar({
             {/* Mobile Hamburger Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 cursor-pointer"
+              className="md:hidden flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center shrink-0 rounded-lg sm:rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/60 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm cursor-pointer active:scale-95 ml-0.5"
               aria-label="Toggle Mobile Menu"
             >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {mobileMenuOpen ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}
             </button>
           </div>
         </div>
@@ -761,6 +761,21 @@ export default function HorizontalNavbar({
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden border-t border-slate-200 dark:border-white/10 bg-white dark:bg-slate-950 px-4 py-4 space-y-3 overflow-y-auto max-h-[80vh]"
           >
+            {/* Search Workforce Quick Trigger */}
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenSearch();
+              }}
+              className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-white/10 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+            >
+              <div className="flex items-center gap-2.5">
+                <Search className="w-4 h-4 text-indigo-500" />
+                <span className="font-semibold">Search Workforce...</span>
+              </div>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">Ctrl+K</span>
+            </button>
+
             <div className="space-y-1 text-sm font-semibold">
               <NavLink
                 to="/"
