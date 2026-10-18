@@ -61,6 +61,8 @@ export const api = {
   // Auth
   login: (credentials) => post('/auth/login', credentials),
   demoLogin: (role) => post('/auth/demo-login', { role }),
+  forgotPassword: (email) => post('/auth/forgot-password', { email }),
+  resetPassword: (payload) => post('/auth/reset-password', payload),
 
   // Employees
   getEmployees: (params = {}) =>
