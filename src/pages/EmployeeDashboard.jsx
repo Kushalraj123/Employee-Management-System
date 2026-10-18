@@ -18,6 +18,7 @@ import {
   Sun,
   Shield,
   Layers,
+  RotateCcw,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -84,6 +85,16 @@ export default function EmployeeDashboard() {
       setAttendance(res.data);
     } catch (err) {
       showError(err.response?.data?.message || 'Check-out failed');
+    }
+  };
+
+  const handleResetPunch = async () => {
+    try {
+      const res = await api.resetTodayAttendance();
+      showSuccess(res.message);
+      setAttendance(null);
+    } catch (err) {
+      showError(err.response?.data?.message || 'Failed to reset attendance');
     }
   };
 
@@ -185,6 +196,17 @@ export default function EmployeeDashboard() {
               <div className="flex-1 py-3 px-4 rounded-xl bg-slate-800/60 border border-slate-700 text-slate-300 text-xs font-semibold text-center">
                 ✓ Full shift recorded for today. Have a great evening!
               </div>
+            )}
+
+            {isCheckedIn && (
+              <button
+                onClick={handleResetPunch}
+                title="Reset punch session to test check-in again"
+                className="px-4 py-3 rounded-xl border border-slate-700 hover:border-rose-500/50 hover:bg-rose-500/10 text-slate-300 hover:text-rose-300 text-xs font-semibold transition-all flex items-center gap-1.5"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset Punch</span>
+              </button>
             )}
 
             <Link

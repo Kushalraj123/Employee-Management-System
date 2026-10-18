@@ -77,6 +77,7 @@ export const api = {
   // Attendance
   checkIn: () => post('/attendance/check-in'),
   checkOut: () => post('/attendance/check-out'),
+  resetTodayAttendance: () => post('/attendance/reset-today'),
   getTodayAttendance: () => get('/attendance/today'),
   getMyAttendanceHistory: () => get('/attendance/my-history'),
   getAllAttendance: (params = {}) => get(`/attendance/all${toQuery(params)}`),

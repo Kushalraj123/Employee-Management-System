@@ -8,6 +8,7 @@ import {
   getPolicy,
   updatePolicy,
   runCutoffEvaluation,
+  resetTodayAttendance,
 } from '../controllers/attendanceController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { authorize } from '../middleware/roleMiddleware.js';
@@ -18,6 +19,7 @@ router.use(protect);
 
 router.post('/check-in', checkIn);
 router.post('/check-out', checkOut);
+router.post('/reset-today', resetTodayAttendance);
 router.get('/today', getTodayStatus);
 router.get('/my-history', getMyHistory);
 router.get('/all', authorize('hr', 'admin'), getAllAttendance);

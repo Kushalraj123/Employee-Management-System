@@ -296,3 +296,31 @@ export const runCutoffEvaluation = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// Reset today's attendance for current user (allows re-testing Punch Check In)
+export const resetTodayAttendance = async (req, res) => {
+  try {
+    const user = req.user;
+    const employeeId = user.employeeId || user.id || 'emp_002';
+    const today = new Date().toISOString().split('T')[0];
+
+    // Remove any attendance for this employee today
+    memoryStore.attendance = memoryStore.attendance.filter(
+      a => !(a.employeeId === employeeId && a.date === today)
+    );
+
+    if (mongoose.connection.readyState === 1) {
+      try {
+        await Attendance.deleteMany({ employeeId, date: today });
+      } catch (e) {}
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Today's check-in has been cleared. You can now punch check-in freshly.",
+      data: null,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
