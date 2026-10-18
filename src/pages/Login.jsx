@@ -16,8 +16,8 @@ import {
 import { motion } from 'framer-motion';
 
 export default function Login() {
-  const [email, setEmail] = useState('admin@nexus.io');
-  const [password, setPassword] = useState('Admin@123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { login, demoLogin } = useAuth();
   const { showSuccess, showError } = useToast();
@@ -146,7 +146,7 @@ export default function Login() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@nexus.io"
+                  placeholder="you@company.com"
                   required
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950/70 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
                 />

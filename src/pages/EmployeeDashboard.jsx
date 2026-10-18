@@ -25,7 +25,7 @@ export default function EmployeeDashboard() {
   const { user } = useAuth();
   const { showSuccess, showError } = useToast();
   const [attendance, setAttendance] = useState(null);
-  const [leaveBalance, setLeaveBalance] = useState({ casualTotal: 12, casualUsed: 3, sickTotal: 10, sickUsed: 1, earnedTotal: 15, earnedUsed: 2 });
+  const [leaveBalance, setLeaveBalance] = useState({ casualTotal: 0, casualUsed: 0, sickTotal: 0, sickUsed: 0, earnedTotal: 0, earnedUsed: 0, unpaidUsed: 0 });
   const [announcements, setAnnouncements] = useState([]);
   const [slips, setSlips] = useState([]);
   const [goals, setGoals] = useState([]);
@@ -101,7 +101,7 @@ export default function EmployeeDashboard() {
               <span>Employee Workstation</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Welcome back, <span className="bg-gradient-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent">{user?.name || 'Marcus Vance'}</span>
+              Welcome back, <span className="bg-gradient-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent">{user?.name || ''}</span>
             </h1>
             <p className="text-sm text-slate-300 max-w-xl">
               NEXUS Workforce Engine is monitoring active sprint deliverables. Your fixed-time office window is currently active.

@@ -17,7 +17,7 @@ export default function LeaveApply() {
   const { user } = useAuth();
   const { showSuccess, showError } = useToast();
   const [leaves, setLeaves] = useState([]);
-  const [balance, setBalance] = useState({ casualTotal: 12, casualUsed: 3, sickTotal: 10, sickUsed: 1, earnedTotal: 15, earnedUsed: 2, unpaidUsed: 0 });
+  const [balance, setBalance] = useState({ casualTotal: 0, casualUsed: 0, sickTotal: 0, sickUsed: 0, earnedTotal: 0, earnedUsed: 0, unpaidUsed: 0 });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 

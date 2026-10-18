@@ -221,7 +221,7 @@ export default function Sidebar({
           >
             <div className="relative shrink-0">
               <img
-                src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'}
+                src={user?.avatar || `https://ui-avatars.com/api/?background=6366f1&color=fff&name=${encodeURIComponent(user?.name || 'User')}`}
                 alt={user?.name || 'User'}
                 className="h-9 w-9 rounded-xl object-cover ring-2 ring-indigo-500/30"
               />

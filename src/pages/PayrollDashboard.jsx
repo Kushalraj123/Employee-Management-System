@@ -29,15 +29,21 @@ export default function PayrollDashboard() {
   const loadData = async () => {
     setLoading(true);
     try {
+      const params = payPeriod && payPeriod !== 'All' ? { payPeriod } : {};
       if (isEmployee) {
-        const res = await api.getMySalarySlips();
-        setPayrolls(res.data || []);
+        const res = await api.getMySalarySlips(params);
+        let list = res.data || [];
+        if (payPeriod && payPeriod !== 'All') {
+          list = list.filter((p) => p.payPeriod === payPeriod);
+        }
+        setPayrolls(list);
       } else {
-        const [listRes, statsRes] = await Promise.all([
-          api.getAllPayrolls({ payPeriod }),
-          api.getAllPayrolls(),
-        ]);
-        setPayrolls(listRes.data || []);
+        const listRes = await api.getAllPayrolls(params);
+        let list = listRes.data || [];
+        if (payPeriod && payPeriod !== 'All') {
+          list = list.filter((p) => p.payPeriod === payPeriod);
+        }
+        setPayrolls(list);
       }
     } catch (err) {
       console.warn('Payroll fetch error:', err);
@@ -165,7 +171,14 @@ export default function PayrollDashboard() {
             <tbody className="divide-y divide-slate-800/60 text-slate-300">
               {payrolls.map((p) => (
                 <tr key={p._id} className="hover:bg-slate-800/30 transition-colors">
-                  <td className="py-3.5 px-4 font-mono font-bold text-indigo-400">{p.slipNumber || p._id}</td>
+                  <td className="py-3.5 px-4 font-mono font-bold text-indigo-400">
+                    <Link
+                      to={`/payroll/slips/${p._id || p.slipNumber}`}
+                      className="hover:underline hover:text-indigo-300 transition-colors"
+                    >
+                      {p.slipNumber || p._id}
+                    </Link>
+                  </td>
                   <td className="py-3.5 px-4 font-bold text-white">{p.employeeName}</td>
                   <td className="py-3.5 px-4">{p.department}</td>
                   <td className="py-3.5 px-4 font-mono">₹{p.basicSalary?.toLocaleString()}</td>
@@ -174,24 +187,29 @@ export default function PayrollDashboard() {
                   <td className="py-3.5 px-4 font-mono text-rose-400">₹{p.deductions?.toLocaleString()}</td>
                   <td className="py-3.5 px-4 font-mono font-extrabold text-emerald-400">₹{p.netSalary?.toLocaleString()}</td>
                   <td className="py-3.5 px-4">
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                      p.status === 'Paid'
-                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                        : p.status === 'Approved'
-                        ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
-                        : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                    }`}>
+                    <Link
+                      to={`/payroll/slips/${p._id || p.slipNumber}`}
+                      className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider hover:opacity-90 transition-all ${
+                        p.status === 'Paid'
+                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30'
+                          : p.status === 'Approved'
+                          ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30'
+                          : 'bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30'
+                      }`}
+                      title="Click to view slip details"
+                    >
                       {p.status}
-                    </span>
+                    </Link>
                   </td>
                   <td className="py-3.5 px-4 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Link
                         to={`/payroll/slips/${p._id || p.slipNumber}`}
-                        className="p-1.5 rounded-lg border border-slate-700 bg-slate-800/60 hover:bg-slate-800 text-indigo-400 hover:text-white transition-colors"
+                        className="p-1.5 rounded-lg border border-slate-700 bg-slate-800/60 hover:bg-slate-800 text-indigo-400 hover:text-white transition-colors flex items-center gap-1 text-xs font-semibold"
                         title="View Salary Slip"
                       >
                         <Eye className="w-4 h-4" />
+                        <span className="hidden sm:inline">View</span>
                       </Link>
 
                       {!isEmployee && p.status === 'Draft' && (

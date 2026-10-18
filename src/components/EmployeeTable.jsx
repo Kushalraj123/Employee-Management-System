@@ -21,6 +21,7 @@ export default function EmployeeTable({
   onView,
   onEdit,
   onDelete,
+  canManage = true,
 }) {
   const departmentColors = {
     Engineering: 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20',
@@ -59,6 +60,7 @@ export default function EmployeeTable({
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-slate-950/40 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              {canManage && (
               <th className="py-4 pl-6 pr-3 w-12">
                 <input
                   type="checkbox"
@@ -67,6 +69,7 @@ export default function EmployeeTable({
                   className="h-4 w-4 rounded border-slate-300 dark:border-white/20 bg-white dark:bg-slate-900 text-indigo-600 focus:ring-indigo-500/20 focus:ring-offset-0 cursor-pointer"
                 />
               </th>
+              )}
               <th className="py-4 px-4 font-mono">Employee</th>
               <th className="py-4 px-4 font-mono">Department</th>
               <th className="py-4 px-4 font-mono">Designation</th>
@@ -99,6 +102,7 @@ export default function EmployeeTable({
                   }`}
                 >
                   {/* Select Checkbox */}
+                  {canManage && (
                   <td className="py-4 pl-6 pr-3">
                     <input
                       type="checkbox"
@@ -107,6 +111,7 @@ export default function EmployeeTable({
                       className="h-4 w-4 rounded border-slate-300 dark:border-white/20 bg-white dark:bg-slate-900 text-indigo-600 focus:ring-indigo-500/20 focus:ring-offset-0 cursor-pointer"
                     />
                   </td>
+                  )}
 
                   {/* Employee Info */}
                   <td className="py-4 px-4">
@@ -194,6 +199,7 @@ export default function EmployeeTable({
                         <Eye className="h-4 w-4" />
                       </Link>
 
+                      {canManage && (
                       <button
                         onClick={() => onEdit && onEdit(emp)}
                         className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 hover:border-indigo-300 dark:hover:border-indigo-500/40 hover:bg-indigo-50 dark:hover:bg-indigo-500/20 shadow-sm transition-all"
@@ -201,7 +207,9 @@ export default function EmployeeTable({
                       >
                         <Edit2 className="h-4 w-4" />
                       </button>
+                      )}
 
+                      {canManage && (
                       <button
                         onClick={() => onDelete && onDelete(emp)}
                         className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-300 dark:hover:border-rose-500/40 hover:bg-rose-50 dark:hover:bg-rose-500/20 shadow-sm transition-all"
@@ -209,6 +217,7 @@ export default function EmployeeTable({
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
+                      )}
                     </div>
                   </td>
                 </motion.tr>

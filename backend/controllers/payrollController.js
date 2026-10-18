@@ -109,9 +109,14 @@ export const getMySalarySlips = async (req, res) => {
   try {
     const user = req.user;
     const employeeId = user.employeeId || user.id || 'emp_002';
+    const { payPeriod } = req.query;
 
     // Strictly filter only current employee's records
-    const slips = memoryStore.payrolls.filter(p => p.employeeId === employeeId);
+    let slips = memoryStore.payrolls.filter(p => p.employeeId === employeeId);
+
+    if (payPeriod && payPeriod !== 'All') {
+      slips = slips.filter(p => p.payPeriod === payPeriod);
+    }
 
     return res.status(200).json({
       success: true,

@@ -95,16 +95,18 @@ export const applyLeave = async (req, res) => {
 
     memoryStore.leaveRequests.unshift(newRequest);
 
-    // Create notification for HR
-    memoryStore.notifications.unshift({
-      _id: 'notif_' + Date.now(),
-      userId: 'usr_hr',
-      title: 'New Leave Application',
-      message: `${newRequest.employeeName} submitted a ${leaveType} leave request for ${startDate} to ${endDate}.`,
-      type: 'warning',
-      link: '/leave/approvals',
-      read: false,
-      createdAt: new Date().toISOString(),
+    // Notify HR and Admin about the new request
+    ['usr_hr', 'usr_admin'].forEach((target, i) => {
+      memoryStore.notifications.unshift({
+        _id: `notif_${Date.now()}_${i}`,
+        userId: target,
+        title: 'New Leave Application',
+        message: `${newRequest.employeeName} submitted a ${leaveType} leave request for ${startDate} to ${endDate}.`,
+        type: 'warning',
+        link: '/leave/approvals',
+        read: false,
+        createdAt: new Date().toISOString(),
+      });
     });
 
     return res.status(201).json({
@@ -198,6 +200,12 @@ export const reviewLeave = async (req, res) => {
     }
 
     const leave = memoryStore.leaveRequests[index];
+    if (leave.status !== 'Pending') {
+      return res.status(409).json({
+        success: false,
+        message: `This request was already ${leave.status.toLowerCase()}.`,
+      });
+    }
     leave.status = status;
     leave.hrComments = hrComments;
     leave.reviewedBy = reviewerName;
@@ -205,12 +213,15 @@ export const reviewLeave = async (req, res) => {
 
     // If approved, deduct balance
     if (status === 'Approved') {
+      if (!memoryStore.leaveBalances[leave.employeeId]) {
+        memoryStore.leaveBalances[leave.employeeId] = { casualTotal: 12, casualUsed: 0, sickTotal: 10, sickUsed: 0, earnedTotal: 15, earnedUsed: 0, unpaidUsed: 0 };
+      }
       const bal = memoryStore.leaveBalances[leave.employeeId];
       if (bal) {
         if (leave.leaveType === 'Casual') bal.casualUsed += leave.daysCount;
         if (leave.leaveType === 'Sick') bal.sickUsed += leave.daysCount;
         if (leave.leaveType === 'Earned') bal.earnedUsed += leave.daysCount;
-        if (leave.leaveType === 'Unpaid') bal.unpaidUsed += leave.daysCount;
+        if (leave.leaveType === 'Unpaid') bal.unpaidUsed = (bal.unpaidUsed || 0) + leave.daysCount;
       }
     }
 

@@ -213,7 +213,7 @@ export default function Header({ setMobileOpen, onOpenSearch, isBackendLive = fa
           >
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 font-bold text-xs text-white shadow-sm ring-2 ring-indigo-500/30 overflow-hidden">
               <img
-                src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'}
+                src={user?.avatar || `https://ui-avatars.com/api/?background=6366f1&color=fff&name=${encodeURIComponent(user?.name || 'User')}`}
                 alt={user?.name || 'User'}
                 className="w-full h-full object-cover"
               />

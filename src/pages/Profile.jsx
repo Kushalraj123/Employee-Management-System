@@ -19,8 +19,8 @@ export default function Profile() {
   const { user, role, updateProfile } = useAuth();
   const { showSuccess, showError } = useToast();
 
-  const [name, setName] = useState(user?.name || 'Marcus Vance');
-  const [email] = useState(user?.email || 'marcus.vance@nexus.io');
+  const [name, setName] = useState(user?.name || '');
+  const [email] = useState(user?.email || '');
   const [phone, setPhone] = useState('+91 98450 34567');
   const [bio, setBio] = useState('Senior Full-Stack Engineer specializing in high-throughput React frontends and Node.js microservices.');
   const [currentPassword, setCurrentPassword] = useState('');
@@ -65,7 +65,7 @@ export default function Profile() {
       <div className="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-700/60 bg-slate-900/80 flex flex-col sm:flex-row items-center gap-6">
         <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center p-1 text-white shadow-xl shadow-indigo-500/20 ring-4 ring-indigo-500/20">
           <img
-            src={user?.avatar || 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80'}
+            src={user?.avatar || `https://ui-avatars.com/api/?background=6366f1&color=fff&name=${encodeURIComponent(user?.name || 'User')}`}
             alt={user?.name}
             className="w-full h-full object-cover rounded-2xl"
           />

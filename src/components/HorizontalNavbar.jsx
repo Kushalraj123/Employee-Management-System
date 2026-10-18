@@ -67,6 +67,8 @@ export default function HorizontalNavbar({
       } catch (e) {}
     };
     fetchNotifs();
+    const timer = setInterval(fetchNotifs, 10000);
+    return () => clearInterval(timer);
   }, [location.pathname]);
 
   // Close menus on route change
@@ -107,12 +109,6 @@ export default function HorizontalNavbar({
   const toggleDropdown = (name, e) => {
     e.stopPropagation();
     setActiveDropdown(prev => prev === name ? null : name);
-  };
-
-  const handleRoleSwitch = async (targetRole) => {
-    await demoLogin(targetRole);
-    showSuccess(`Switched to ${targetRole.toUpperCase()} permissions.`);
-    setUserDropdownOpen(false);
   };
 
   const handleLogout = () => {
@@ -260,7 +256,7 @@ export default function HorizontalNavbar({
               >
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 font-bold text-xs text-white shadow-sm ring-2 ring-indigo-500/30 overflow-hidden">
                   <img
-                    src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'}
+                    src={user?.avatar || `https://ui-avatars.com/api/?background=6366f1&color=fff&name=${encodeURIComponent(user?.name || 'User')}`}
                     alt={user?.name || 'User'}
                     className="w-full h-full object-cover"
                   />
@@ -290,40 +286,6 @@ export default function HorizontalNavbar({
                       <div className="mt-1.5 inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
                         Active Role: {role}
                       </div>
-                    </div>
-
-                    {/* Quick 1-Click Role Switcher */}
-                    <div className="py-2 border-b border-slate-100 dark:border-white/5 space-y-1">
-                      <span className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-                        Quick Demo Role Switch
-                      </span>
-                      <button
-                        onClick={() => handleRoleSwitch('admin')}
-                        className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-                          role === 'admin' ? 'bg-indigo-600 text-white' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                        }`}
-                      >
-                        <Shield className="w-3.5 h-3.5" />
-                        <span>Switch to Admin</span>
-                      </button>
-                      <button
-                        onClick={() => handleRoleSwitch('hr')}
-                        className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-                          role === 'hr' ? 'bg-purple-600 text-white' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                        }`}
-                      >
-                        <Briefcase className="w-3.5 h-3.5" />
-                        <span>Switch to HR Lead</span>
-                      </button>
-                      <button
-                        onClick={() => handleRoleSwitch('employee')}
-                        className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-                          role === 'employee' ? 'bg-blue-600 text-white' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                        }`}
-                      >
-                        <UserCheck className="w-3.5 h-3.5" />
-                        <span>Switch to Employee</span>
-                      </button>
                     </div>
 
                     <div className="py-1 space-y-0.5">
@@ -428,18 +390,25 @@ export default function HorizontalNavbar({
                     <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl shadow-2xl p-2 space-y-1 ring-1 ring-black/5 dark:ring-white/10">
                       <NavLink
                         to="/attendance"
+                        end
                         onClick={() => setActiveDropdown(null)}
                         className={({ isActive }) =>
                           `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-colors ${
-                            isActive ? 'bg-indigo-600 text-white font-bold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            isActive
+                              ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30'
+                              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                           }`
                         }
                       >
-                        <Clock className="w-4 h-4 text-emerald-500 shrink-0" />
-                        <div>
-                          <div className="font-semibold">Attendance Punch</div>
-                          <div className="text-[10px] text-slate-400">Live clock & shifts</div>
-                        </div>
+                        {({ isActive }) => (
+                          <>
+                            <Clock className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-emerald-500'}`} />
+                            <div>
+                              <div className="font-semibold">Attendance Punch</div>
+                              <div className={`text-[10px] ${isActive ? 'text-indigo-100' : 'text-slate-400'}`}>Live clock & shifts</div>
+                            </div>
+                          </>
+                        )}
                       </NavLink>
 
                       <NavLink
@@ -447,15 +416,21 @@ export default function HorizontalNavbar({
                         onClick={() => setActiveDropdown(null)}
                         className={({ isActive }) =>
                           `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-colors ${
-                            isActive ? 'bg-indigo-600 text-white font-bold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            isActive
+                              ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30'
+                              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                           }`
                         }
                       >
-                        <Calendar className="w-4 h-4 text-indigo-500 shrink-0" />
-                        <div>
-                          <div className="font-semibold">Monthly Calendar</div>
-                          <div className="text-[10px] text-slate-400">Status badges & shifts</div>
-                        </div>
+                        {({ isActive }) => (
+                          <>
+                            <Calendar className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-indigo-500'}`} />
+                            <div>
+                              <div className="font-semibold">Monthly Calendar</div>
+                              <div className={`text-[10px] ${isActive ? 'text-indigo-100' : 'text-slate-400'}`}>Status badges & shifts</div>
+                            </div>
+                          </>
+                        )}
                       </NavLink>
 
                       <div className="border-t border-slate-100 dark:border-white/5 my-1" />
@@ -465,15 +440,21 @@ export default function HorizontalNavbar({
                         onClick={() => setActiveDropdown(null)}
                         className={({ isActive }) =>
                           `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-colors ${
-                            isActive ? 'bg-indigo-600 text-white font-bold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            isActive
+                              ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30'
+                              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                           }`
                         }
                       >
-                        <Send className="w-4 h-4 text-purple-500 shrink-0" />
-                        <div>
-                          <div className="font-semibold">Apply for Leave</div>
-                          <div className="text-[10px] text-slate-400">Balances & request form</div>
-                        </div>
+                        {({ isActive }) => (
+                          <>
+                            <Send className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-purple-500'}`} />
+                            <div>
+                              <div className="font-semibold">Apply for Leave</div>
+                              <div className={`text-[10px] ${isActive ? 'text-indigo-100' : 'text-slate-400'}`}>Balances & request form</div>
+                            </div>
+                          </>
+                        )}
                       </NavLink>
 
                       {(isAdmin || isHR) && (
@@ -482,18 +463,26 @@ export default function HorizontalNavbar({
                           onClick={() => setActiveDropdown(null)}
                           className={({ isActive }) =>
                             `flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-colors ${
-                              isActive ? 'bg-indigo-600 text-white font-bold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                              isActive
+                                ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                             }`
                           }
                         >
-                          <div className="flex items-center gap-2.5">
-                            <CheckSquare className="w-4 h-4 text-amber-500 shrink-0" />
-                            <div>
-                              <div className="font-semibold">Leave Approvals</div>
-                              <div className="text-[10px] text-slate-400">HR review queue</div>
-                            </div>
-                          </div>
-                          <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-purple-500/20 text-purple-300 uppercase">HR</span>
+                          {({ isActive }) => (
+                            <>
+                              <div className="flex items-center gap-2.5">
+                                <CheckSquare className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-amber-500'}`} />
+                                <div>
+                                  <div className="font-semibold">Leave Approvals</div>
+                                  <div className={`text-[10px] ${isActive ? 'text-indigo-100' : 'text-slate-400'}`}>HR review queue</div>
+                                </div>
+                              </div>
+                              <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold uppercase ${
+                                isActive ? 'bg-white/20 text-white' : 'bg-purple-500/20 text-purple-300'
+                              }`}>HR</span>
+                            </>
+                          )}
                         </NavLink>
                       )}
                     </div>
@@ -552,15 +541,21 @@ export default function HorizontalNavbar({
                         onClick={() => setActiveDropdown(null)}
                         className={({ isActive }) =>
                           `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-colors ${
-                            isActive ? 'bg-indigo-600 text-white font-bold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            isActive
+                              ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30'
+                              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                           }`
                         }
                       >
-                        <Bell className="w-4 h-4 text-indigo-400 shrink-0" />
-                        <div>
-                          <div className="font-semibold">Announcements</div>
-                          <div className="text-[10px] text-slate-400">Bulletins & holiday notices</div>
-                        </div>
+                        {({ isActive }) => (
+                          <>
+                            <Bell className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-indigo-400'}`} />
+                            <div>
+                              <div className="font-semibold">Announcements</div>
+                              <div className={`text-[10px] ${isActive ? 'text-indigo-100' : 'text-slate-400'}`}>Bulletins & holiday notices</div>
+                            </div>
+                          </>
+                        )}
                       </NavLink>
 
                       <NavLink
@@ -568,15 +563,21 @@ export default function HorizontalNavbar({
                         onClick={() => setActiveDropdown(null)}
                         className={({ isActive }) =>
                           `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-colors ${
-                            isActive ? 'bg-indigo-600 text-white font-bold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            isActive
+                              ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30'
+                              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                           }`
                         }
                       >
-                        <Award className="w-4 h-4 text-amber-400 shrink-0" />
-                        <div>
-                          <div className="font-semibold">Performance Reviews</div>
-                          <div className="text-[10px] text-slate-400">Evaluations & scores</div>
-                        </div>
+                        {({ isActive }) => (
+                          <>
+                            <Award className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-amber-400'}`} />
+                            <div>
+                              <div className="font-semibold">Performance Reviews</div>
+                              <div className={`text-[10px] ${isActive ? 'text-indigo-100' : 'text-slate-400'}`}>Evaluations & scores</div>
+                            </div>
+                          </>
+                        )}
                       </NavLink>
 
                       <NavLink
@@ -584,15 +585,21 @@ export default function HorizontalNavbar({
                         onClick={() => setActiveDropdown(null)}
                         className={({ isActive }) =>
                           `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-colors ${
-                            isActive ? 'bg-indigo-600 text-white font-bold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            isActive
+                              ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30'
+                              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                           }`
                         }
                       >
-                        <Target className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <div>
-                          <div className="font-semibold">Goals & OKRs</div>
-                          <div className="text-[10px] text-slate-400">Quarterly milestone trackers</div>
-                        </div>
+                        {({ isActive }) => (
+                          <>
+                            <Target className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-emerald-400'}`} />
+                            <div>
+                              <div className="font-semibold">Goals & OKRs</div>
+                              <div className={`text-[10px] ${isActive ? 'text-indigo-100' : 'text-slate-400'}`}>Quarterly milestone trackers</div>
+                            </div>
+                          </>
+                        )}
                       </NavLink>
 
                       <NavLink
@@ -600,15 +607,21 @@ export default function HorizontalNavbar({
                         onClick={() => setActiveDropdown(null)}
                         className={({ isActive }) =>
                           `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-colors ${
-                            isActive ? 'bg-indigo-600 text-white font-bold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            isActive
+                              ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30'
+                              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                           }`
                         }
                       >
-                        <Building2 className="w-4 h-4 text-blue-400 shrink-0" />
-                        <div>
-                          <div className="font-semibold">Departments</div>
-                          <div className="text-[10px] text-slate-400">Headcounts & budgets</div>
-                        </div>
+                        {({ isActive }) => (
+                          <>
+                            <Building2 className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-blue-400'}`} />
+                            <div>
+                              <div className="font-semibold">Departments</div>
+                              <div className={`text-[10px] ${isActive ? 'text-indigo-100' : 'text-slate-400'}`}>Headcounts & budgets</div>
+                            </div>
+                          </>
+                        )}
                       </NavLink>
 
                       {(isAdmin || isHR) && (
@@ -617,15 +630,21 @@ export default function HorizontalNavbar({
                           onClick={() => setActiveDropdown(null)}
                           className={({ isActive }) =>
                             `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-colors ${
-                              isActive ? 'bg-indigo-600 text-white font-bold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                              isActive
+                                ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                             }`
                           }
                         >
-                          <BarChart3 className="w-4 h-4 text-purple-400 shrink-0" />
-                          <div>
-                            <div className="font-semibold">Executive Reports</div>
-                            <div className="text-[10px] text-slate-400">Analytics & CSV exports</div>
-                          </div>
+                          {({ isActive }) => (
+                            <>
+                              <BarChart3 className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-purple-400'}`} />
+                              <div>
+                                <div className="font-semibold">Executive Reports</div>
+                                <div className={`text-[10px] ${isActive ? 'text-indigo-100' : 'text-slate-400'}`}>Analytics & CSV exports</div>
+                              </div>
+                            </>
+                          )}
                         </NavLink>
                       )}
                     </div>
@@ -670,15 +689,21 @@ export default function HorizontalNavbar({
                           onClick={() => setActiveDropdown(null)}
                           className={({ isActive }) =>
                             `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-colors ${
-                              isActive ? 'bg-indigo-600 text-white font-bold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                              isActive
+                                ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                             }`
                           }
                         >
-                          <Shield className="w-4 h-4 text-blue-400 shrink-0" />
-                          <div>
-                            <div className="font-semibold">User & Role Access</div>
-                            <div className="text-[10px] text-slate-400">Permissions & provisioning</div>
-                          </div>
+                          {({ isActive }) => (
+                            <>
+                              <Shield className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-blue-400'}`} />
+                              <div>
+                                <div className="font-semibold">User & Role Access</div>
+                                <div className={`text-[10px] ${isActive ? 'text-indigo-100' : 'text-slate-400'}`}>Permissions & provisioning</div>
+                              </div>
+                            </>
+                          )}
                         </NavLink>
 
                         <NavLink
@@ -686,15 +711,21 @@ export default function HorizontalNavbar({
                           onClick={() => setActiveDropdown(null)}
                           className={({ isActive }) =>
                             `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-colors ${
-                              isActive ? 'bg-indigo-600 text-white font-bold' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                              isActive
+                                ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                             }`
                           }
                         >
-                          <Settings className="w-4 h-4 text-slate-400 shrink-0" />
-                          <div>
-                            <div className="font-semibold">System Settings</div>
-                            <div className="text-[10px] text-slate-400">Fixed-time policy & cutoff</div>
-                          </div>
+                          {({ isActive }) => (
+                            <>
+                              <Settings className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                              <div>
+                                <div className="font-semibold">System Settings</div>
+                                <div className={`text-[10px] ${isActive ? 'text-indigo-100' : 'text-slate-400'}`}>Fixed-time policy & cutoff</div>
+                              </div>
+                            </>
+                          )}
                         </NavLink>
                       </div>
                     </motion.div>

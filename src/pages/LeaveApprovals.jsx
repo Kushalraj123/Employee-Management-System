@@ -62,7 +62,8 @@ export default function LeaveApprovals() {
       setModalAction(null);
       loadData();
     } catch (err) {
-      showError('Failed to record review action.');
+      showError(err.response?.data?.message || 'Failed to record review action.');
+      loadData();
     }
   };
 

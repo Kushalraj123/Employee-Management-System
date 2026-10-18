@@ -142,6 +142,7 @@ export default function EmployeeCard({ employee, onEdit, onDelete }) {
             Profile
           </Link>
 
+          {(onEdit || onDelete) && (
           <div className="flex items-center gap-1">
             <button
               onClick={() => onEdit && onEdit(employee)}
@@ -158,6 +159,7 @@ export default function EmployeeCard({ employee, onEdit, onDelete }) {
               <Trash2 className="h-3.5 w-3.5" />
             </button>
           </div>
+          )}
         </div>
       </div>
     </div>

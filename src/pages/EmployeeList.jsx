@@ -246,6 +246,7 @@ export default function EmployeeList() {
           setSelectedIds={setSelectedIds}
           onEdit={handleOpenEdit}
           onDelete={handleOpenDelete}
+          canManage={isAdmin || isHR}
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
@@ -253,8 +254,8 @@ export default function EmployeeList() {
             <EmployeeCard
               key={emp._id || emp.id}
               employee={emp}
-              onEdit={handleOpenEdit}
-              onDelete={handleOpenDelete}
+              onEdit={(isAdmin || isHR) ? handleOpenEdit : undefined}
+              onDelete={(isAdmin || isHR) ? handleOpenDelete : undefined}
             />
           ))}
         </div>

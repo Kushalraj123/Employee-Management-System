@@ -71,9 +71,12 @@ export default function Settings() {
   const handleResetData = () => {
     setResettingData(true);
     setTimeout(() => {
-      api.resetMockData();
+      // No local seed data exists anymore; just clear any legacy cached records in this browser
+      Object.keys(localStorage)
+        .filter((k) => k.startsWith('nexus_') && k.endsWith('_db'))
+        .forEach((k) => localStorage.removeItem(k));
       setResettingData(false);
-      showSuccess('Workforce database restored to default seed records');
+      showSuccess('Locally cached records cleared');
     }, 600);
   };
 
