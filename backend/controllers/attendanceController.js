@@ -3,15 +3,53 @@ import AttendancePolicy from '../models/AttendancePolicy.js';
 import { memoryStore } from '../store.js';
 import mongoose from 'mongoose';
 
-// Helper to format 24h to 12h AM/PM
-const formatTimeAMPM = (date) => {
-  let hours = date.getHours();
-  let minutes = date.getMinutes();
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours = hours % 12;
-  hours = hours ? hours : 12;
-  const strMinutes = minutes < 10 ? '0' + minutes : minutes;
-  return `${hours}:${strMinutes} ${ampm}`;
+// Helpers to format time and determine today respecting policy timezone
+const getPolicyTimezone = () => memoryStore.attendancePolicy?.timezone || 'Asia/Kolkata';
+
+const formatTimeAMPM = (date, timezone = getPolicyTimezone()) => {
+  try {
+    return date.toLocaleTimeString('en-US', {
+      timeZone: timezone,
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  } catch (e) {
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    const strMinutes = minutes < 10 ? '0' + minutes : minutes;
+    return `${hours}:${strMinutes} ${ampm}`;
+  }
+};
+
+const getTodayDateString = (timezone = getPolicyTimezone()) => {
+  try {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date());
+  } catch (e) {
+    return new Date().toISOString().split('T')[0];
+  }
+};
+
+const getMinutesInTimezone = (date, timezone = getPolicyTimezone()) => {
+  try {
+    const timeStr = date.toLocaleTimeString('en-GB', {
+      timeZone: timezone,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    const [h, m] = timeStr.split(':').map(Number);
+    return h * 60 + m;
+  } catch (e) {
+    return date.getHours() * 60 + date.getMinutes();
+  }
 };
 
 // Check-in endpoint
@@ -20,7 +58,8 @@ export const checkIn = async (req, res) => {
     const user = req.user;
     const employeeId = user.employeeId || user.id || 'emp_002';
     const employeeName = user.name || 'Team Member';
-    const today = new Date().toISOString().split('T')[0];
+    const policy = memoryStore.attendancePolicy;
+    const today = getTodayDateString(policy?.timezone);
 
     // Check if already checked in today
     let existing = memoryStore.attendance.find(a => a.employeeId === employeeId && a.date === today);
@@ -37,20 +76,19 @@ export const checkIn = async (req, res) => {
     }
 
     const now = new Date();
-    const checkInTimeString = formatTimeAMPM(now);
+    const checkInTimeString = formatTimeAMPM(now, policy?.timezone);
 
     // Apply Fixed-Time Attendance Policy
-    const policy = memoryStore.attendancePolicy;
     const [startH, startM] = policy.workStartTime.split(':').map(Number);
     const graceLimit = startH * 60 + startM + policy.gracePeriodMinutes;
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const currentMinutes = getMinutesInTimezone(now, policy?.timezone);
 
     let status = 'Present';
     let lateMinutes = 0;
 
     if (currentMinutes > graceLimit) {
       status = 'Late';
-      lateMinutes = currentMinutes - (startH * 60 + startM);
+      lateMinutes = Math.max(0, currentMinutes - (startH * 60 + startM));
     }
 
     const newRecord = {
@@ -94,7 +132,8 @@ export const checkOut = async (req, res) => {
   try {
     const user = req.user;
     const employeeId = user.employeeId || user.id || 'emp_002';
-    const today = new Date().toISOString().split('T')[0];
+    const policy = memoryStore.attendancePolicy;
+    const today = getTodayDateString(policy?.timezone);
 
     let recordIndex = memoryStore.attendance.findIndex(a => a.employeeId === employeeId && a.date === today);
     if (recordIndex === -1) {
@@ -114,27 +153,30 @@ export const checkOut = async (req, res) => {
     }
 
     const now = new Date();
-    const checkOutTimeString = formatTimeAMPM(now);
+    const checkOutTimeString = formatTimeAMPM(now, policy?.timezone);
 
-    // Calculate working hours
-    // Parse check in time
+    // Calculate working hours accurately using createdAt timestamp diff
     let workingHours = 8.0;
     try {
-      const [time, modifier] = record.checkInTime.split(' ');
-      let [hours, minutes] = time.split(':').map(Number);
-      if (modifier === 'PM' && hours < 12) hours += 12;
-      if (modifier === 'AM' && hours === 12) hours = 0;
-      
-      const checkInDate = new Date();
-      checkInDate.setHours(hours, minutes, 0, 0);
-      const diffMs = Math.max(0, now.getTime() - checkInDate.getTime());
-      workingHours = Number((diffMs / (1000 * 60 * 60)).toFixed(2));
-      if (workingHours === 0) workingHours = 0.5; // minimum unit for demo checkouts
+      if (record.createdAt) {
+        const diffMs = Math.max(0, now.getTime() - new Date(record.createdAt).getTime());
+        workingHours = Number((diffMs / (1000 * 60 * 60)).toFixed(2));
+      } else {
+        const [time, modifier] = record.checkInTime.split(' ');
+        let [hours, minutes] = time.split(':').map(Number);
+        if (modifier === 'PM' && hours < 12) hours += 12;
+        if (modifier === 'AM' && hours === 12) hours = 0;
+        
+        const checkInDate = new Date();
+        checkInDate.setHours(hours, minutes, 0, 0);
+        const diffMs = Math.max(0, now.getTime() - checkInDate.getTime());
+        workingHours = Number((diffMs / (1000 * 60 * 60)).toFixed(2));
+      }
+      if (workingHours === 0) workingHours = 0.01;
     } catch (e) {
       workingHours = 8.0;
     }
 
-    const policy = memoryStore.attendancePolicy;
     let finalStatus = record.status;
     if (workingHours < policy.halfDayThresholdHours && record.status !== 'On Leave') {
       finalStatus = 'Half Day';
@@ -168,7 +210,8 @@ export const getTodayStatus = async (req, res) => {
   try {
     const user = req.user;
     const employeeId = user.employeeId || user.id || 'emp_002';
-    const today = new Date().toISOString().split('T')[0];
+    const policy = memoryStore.attendancePolicy;
+    const today = getTodayDateString(policy?.timezone);
 
     const record = memoryStore.attendance.find(a => a.employeeId === employeeId && a.date === today);
 
@@ -260,7 +303,8 @@ export const updatePolicy = async (req, res) => {
 // Cutoff scheduler / manual run: Mark absent for employees not checked in
 export const runCutoffEvaluation = async (req, res) => {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const policy = memoryStore.attendancePolicy;
+    const today = getTodayDateString(policy?.timezone);
     let markedCount = 0;
 
     memoryStore.employees.forEach(emp => {
@@ -302,7 +346,8 @@ export const resetTodayAttendance = async (req, res) => {
   try {
     const user = req.user;
     const employeeId = user.employeeId || user.id || 'emp_002';
-    const today = new Date().toISOString().split('T')[0];
+    const policy = memoryStore.attendancePolicy;
+    const today = getTodayDateString(policy?.timezone);
 
     // Remove any attendance for this employee today
     memoryStore.attendance = memoryStore.attendance.filter(

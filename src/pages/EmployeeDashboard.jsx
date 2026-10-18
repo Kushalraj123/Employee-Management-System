@@ -31,12 +31,20 @@ export default function EmployeeDashboard() {
   const [slips, setSlips] = useState([]);
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+  const getFormattedTime = () =>
+    new Date().toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    });
+
+  const [currentTime, setCurrentTime] = useState(getFormattedTime());
 
   // Live ticking clock
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date().toLocaleTimeString());
+      setCurrentTime(getFormattedTime());
     }, 1000);
     return () => clearInterval(timer);
   }, []);
