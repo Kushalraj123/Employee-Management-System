@@ -129,9 +129,6 @@ export default function Sidebar({
                   <span className="text-base font-extrabold tracking-tight text-slate-900 dark:text-white font-mono">
                     NEXUS <span className="text-indigo-600 dark:text-indigo-400">HR</span>
                   </span>
-                  <span className="text-[10px] font-semibold px-1.5 py-0.2 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 rounded border border-indigo-200 dark:border-indigo-500/30">
-                    2.0
-                  </span>
                 </div>
                 <span className="text-[10px] tracking-tight text-slate-500 dark:text-slate-400 font-medium truncate max-w-[130px]">
                   People. Performance.
