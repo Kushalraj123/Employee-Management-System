@@ -189,56 +189,53 @@ export default function Login() {
                   setActiveDivision(null);
                   handleQuickDemo('admin', 'admin@nexus.io');
                 }}
-                className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 hover:text-white transition-all text-xs font-semibold group shadow-sm text-center"
+                className="flex flex-col items-center justify-center py-3 px-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 hover:text-white transition-all text-xs font-semibold group shadow-sm text-center"
                 title="Sign in directly as Administrator (admin@nexus.io)"
               >
-                <Shield className="w-4 h-4 mb-1 text-indigo-400 group-hover:scale-110 transition-transform" />
+                <Shield className="w-4 h-4 mb-1.5 text-indigo-400 group-hover:scale-110 transition-transform" />
                 <span>Admin</span>
-                <span className="text-[10px] text-slate-400 font-normal">NEXUS</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveDivision(activeDivision === 'hr' ? null : 'hr')}
-                className={`flex flex-col items-center justify-center p-2.5 rounded-xl border transition-all text-xs font-semibold group shadow-sm text-center ${
+                className={`flex flex-col items-center justify-center py-3 px-2 rounded-xl border transition-all text-xs font-semibold group shadow-sm text-center ${
                   activeDivision === 'hr'
                     ? 'border-purple-500 bg-purple-500/25 text-white ring-1 ring-purple-500/50'
                     : 'border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-white'
                 }`}
                 title="View HR Officer accounts"
               >
-                <Briefcase className="w-4 h-4 mb-1 text-purple-400 group-hover:scale-110 transition-transform" />
+                <Briefcase className="w-4 h-4 mb-1.5 text-purple-400 group-hover:scale-110 transition-transform" />
                 <div className="flex items-center gap-1">
                   <span>HR Lead</span>
                   {activeDivision === 'hr' ? (
-                    <ChevronUp className="w-3 h-3 text-purple-400" />
+                    <ChevronUp className="w-3.5 h-3.5 text-purple-400" />
                   ) : (
-                    <ChevronDown className="w-3 h-3 text-purple-400" />
+                    <ChevronDown className="w-3.5 h-3.5 text-purple-400" />
                   )}
                 </div>
-                <span className="text-[10px] text-purple-300/80 font-normal">2 Officers</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveDivision(activeDivision === 'employee' ? null : 'employee')}
-                className={`flex flex-col items-center justify-center p-2.5 rounded-xl border transition-all text-xs font-semibold group shadow-sm text-center ${
+                className={`flex flex-col items-center justify-center py-3 px-2 rounded-xl border transition-all text-xs font-semibold group shadow-sm text-center ${
                   activeDivision === 'employee'
                     ? 'border-blue-500 bg-blue-500/25 text-white ring-1 ring-blue-500/50'
                     : 'border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 hover:text-white'
                 }`}
                 title="View Employee accounts"
               >
-                <UserCheck className="w-4 h-4 mb-1 text-blue-400 group-hover:scale-110 transition-transform" />
+                <UserCheck className="w-4 h-4 mb-1.5 text-blue-400 group-hover:scale-110 transition-transform" />
                 <div className="flex items-center gap-1">
                   <span>Employee</span>
                   {activeDivision === 'employee' ? (
-                    <ChevronUp className="w-3 h-3 text-blue-400" />
+                    <ChevronUp className="w-3.5 h-3.5 text-blue-400" />
                   ) : (
-                    <ChevronDown className="w-3 h-3 text-blue-400" />
+                    <ChevronDown className="w-3.5 h-3.5 text-blue-400" />
                   )}
                 </div>
-                <span className="text-[10px] text-blue-300/80 font-normal">2 Members</span>
               </button>
             </div>
 
