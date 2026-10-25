@@ -131,6 +131,12 @@ export const api = {
   getNotifications: () => get('/notifications'),
   markNotificationRead: (id) => put(`/notifications/${id}/read`),
   markAllNotificationsRead: () => put('/notifications/read-all'),
+
+  // AI Agent Copilot
+  chatWithAI: (payload) => post('/ai/chat', payload),
+  executeAIAction: (payload) => post('/ai/action', payload),
+  getAICapabilities: () => get('/ai/capabilities'),
+  getAIInsights: () => get('/ai/insights'),
 };
 
 export default api;

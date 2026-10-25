@@ -15,6 +15,7 @@ import departmentRoutes from './routes/departmentRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 dotenv.config();
@@ -53,15 +54,17 @@ app.use('/api/departments', departmentRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Root Welcome Endpoint
 app.get('/', (req, res) => {
   res.send({
     service: 'NEXUS HR — People. Performance. Connected.',
-    version: '2.0 Enterprise',
+    version: '2.5 Enterprise with AI Copilot',
     status: 'Online',
     modules: [
       '/api/auth',
+      '/api/ai',
       '/api/employees',
       '/api/attendance',
       '/api/leave',

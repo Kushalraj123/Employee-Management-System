@@ -10,6 +10,8 @@ import {
   ArrowRight,
   User,
   Plus,
+  Bot,
+  Sparkles,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../api';
@@ -56,6 +58,7 @@ export default function CommandPalette({ isOpen, onClose, onAddEmployee }) {
     .slice(0, 6);
 
   const quickNav = [
+    { title: 'NEXUS AI Copilot Studio', path: '/ai-copilot', icon: Bot, isSpecial: true },
     { title: 'Dashboard Overview', path: '/', icon: BarChart3 },
     { title: 'Employee Directory', path: '/employees', icon: Users },
     { title: 'Department Analytics', path: '/departments', icon: Building2 },

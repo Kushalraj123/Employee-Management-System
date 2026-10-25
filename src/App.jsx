@@ -28,6 +28,8 @@ import Departments from './pages/Departments';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
+import AIAgentStudio from './pages/AIAgentStudio';
+import AIAgentWidget from './components/AIAgent/AIAgentWidget';
 
 import { useToast } from './context/ToastContext';
 import { useAuth } from './context/AuthContext';
@@ -139,8 +141,9 @@ export default function App() {
             <Route path="/reports" element={<ProtectedRoute allowedRoles={['hr', 'admin']}><Reports /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute allowedRoles={['admin']}><Settings /></ProtectedRoute>} />
 
-            {/* Profile */}
+            {/* Profile & AI Copilot */}
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/ai-copilot" element={<ProtectedRoute><AIAgentStudio /></ProtectedRoute>} />
 
             {/* Fallback */}
             <Route path="*" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -160,6 +163,9 @@ export default function App() {
           </div>
         </footer>
       </div>
+
+      {/* Global AI Copilot Assistant Widget */}
+      <AIAgentWidget />
 
       {/* Global Quick Search (Ctrl+K) */}
       <CommandPalette

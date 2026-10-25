@@ -29,6 +29,8 @@ import {
   LogOut,
   Briefcase,
   UserCheck,
+  Bot,
+  Zap,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -170,6 +172,17 @@ export default function HorizontalNavbar({
               <Search className="h-3.5 w-3.5" />
               <span className="hidden md:inline text-slate-400">Search...</span>
             </button>
+
+            {/* AI Copilot Studio Quick Launcher */}
+            <Link
+              to="/ai-copilot"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg sm:rounded-xl bg-gradient-to-r from-indigo-600/20 via-purple-600/20 to-pink-600/10 border border-indigo-500/40 text-indigo-600 dark:text-indigo-300 hover:border-indigo-400 hover:shadow-md hover:shadow-indigo-500/20 transition-all text-xs font-semibold cursor-pointer shrink-0"
+              title="Launch NEXUS AI HR Copilot"
+            >
+              <Bot className="h-3.5 w-3.5 text-indigo-500 animate-pulse" />
+              <span className="hidden sm:inline">AI Copilot</span>
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+            </Link>
 
             {/* Theme Toggle */}
             <button
@@ -741,6 +754,24 @@ export default function HorizontalNavbar({
               <User className="w-3.5 h-3.5" />
               <span>Profile</span>
             </NavLink>
+
+            {/* 8. Dedicated AI Copilot Studio */}
+            <NavLink
+              to="/ai-copilot"
+              className={({ isActive }) =>
+                `flex items-center gap-2 px-3.5 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer ml-auto ${
+                  isActive
+                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-600/25 font-bold'
+                    : 'text-indigo-600 dark:text-indigo-300 bg-indigo-500/10 border border-indigo-500/25 hover:bg-indigo-500/20'
+                }`
+              }
+            >
+              <Bot className="w-3.5 h-3.5" />
+              <span>AI Agent</span>
+              <span className="px-1.5 py-0.2 rounded bg-indigo-500/30 text-[9px] font-mono text-indigo-300 font-bold uppercase">
+                Copilot
+              </span>
+            </NavLink>
           </nav>
         </div>
       </div>
@@ -767,6 +798,18 @@ export default function HorizontalNavbar({
             </button>
 
             <div className="space-y-1 text-sm font-semibold">
+              <NavLink
+                to="/ai-copilot"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600/20 to-purple-600/20 border border-indigo-500/30 text-indigo-400 hover:text-indigo-300"
+              >
+                <div className="flex items-center gap-3">
+                  <Bot className="w-4 h-4 text-indigo-400" />
+                  <span>AI Agent Studio</span>
+                </div>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/30 font-mono text-white">Copilot</span>
+              </NavLink>
+
               <NavLink
                 to="/"
                 onClick={() => setMobileMenuOpen(false)}
