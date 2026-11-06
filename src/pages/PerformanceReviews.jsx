@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   ThumbsUp,
   Target,
+  BarChart3,
 } from 'lucide-react';
 
 export default function PerformanceReviews() {
@@ -19,10 +20,12 @@ export default function PerformanceReviews() {
   const { showSuccess, showError } = useToast();
   const [reviews, setReviews] = useState([]);
   const [employees, setEmployees] = useState([]);
+  const [analytics, setAnalytics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [selfModalOpen, setSelfModalOpen] = useState(false);
 
-  // Form
+  // Manager Review Form
   const [targetEmployeeId, setTargetEmployeeId] = useState('');
   const [reviewCycle, setReviewCycle] = useState('Q3 2026');
   const [rating, setRating] = useState(4.5);
@@ -30,15 +33,24 @@ export default function PerformanceReviews() {
   const [strengths, setStrengths] = useState('');
   const [improvements, setImprovements] = useState('');
 
+  // Self-Assessment Form
+  const [selfCycle, setSelfCycle] = useState('Q4 2026');
+  const [selfRating, setSelfRating] = useState(4.5);
+  const [selfAssessmentText, setSelfAssessmentText] = useState('');
+  const [selfStrengths, setSelfStrengths] = useState('');
+  const [selfImprovements, setSelfImprovements] = useState('');
+
   const loadData = async () => {
     setLoading(true);
     try {
-      const [revRes, empRes] = await Promise.all([
+      const [revRes, empRes, anaRes] = await Promise.all([
         api.getReviews(),
         api.getEmployees(),
+        api.getPerformanceAnalytics().catch(() => ({ data: [] })),
       ]);
       setReviews(revRes.data || []);
       setEmployees(empRes.data || []);
+      setAnalytics(anaRes.data || []);
       if (empRes.data?.length) setTargetEmployeeId(empRes.data[0]._id);
     } catch (err) {
       console.warn('Reviews error:', err);
@@ -77,29 +89,95 @@ export default function PerformanceReviews() {
     }
   };
 
+  const handleSelfAssessmentSubmit = async (e) => {
+    e.preventDefault();
+    if (!selfAssessmentText) {
+      showError('Self-assessment reflection is required.');
+      return;
+    }
+    try {
+      await api.submitSelfAssessment({
+        reviewCycle: selfCycle,
+        selfRating: Number(selfRating),
+        selfAssessment: selfAssessmentText,
+        strengths: selfStrengths.split(',').map(s => s.trim()).filter(Boolean),
+        improvementAreas: selfImprovements.split(',').map(s => s.trim()).filter(Boolean),
+      });
+      showSuccess('Self-assessment submitted successfully!');
+      setSelfModalOpen(false);
+      setSelfAssessmentText('');
+      setSelfStrengths('');
+      setSelfImprovements('');
+      loadData();
+    } catch (err) {
+      showError('Failed to submit self-assessment.');
+    }
+  };
+
   return (
     <div className="space-y-6 sm:space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Performance Reviews & Feedback History
+            Performance Reviews & Department Analytics
           </h1>
           <p className="text-sm text-slate-400 mt-1">
-            Periodic evaluation cycles, multi-criteria ratings, strengths, and mentorship milestones.
+            360° evaluations, employee self-assessments, skill progression, and department benchmarks.
           </p>
         </div>
 
-        {!isEmployee && (
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
-            onClick={() => setModalOpen(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 transition-all"
+            onClick={() => setSelfModalOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-indigo-500/40 text-indigo-300 text-xs font-bold transition-all"
           >
-            <Plus className="w-4 h-4" />
-            <span>Conduct Review</span>
+            <Sparkles className="w-4 h-4 text-indigo-400" />
+            <span>Submit Self-Assessment</span>
           </button>
-        )}
+
+          {!isEmployee && (
+            <button
+              onClick={() => setModalOpen(true)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 transition-all"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Conduct Manager Review</span>
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* Department Performance Analytics Strip */}
+      {analytics.length > 0 && (
+        <div className="glass-panel rounded-3xl p-5 border border-slate-700/50 bg-slate-900/60">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-indigo-400" />
+            <span>Department Performance Benchmarks</span>
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {analytics.map((dept) => (
+              <div key={dept.department} className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800/80 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-white text-xs">{dept.department}</span>
+                  <span className="text-[10px] font-mono text-slate-400">{dept.headcount} members</span>
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <span className="text-lg font-extrabold text-indigo-400 font-mono">{dept.avgScore}%</span>
+                  <span className="text-xs font-mono text-amber-400">★ {dept.avgReviewRating}</span>
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style={{ width: `${dept.avgScore}%` }} />
+                </div>
+                <div className="text-[10px] text-slate-500 flex justify-between">
+                  <span>OKRs: {dept.completedGoals}/{dept.goalsCount}</span>
+                  <span>Reviews: {dept.reviewsCount}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Review Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -133,6 +211,17 @@ export default function PerformanceReviews() {
               "{rev.feedback}"
             </p>
 
+            {/* Self Assessment block if present */}
+            {rev.selfAssessment && (
+              <div className="p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-xs space-y-1">
+                <div className="flex items-center justify-between text-[11px] font-bold text-indigo-300">
+                  <span>Employee Self-Assessment</span>
+                  {rev.selfRating && <span>Self Rating: {rev.selfRating}/5.0</span>}
+                </div>
+                <p className="text-slate-300 text-xs">{rev.selfAssessment}</p>
+              </div>
+            )}
+
             {/* Strengths & Improvements */}
             <div className="space-y-2 text-xs">
               {rev.strengths && rev.strengths.length > 0 && (
@@ -162,12 +251,98 @@ export default function PerformanceReviews() {
               )}
             </div>
 
-            <div className="pt-3 border-t border-slate-800 text-[11px] text-slate-500">
-              Reviewed by: <strong className="text-slate-400">{rev.reviewerName}</strong>
+            <div className="pt-3 border-t border-slate-800 text-[11px] text-slate-500 flex items-center justify-between">
+              <span>Reviewed by: <strong className="text-slate-400">{rev.reviewerName}</strong></span>
+              <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px]">{rev.status || 'Completed'}</span>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Submit Self-Assessment Modal */}
+      {selfModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div className="max-w-lg w-full glass-panel rounded-3xl p-6 sm:p-8 border border-slate-700 bg-slate-900 shadow-2xl space-y-4">
+            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-indigo-400" />
+              <span>Submit Employee Self-Assessment</span>
+            </h3>
+            <form onSubmit={handleSelfAssessmentSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Review Cycle *</label>
+                  <input
+                    type="text"
+                    value={selfCycle}
+                    onChange={(e) => setSelfCycle(e.target.value)}
+                    required
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/70 border border-slate-700 text-sm text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Self Rating (1.0 - 5.0) *</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="1"
+                    max="5"
+                    value={selfRating}
+                    onChange={(e) => setSelfRating(e.target.value)}
+                    required
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/70 border border-slate-700 text-sm text-white"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Key Accomplishments & Reflection *</label>
+                <textarea
+                  value={selfAssessmentText}
+                  onChange={(e) => setSelfAssessmentText(e.target.value)}
+                  rows={3}
+                  required
+                  placeholder="Summarize your impact, deliverables, and growth this quarter..."
+                  className="w-full p-3 rounded-xl bg-slate-950/70 border border-slate-700 text-xs text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Core Strengths Demonstrated (comma-separated)</label>
+                <input
+                  type="text"
+                  value={selfStrengths}
+                  onChange={(e) => setSelfStrengths(e.target.value)}
+                  placeholder="e.g. System Architecture, Sprint Delivery, Mentoring"
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950/70 border border-slate-700 text-xs text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Skill Development Goals (comma-separated)</label>
+                <input
+                  type="text"
+                  value={selfImprovements}
+                  onChange={(e) => setSelfImprovements(e.target.value)}
+                  placeholder="e.g. Rust, Kubernetes Security, Executive Presentations"
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950/70 border border-slate-700 text-xs text-white"
+                />
+              </div>
+              <div className="flex items-center justify-end gap-3 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setSelfModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30"
+                >
+                  Submit Self-Assessment
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Conduct Review Modal */}
       {modalOpen && (

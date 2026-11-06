@@ -1,5 +1,12 @@
 import express from 'express';
-import { chatWithAgent, executeAction, getCapabilities, getInsights } from '../controllers/aiController.js';
+import {
+  chatWithAgent,
+  executeAction,
+  getCapabilities,
+  getInsights,
+  getWorkforceAnalytics,
+  generateAIReport,
+} from '../controllers/aiController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -9,13 +16,15 @@ router.post('/chat', protect, chatWithAgent);
 router.post('/action', protect, executeAction);
 router.get('/capabilities', protect, getCapabilities);
 router.get('/insights', protect, getInsights);
+router.get('/workforce-analytics', protect, getWorkforceAnalytics);
+router.post('/generate-report', protect, generateAIReport);
 
-// Also expose public capabilities endpoint for health check
+// Public capabilities endpoint for health check
 router.get('/public-status', (req, res) => {
   res.json({
     status: 'online',
     agent: 'NEXUS Autonomous HR Intelligence',
-    version: '2.5',
+    version: '3.0',
     activePersonas: 4,
     toolsRegistered: 11,
   });

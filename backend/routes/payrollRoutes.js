@@ -6,6 +6,8 @@ import {
   getSalarySlipById,
   updatePayrollStatus,
   getPayrollStats,
+  getPayrollRules,
+  updatePayrollRules,
 } from '../controllers/payrollController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { authorize } from '../middleware/roleMiddleware.js';
@@ -17,8 +19,10 @@ router.use(protect);
 // Employee routes
 router.get('/my-slips', getMySalarySlips);
 router.get('/slips/:id', getSalarySlipById);
+router.get('/rules', getPayrollRules);
 
 // HR / Admin routes
+router.put('/rules', authorize('hr', 'admin'), updatePayrollRules);
 router.get('/list', authorize('hr', 'admin'), getAllPayrolls);
 router.post('/generate', authorize('hr', 'admin'), generatePayroll);
 router.put('/status/:id', authorize('hr', 'admin'), updatePayrollStatus);

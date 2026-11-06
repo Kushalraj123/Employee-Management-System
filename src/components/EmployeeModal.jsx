@@ -30,11 +30,17 @@ export default function EmployeeModal({
     email: '',
     department: 'Engineering',
     designation: '',
+    reportingManager: 'Elena Rostova',
     gender: 'Male',
     phone: '',
     status: 'Active',
     joinDate: new Date().toISOString().split('T')[0],
-    salary: 95000,
+    salary: 1800000,
+    skills: 'React, TypeScript, System Design',
+    qualifications: 'B.Tech in Computer Science',
+    emergencyContactName: '',
+    emergencyContactRelation: 'Spouse',
+    emergencyContactPhone: '',
     bio: '',
     avatar: '',
   });
@@ -49,13 +55,23 @@ export default function EmployeeModal({
         email: initialData.email || '',
         department: initialData.department || 'Engineering',
         designation: initialData.designation || '',
+        reportingManager: initialData.reportingManager || 'Elena Rostova',
         gender: initialData.gender || 'Male',
         phone: initialData.phone || '',
         status: initialData.status || 'Active',
         joinDate: initialData.joinDate
           ? new Date(initialData.joinDate).toISOString().split('T')[0]
           : new Date().toISOString().split('T')[0],
-        salary: initialData.salary || 95000,
+        salary: initialData.salary || 1800000,
+        skills: Array.isArray(initialData.skills)
+          ? initialData.skills.join(', ')
+          : initialData.skills || 'React, TypeScript',
+        qualifications: Array.isArray(initialData.qualifications)
+          ? initialData.qualifications.join(', ')
+          : initialData.qualifications || 'B.Tech in Computer Science',
+        emergencyContactName: initialData.emergencyContact?.name || '',
+        emergencyContactRelation: initialData.emergencyContact?.relation || 'Spouse',
+        emergencyContactPhone: initialData.emergencyContact?.phone || '',
         bio: initialData.bio || '',
         avatar: initialData.avatar || '',
       });
@@ -65,11 +81,17 @@ export default function EmployeeModal({
         email: '',
         department: 'Engineering',
         designation: '',
+        reportingManager: 'Elena Rostova',
         gender: 'Male',
         phone: '',
         status: 'Active',
         joinDate: new Date().toISOString().split('T')[0],
-        salary: 95000,
+        salary: 1800000,
+        skills: 'React, TypeScript, Node.js',
+        qualifications: 'B.Tech in Computer Science',
+        emergencyContactName: '',
+        emergencyContactRelation: 'Spouse',
+        emergencyContactPhone: '',
         bio: '',
         avatar: '',
       });
@@ -142,12 +164,35 @@ export default function EmployeeModal({
     });
 
     if (Object.keys(newErrors).length === 0) {
-      onSubmit(formData);
+      const payload = {
+        ...formData,
+        skills:
+          typeof formData.skills === 'string'
+            ? formData.skills
+                .split(',')
+                .map((s) => s.trim())
+                .filter(Boolean)
+            : formData.skills,
+        qualifications:
+          typeof formData.qualifications === 'string'
+            ? formData.qualifications
+                .split(',')
+                .map((q) => q.trim())
+                .filter(Boolean)
+            : formData.qualifications,
+        emergencyContact: {
+          name: formData.emergencyContactName || 'Emergency Contact',
+          relation: formData.emergencyContactRelation || 'Family',
+          phone: formData.emergencyContactPhone || '+91 98200 00000',
+        },
+      };
+      onSubmit(payload);
     }
   };
 
   const departments = [
     'Engineering',
+    'Product',
     'HR',
     'Sales',
     'Finance',
@@ -388,8 +433,72 @@ export default function EmployeeModal({
                   name="salary"
                   value={formData.salary}
                   onChange={handleChange}
-                  placeholder="1400000"
+                  placeholder="1800000"
                   className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-950/60 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                />
+              </div>
+
+              {/* Reporting Manager */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Users className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                  Reporting Manager
+                </label>
+                <input
+                  type="text"
+                  name="reportingManager"
+                  value={formData.reportingManager}
+                  onChange={handleChange}
+                  placeholder="e.g. Elena Rostova"
+                  className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-950/60 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white"
+                />
+              </div>
+
+              {/* Skills */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                  Skills (Comma-separated)
+                </label>
+                <input
+                  type="text"
+                  name="skills"
+                  value={formData.skills}
+                  onChange={handleChange}
+                  placeholder="React, TypeScript, AWS"
+                  className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-950/60 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white"
+                />
+              </div>
+
+              {/* Qualifications */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <FileText className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                  Academic Qualifications
+                </label>
+                <input
+                  type="text"
+                  name="qualifications"
+                  value={formData.qualifications}
+                  onChange={handleChange}
+                  placeholder="B.Tech CS, AWS Certified"
+                  className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-950/60 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white"
+                />
+              </div>
+
+              {/* Emergency Contact Phone */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Phone className="h-3.5 w-3.5 text-rose-500" />
+                  Emergency Contact Name & Phone
+                </label>
+                <input
+                  type="text"
+                  name="emergencyContactPhone"
+                  value={formData.emergencyContactPhone}
+                  onChange={handleChange}
+                  placeholder="+91 98201 11223 (Spouse/Parent)"
+                  className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-950/60 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white"
                 />
               </div>
             </div>

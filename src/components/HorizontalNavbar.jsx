@@ -31,6 +31,8 @@ import {
   UserCheck,
   Bot,
   Zap,
+  Network,
+  PanelLeft,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -41,10 +43,11 @@ import api from '../api';
 export default function HorizontalNavbar({
   onOpenSearch,
   isBackendLive = false,
+  onToggleLayout,
 }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, role, isAdmin, isHR, isEmployee, demoLogin, logout } = useAuth();
+  const { user, role, isAdmin, isHR, isManager, isEmployee, demoLogin, logout } = useAuth();
   const { theme, toggleTheme, isDark } = useTheme();
   const { showSuccess } = useToast();
 
@@ -364,6 +367,36 @@ export default function HorizontalNavbar({
               <span>Employees</span>
             </NavLink>
 
+            {/* 2B. 3D Organizational Network */}
+            <NavLink
+              to="/org-network"
+              className={({ isActive }) =>
+                `flex items-center gap-2 px-3.5 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer ${
+                  isActive
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25 font-bold'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-white/5'
+                }`
+              }
+            >
+              <Network className="w-3.5 h-3.5 text-cyan-400" />
+              <span>3D Network</span>
+            </NavLink>
+
+            {/* 2C. Recruitment ATS */}
+            <NavLink
+              to="/recruitment"
+              className={({ isActive }) =>
+                `flex items-center gap-2 px-3.5 py-2 rounded-xl transition-all whitespace-nowrap cursor-pointer ${
+                  isActive
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25 font-bold'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-white/5'
+                }`
+              }
+            >
+              <Briefcase className="w-3.5 h-3.5 text-amber-400" />
+              <span>Recruitment</span>
+            </NavLink>
+
             {/* 3. Time & Leave Menu Dropdown */}
             <div
               className="relative"
@@ -463,7 +496,7 @@ export default function HorizontalNavbar({
                         )}
                       </NavLink>
 
-                      {(isAdmin || isHR) && (
+                      {(isAdmin || isHR || isManager) && (
                         <NavLink
                           to="/leave/approvals"
                           onClick={() => setActiveDropdown(null)}
@@ -630,7 +663,7 @@ export default function HorizontalNavbar({
                         )}
                       </NavLink>
 
-                      {(isAdmin || isHR) && (
+                      {(isAdmin || isHR || isManager) && (
                         <NavLink
                           to="/reports"
                           onClick={() => setActiveDropdown(null)}
@@ -826,6 +859,24 @@ export default function HorizontalNavbar({
               >
                 <Users className="w-4 h-4 text-indigo-500" />
                 <span>Employees</span>
+              </NavLink>
+
+              <NavLink
+                to="/org-network"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <Network className="w-4 h-4 text-cyan-400" />
+                <span>3D Org Network</span>
+              </NavLink>
+
+              <NavLink
+                to="/recruitment"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <Briefcase className="w-4 h-4 text-amber-400" />
+                <span>Recruitment ATS</span>
               </NavLink>
 
               <NavLink

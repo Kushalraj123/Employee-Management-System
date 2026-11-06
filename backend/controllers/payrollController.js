@@ -1,11 +1,57 @@
 import Payroll from '../models/Payroll.js';
-import { memoryStore } from '../store.js';
+import { memoryStore, recordAuditLog } from '../store.js';
 import mongoose from 'mongoose';
+
+// Helper: Calculate salary breakdown dynamically from configurable payrollRules
+const calculateDynamicSalary = (annualCTC, rules = memoryStore.payrollRules) => {
+  const r = rules || {
+    basicPercentage: 50,
+    hraPercentage: 20,
+    specialAllowancePercentage: 15,
+    pfPercentageOfBasic: 12,
+    professionalTaxMonthly: 200,
+    standardBonusMonthly: 5000,
+    taxBrackets: [
+      { minAnnual: 0, maxAnnual: 1200000, ratePercentage: 5 },
+      { minAnnual: 1200001, maxAnnual: 2400000, ratePercentage: 10 },
+      { minAnnual: 2400001, maxAnnual: 999999999, ratePercentage: 15 },
+    ],
+  };
+
+  const monthlyGrossBase = Math.round((annualCTC || 1800000) / 12);
+  const basicSalary = Math.round(monthlyGrossBase * (r.basicPercentage / 100));
+  const hra = Math.round(monthlyGrossBase * (r.hraPercentage / 100));
+  const allowances = Math.round(monthlyGrossBase * (r.specialAllowancePercentage / 100));
+  const bonus = Number(r.standardBonusMonthly || 5000);
+  const pfDeduction = Math.round(basicSalary * (r.pfPercentageOfBasic / 100));
+
+  let taxRate = 10;
+  if (Array.isArray(r.taxBrackets)) {
+    const bracket = r.taxBrackets.find(b => annualCTC >= b.minAnnual && annualCTC <= b.maxAnnual);
+    if (bracket) taxRate = bracket.ratePercentage;
+  }
+  const taxDeduction = Math.round(monthlyGrossBase * (taxRate / 100)) + Number(r.professionalTaxMonthly || 0);
+  const deductions = pfDeduction + taxDeduction;
+  const grossSalary = basicSalary + hra + allowances + bonus;
+  const netSalary = Math.max(0, grossSalary - deductions);
+
+  return {
+    basicSalary,
+    hra,
+    allowances,
+    bonus,
+    pfDeduction,
+    taxDeduction,
+    deductions,
+    grossSalary,
+    netSalary,
+  };
+};
 
 // Generate monthly payroll (HR / Admin)
 export const generatePayroll = async (req, res) => {
   try {
-    const { payPeriod } = req.body; // 'YYYY-MM' e.g. '2026-10'
+    const { payPeriod, useDynamicRules = true } = req.body; // 'YYYY-MM' e.g. '2026-10'
 
     if (!payPeriod || !/^\d{4}-\d{2}$/.test(payPeriod)) {
       return res.status(400).json({
@@ -28,17 +74,12 @@ export const generatePayroll = async (req, res) => {
         return;
       }
 
-      const struct = emp.salaryStructure || {
-        basicSalary: Math.round(emp.salary * 0.5 / 12),
-        hra: Math.round(emp.salary * 0.2 / 12),
-        allowances: Math.round(emp.salary * 0.15 / 12),
-        bonus: 5000,
-        deductions: Math.round(emp.salary * 0.08 / 12),
-        netSalary: Math.round(emp.salary * 0.77 / 12),
-      };
+      const computed = useDynamicRules
+        ? calculateDynamicSalary(emp.salary || 1800000, memoryStore.payrollRules)
+        : (emp.salaryStructure || calculateDynamicSalary(emp.salary || 1800000, memoryStore.payrollRules));
 
-      const grossSalary = struct.basicSalary + struct.hra + struct.allowances + (struct.bonus || 0);
-      const netSalary = grossSalary - struct.deductions;
+      const grossSalary = computed.basicSalary + computed.hra + computed.allowances + (computed.bonus || 0);
+      const netSalary = grossSalary - computed.deductions;
 
       const record = {
         _id: 'pay_' + Date.now() + '_' + index,
@@ -48,23 +89,32 @@ export const generatePayroll = async (req, res) => {
         department: emp.department,
         designation: emp.designation,
         payPeriod,
-        basicSalary: struct.basicSalary,
-        hra: struct.hra,
-        allowances: struct.allowances,
-        bonus: struct.bonus || 0,
-        deductions: struct.deductions,
+        basicSalary: computed.basicSalary,
+        hra: computed.hra,
+        allowances: computed.allowances,
+        bonus: computed.bonus || 0,
+        pfDeduction: computed.pfDeduction || Math.round(computed.deductions * 0.45),
+        taxDeduction: computed.taxDeduction || Math.round(computed.deductions * 0.55),
+        deductions: computed.deductions,
         attendanceAdjustments: 0,
         grossSalary,
         netSalary,
         status: 'Draft',
         paymentDate: null,
         slipNumber: `SLIP-${payPeriod}-${(index + 1).toString().padStart(3, '0')}`,
-        remarks: `Generated for cycle ${payPeriod}`,
+        remarks: `Generated for cycle ${payPeriod} using configurable payroll rules`,
         createdAt: new Date().toISOString(),
       };
 
       memoryStore.payrolls.unshift(record);
       createdRecords.push(record);
+    });
+
+    recordAuditLog({
+      user: req.user,
+      action: 'GENERATE_PAYROLL',
+      module: 'Payroll',
+      details: `Generated payroll for cycle ${payPeriod} (${createdRecords.length} records)`,
     });
 
     return res.status(201).json({
@@ -216,6 +266,42 @@ export const getPayrollStats = async (req, res) => {
         draftCount: memoryStore.payrolls.filter(p => p.status === 'Draft').length,
         approvedCount: memoryStore.payrolls.filter(p => p.status === 'Approved').length,
       },
+      rules: memoryStore.payrollRules,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Get Configurable Payroll Rules
+export const getPayrollRules = async (req, res) => {
+  return res.status(200).json({
+    success: true,
+    data: memoryStore.payrollRules,
+  });
+};
+
+// Update Configurable Payroll Rules (HR / Admin)
+export const updatePayrollRules = async (req, res) => {
+  try {
+    const updates = req.body;
+    memoryStore.payrollRules = {
+      ...memoryStore.payrollRules,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+
+    recordAuditLog({
+      user: req.user,
+      action: 'UPDATE_PAYROLL_RULES',
+      module: 'Payroll',
+      details: `Updated configurable payroll calculation rules (Basic: ${memoryStore.payrollRules.basicPercentage}%, HRA: ${memoryStore.payrollRules.hraPercentage}%, PF: ${memoryStore.payrollRules.pfPercentageOfBasic}%)`,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Configurable payroll rules updated successfully.',
+      data: memoryStore.payrollRules,
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });

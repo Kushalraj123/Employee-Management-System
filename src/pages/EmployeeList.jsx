@@ -38,6 +38,10 @@ export default function EmployeeList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(8);
+
   // Selection for bulk actions
   const [selectedIds, setSelectedIds] = useState([]);
 
@@ -71,8 +75,15 @@ export default function EmployeeList() {
   };
 
   useEffect(() => {
+    setCurrentPage(1);
     fetchEmployees();
   }, [search, department, status, sort]);
+
+  const totalPages = Math.max(1, Math.ceil(employees.length / pageSize));
+  const paginatedEmployees = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return employees.slice(start, start + pageSize);
+  }, [employees, currentPage, pageSize]);
 
   const handleResetFilters = () => {
     setSearch('');
@@ -241,7 +252,7 @@ export default function EmployeeList() {
         />
       ) : viewMode === 'table' ? (
         <EmployeeTable
-          employees={employees}
+          employees={paginatedEmployees}
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
           onEdit={handleOpenEdit}
@@ -250,7 +261,7 @@ export default function EmployeeList() {
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {employees.map((emp) => (
+          {paginatedEmployees.map((emp) => (
             <EmployeeCard
               key={emp._id || emp.id}
               employee={emp}
@@ -258,6 +269,68 @@ export default function EmployeeList() {
               onDelete={(isAdmin || isHR) ? handleOpenDelete : undefined}
             />
           ))}
+        </div>
+      )}
+
+      {/* Pagination Bar */}
+      {!loading && !error && employees.length > 0 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-slate-900/70 px-5 py-3.5 text-xs">
+          <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400">
+            <span>
+              Showing{' '}
+              <strong className="text-slate-900 dark:text-white">
+                {(currentPage - 1) * pageSize + 1}
+              </strong>{' '}
+              to{' '}
+              <strong className="text-slate-900 dark:text-white">
+                {Math.min(currentPage * pageSize, employees.length)}
+              </strong>{' '}
+              of <strong className="text-slate-900 dark:text-white">{employees.length}</strong> employees
+            </span>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-2 py-1 text-xs text-slate-800 dark:text-slate-200"
+            >
+              <option value={6}>6 / page</option>
+              <option value={8}>8 / page</option>
+              <option value={12}>12 / page</option>
+              <option value={50}>All (50)</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 disabled:opacity-40 cursor-pointer font-semibold"
+            >
+              Prev
+            </button>
+            {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pageNum) => (
+              <button
+                key={pageNum}
+                onClick={() => setCurrentPage(pageNum)}
+                className={`w-8 h-8 rounded-lg font-bold transition-all cursor-pointer ${
+                  currentPage === pageNum
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                }`}
+              >
+                {pageNum}
+              </button>
+            ))}
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 disabled:opacity-40 cursor-pointer font-semibold"
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
 

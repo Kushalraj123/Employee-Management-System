@@ -1,6 +1,6 @@
 import Attendance from '../models/Attendance.js';
 import AttendancePolicy from '../models/AttendancePolicy.js';
-import { memoryStore } from '../store.js';
+import { memoryStore, recordAuditLog } from '../store.js';
 import mongoose from 'mongoose';
 
 // Helpers to format time and determine today respecting policy timezone
@@ -364,6 +364,161 @@ export const resetTodayAttendance = async (req, res) => {
       success: true,
       message: "Today's check-in has been cleared. You can now punch check-in freshly.",
       data: null,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Get Holidays list
+export const getHolidays = async (req, res) => {
+  try {
+    return res.status(200).json({
+      success: true,
+      count: (memoryStore.holidays || []).length,
+      data: memoryStore.holidays || [],
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Add Holiday (HR / Admin)
+export const addHoliday = async (req, res) => {
+  try {
+    const { name, date, type = 'Public Holiday' } = req.body;
+    if (!name || !date) {
+      return res.status(400).json({ success: false, message: 'Holiday name and date are required.' });
+    }
+    const newHoliday = {
+      id: 'hol_' + Date.now(),
+      name: name.trim(),
+      date,
+      type,
+    };
+    if (!memoryStore.holidays) memoryStore.holidays = [];
+    memoryStore.holidays.push(newHoliday);
+    memoryStore.holidays.sort((a, b) => a.date.localeCompare(b.date));
+
+    return res.status(201).json({
+      success: true,
+      message: `Holiday "${name}" added for ${date}.`,
+      data: newHoliday,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Request Attendance Regularization (Employee)
+export const regularizeAttendance = async (req, res) => {
+  try {
+    const user = req.user;
+    const employeeId = user.employeeId || user.id || 'emp_002';
+    const { date, checkInTime = '09:00 AM', checkOutTime = '06:00 PM', reason } = req.body;
+
+    if (!date || !reason) {
+      return res.status(400).json({ success: false, message: 'Date and regularization reason are required.' });
+    }
+
+    let record = memoryStore.attendance.find(a => a.employeeId === employeeId && a.date === date);
+    if (record) {
+      record.regularizationRequested = true;
+      record.regularizationStatus = 'Pending';
+      record.regularizationReason = reason;
+      record.requestedCheckIn = checkInTime;
+      record.requestedCheckOut = checkOutTime;
+    } else {
+      record = {
+        _id: 'att_reg_' + Date.now(),
+        employeeId,
+        employeeName: user.name || 'Employee',
+        department: user.department || 'Engineering',
+        date,
+        checkInTime,
+        checkOutTime,
+        status: 'Late',
+        workingHours: 9.0,
+        lateMinutes: 0,
+        regularizationRequested: true,
+        regularizationStatus: 'Pending',
+        regularizationReason: reason,
+        notes: `Regularization requested: ${reason}`,
+        createdAt: new Date().toISOString(),
+      };
+      memoryStore.attendance.unshift(record);
+    }
+
+    memoryStore.notifications.unshift({
+      _id: 'notif_att_' + Date.now(),
+      userId: 'usr_manager',
+      title: 'Attendance Regularization Request',
+      message: `${user.name} requested attendance regularization for ${date}.`,
+      type: 'warning',
+      link: '/attendance',
+      read: false,
+      createdAt: new Date().toISOString(),
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Attendance regularization request submitted for Manager/HR approval.',
+      data: record,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Manager / HR Approve or Reject Attendance Record / Regularization
+export const approveAttendance = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { action = 'Approved', status = 'Present', comments = '' } = req.body;
+    const reviewer = req.user;
+
+    const record = memoryStore.attendance.find(a => a._id === id || a.id === id);
+    if (!record) {
+      return res.status(404).json({ success: false, message: 'Attendance record not found.' });
+    }
+
+    record.regularizationStatus = action; // 'Approved' | 'Rejected'
+    record.approvedBy = `${reviewer.name} (${reviewer.role.toUpperCase()})`;
+    record.approvedAt = new Date().toISOString();
+
+    if (action === 'Approved') {
+      record.status = status || 'Present';
+      record.lateMinutes = 0;
+      if (record.requestedCheckIn) record.checkInTime = record.requestedCheckIn;
+      if (record.requestedCheckOut) record.checkOutTime = record.requestedCheckOut;
+      if (!record.workingHours || record.workingHours < 8) record.workingHours = 9.0;
+      record.notes = `Approved by ${reviewer.name}${comments ? `: ${comments}` : ''}`;
+    } else {
+      record.notes = `Regularization rejected by ${reviewer.name}${comments ? `: ${comments}` : ''}`;
+    }
+
+    recordAuditLog({
+      user: reviewer,
+      action: 'ATTENDANCE_APPROVAL',
+      module: 'Attendance',
+      details: `${action} attendance record for ${record.employeeName} on ${record.date}`,
+    });
+
+    memoryStore.notifications.unshift({
+      _id: 'notif_att_rev_' + Date.now(),
+      userId: record.employeeId,
+      title: `Attendance Regularization ${action}`,
+      message: `Your attendance record for ${record.date} was ${action.toLowerCase()} by ${reviewer.name}.`,
+      type: action === 'Approved' ? 'success' : 'warning',
+      link: '/attendance',
+      read: false,
+      createdAt: new Date().toISOString(),
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: `Attendance record ${action.toLowerCase()} successfully.`,
+      data: record,
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });

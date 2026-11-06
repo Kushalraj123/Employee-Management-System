@@ -7,6 +7,7 @@ const employeeSchema = new mongoose.Schema(
       unique: true,
       sparse: true,
       trim: true,
+      index: true,
     },
     name: {
       type: String,
@@ -14,6 +15,7 @@ const employeeSchema = new mongoose.Schema(
       trim: true,
       minlength: [2, 'Name must be at least 2 characters long'],
       maxlength: [100, 'Name cannot exceed 100 characters'],
+      index: true,
     },
     email: {
       type: String,
@@ -22,17 +24,33 @@ const employeeSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
       match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Please provide a valid work email'],
+      index: true,
     },
     department: {
       type: String,
       required: [true, 'Department is required'],
-      enum: ['Engineering', 'HR', 'Sales', 'Finance', 'Marketing', 'Product', 'Design'],
+      enum: ['Engineering', 'HR', 'Sales', 'Finance', 'Marketing', 'Product', 'Design', 'Executive'],
       default: 'Engineering',
+      index: true,
     },
     designation: {
       type: String,
       required: [true, 'Designation / Job title is required'],
       trim: true,
+    },
+    reportingManager: {
+      type: String,
+      default: 'Elena Rostova',
+    },
+    reportingManagerId: {
+      type: String,
+      default: 'emp_001',
+      index: true,
+    },
+    roleLevel: {
+      type: String,
+      enum: ['Executive', 'Director', 'Manager', 'Senior', 'Mid-Level', 'Associate'],
+      default: 'Senior',
     },
     gender: {
       type: String,
@@ -44,10 +62,20 @@ const employeeSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
+    location: {
+      type: String,
+      default: 'Bengaluru HQ (Hybrid)',
+    },
+    employmentType: {
+      type: String,
+      enum: ['Full-Time', 'Contract', 'Part-Time', 'Remote'],
+      default: 'Full-Time',
+    },
     status: {
       type: String,
       enum: ['Active', 'On Leave', 'Inactive'],
       default: 'Active',
+      index: true,
     },
     joinDate: {
       type: Date,
@@ -62,9 +90,47 @@ const employeeSchema = new mongoose.Schema(
       hra: { type: Number, default: 24000 },
       allowances: { type: Number, default: 16000 },
       bonus: { type: Number, default: 5000 },
+      pfDeduction: { type: Number, default: 3600 },
+      taxDeduction: { type: Number, default: 4400 },
       deductions: { type: Number, default: 8000 },
       netSalary: { type: Number, default: 97000 },
     },
+    emergencyContact: {
+      name: { type: String, default: '' },
+      relationship: { type: String, default: '' },
+      phone: { type: String, default: '' },
+    },
+    qualifications: {
+      type: [String],
+      default: ['B.Tech in Computer Science & Engineering'],
+    },
+    documents: [
+      {
+        id: String,
+        title: String,
+        category: String,
+        fileSize: String,
+        uploadedAt: String,
+        status: { type: String, default: 'Verified' },
+      },
+    ],
+    activityHistory: [
+      {
+        id: String,
+        action: String,
+        description: String,
+        timestamp: String,
+        category: String,
+      },
+    ],
+    skillMatrix: [
+      {
+        name: String,
+        level: Number,
+        targetLevel: Number,
+        category: String,
+      },
+    ],
     performanceScore: {
       type: Number,
       min: 0,

@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
       lowercase: true,
+      index: true,
     },
     password: {
       type: String,
@@ -22,9 +23,18 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['employee', 'hr', 'admin'],
+      enum: ['employee', 'manager', 'hr', 'admin'],
       default: 'employee',
       required: true,
+      index: true,
+    },
+    permissions: {
+      type: [String],
+      default: [],
+    },
+    department: {
+      type: String,
+      default: 'Engineering',
     },
     employeeId: {
       type: String,

@@ -257,3 +257,23 @@ export const reviewLeave = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// Get Team Leave Calendar (Approved & Pending leaves + Holidays)
+export const getTeamLeaveCalendar = async (req, res) => {
+  try {
+    const { department } = req.query;
+    let leaves = memoryStore.leaveRequests.filter(l => l.status === 'Approved' || l.status === 'Pending');
+    if (department && department !== 'All') {
+      leaves = leaves.filter(l => l.department === department);
+    }
+
+    return res.status(200).json({
+      success: true,
+      count: leaves.length,
+      data: leaves,
+      holidays: memoryStore.holidays || [],
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};

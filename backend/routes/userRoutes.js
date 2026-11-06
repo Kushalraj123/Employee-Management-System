@@ -4,6 +4,7 @@ import {
   createUser,
   updateUserRole,
   toggleUserStatus,
+  getAuditLogs,
 } from '../controllers/userController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { authorize } from '../middleware/roleMiddleware.js';
@@ -11,7 +12,8 @@ import { authorize } from '../middleware/roleMiddleware.js';
 const router = express.Router();
 
 router.use(protect);
-router.use(authorize('admin')); // All user management endpoints are Admin only
+router.get('/audit-logs', authorize('admin', 'hr'), getAuditLogs);
+router.use(authorize('admin'));
 
 router.get('/', getUsers);
 router.post('/', createUser);

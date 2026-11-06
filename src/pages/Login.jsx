@@ -182,7 +182,7 @@ export default function Login() {
               </span>
               <span className="text-[10px] text-slate-400">Pre-authenticated</span>
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <button
                 type="button"
                 onClick={() => {
@@ -190,10 +190,10 @@ export default function Login() {
                   handleQuickDemo('admin', 'admin@nexus.io');
                 }}
                 className="flex flex-col items-center justify-center py-3 px-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 hover:text-white transition-all text-xs font-semibold group shadow-sm text-center"
-                title="Sign in directly as Administrator (admin@nexus.io)"
+                title="Sign in directly as Super Admin (admin@nexus.io)"
               >
                 <Shield className="w-4 h-4 mb-1.5 text-indigo-400 group-hover:scale-110 transition-transform" />
-                <span>Admin</span>
+                <span>Super Admin</span>
               </button>
 
               <button
@@ -204,17 +204,30 @@ export default function Login() {
                     ? 'border-purple-500 bg-purple-500/25 text-white ring-1 ring-purple-500/50'
                     : 'border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-white'
                 }`}
-                title="View HR Officer accounts"
+                title="View HR Administrator accounts"
               >
                 <Briefcase className="w-4 h-4 mb-1.5 text-purple-400 group-hover:scale-110 transition-transform" />
                 <div className="flex items-center gap-1">
-                  <span>HR Lead</span>
+                  <span>HR Admin</span>
                   {activeDivision === 'hr' ? (
                     <ChevronUp className="w-3.5 h-3.5 text-purple-400" />
                   ) : (
                     <ChevronDown className="w-3.5 h-3.5 text-purple-400" />
                   )}
                 </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveDivision(null);
+                  handleQuickDemo('manager', 'elena.rostova@nexus.io');
+                }}
+                className="flex flex-col items-center justify-center py-3 px-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 hover:text-white transition-all text-xs font-semibold group shadow-sm text-center"
+                title="Sign in directly as Department Manager (elena.rostova@nexus.io)"
+              >
+                <Cpu className="w-4 h-4 mb-1.5 text-emerald-400 group-hover:scale-110 transition-transform" />
+                <span>Dept Manager</span>
               </button>
 
               <button
@@ -395,17 +408,17 @@ export default function Login() {
             </button>
             <button
               type="button"
+              onClick={() => { setEmail('elena.rostova@nexus.io'); setPassword('Mgr@123'); }}
+              className="px-2 py-0.5 rounded-md bg-slate-800/80 hover:bg-emerald-500/20 border border-slate-700/60 hover:border-emerald-500/40 text-slate-300 hover:text-emerald-300 text-[10px] font-medium transition-all"
+            >
+              Elena (Manager)
+            </button>
+            <button
+              type="button"
               onClick={() => { setEmail('marcus.vance@nexus.io'); setPassword('Emp@123'); }}
               className="px-2 py-0.5 rounded-md bg-slate-800/80 hover:bg-blue-500/20 border border-slate-700/60 hover:border-blue-500/40 text-slate-300 hover:text-blue-300 text-[10px] font-medium transition-all"
             >
               Marcus (Emp)
-            </button>
-            <button
-              type="button"
-              onClick={() => { setEmail('elena.rostova@nexus.io'); setPassword('Emp@123'); }}
-              className="px-2 py-0.5 rounded-md bg-slate-800/80 hover:bg-teal-500/20 border border-slate-700/60 hover:border-teal-500/40 text-slate-300 hover:text-teal-300 text-[10px] font-medium transition-all"
-            >
-              Elena (Emp)
             </button>
           </div>
 

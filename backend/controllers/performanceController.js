@@ -206,3 +206,126 @@ export const updateGoal = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// Submit Self-Assessment (Employee)
+export const submitSelfAssessment = async (req, res) => {
+  try {
+    const user = req.user;
+    const employeeId = user.employeeId || user.id || 'emp_002';
+    const {
+      reviewCycle = 'Q4 2026 Self-Assessment',
+      selfRating = 4,
+      achievements = '',
+      challenges = '',
+      developmentGoals = '',
+      criteria,
+    } = req.body;
+
+    if (!achievements) {
+      return res.status(400).json({
+        success: false,
+        message: 'Key achievements summary is required for self-assessment.',
+      });
+    }
+
+    const employee = memoryStore.employees.find(e => e._id === employeeId || e.id === employeeId);
+
+    const selfReview = {
+      _id: 'rev_self_' + Date.now(),
+      employeeId,
+      employeeName: employee ? employee.name : user.name,
+      reviewerId: employeeId,
+      reviewerName: `${employee ? employee.name : user.name} (Self-Assessment)`,
+      reviewCycle,
+      rating: Number(selfRating),
+      isSelfAssessment: true,
+      criteria: criteria || {
+        technicalExecution: Number(selfRating),
+        leadershipAndInitiative: Number(selfRating),
+        teamworkAndCulture: 5,
+        communication: 4,
+        velocityAndDelivery: Number(selfRating),
+      },
+      feedback: `Self-Assessment Summary: ${achievements}${challenges ? ` | Challenges Overcome: ${challenges}` : ''}`,
+      strengths: [achievements],
+      improvementAreas: developmentGoals ? [developmentGoals] : ['Continuous Skill Growth'],
+      status: 'Submitted for Manager Review',
+      createdAt: new Date().toISOString(),
+    };
+
+    memoryStore.performanceReviews.unshift(selfReview);
+
+    return res.status(201).json({
+      success: true,
+      message: 'Self-assessment submitted successfully.',
+      data: selfReview,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Update Employee Skill Matrix
+export const updateSkillMatrix = async (req, res) => {
+  try {
+    const { employeeId } = req.params;
+    const { skillMatrix } = req.body;
+
+    const employee = memoryStore.employees.find(e => e._id === employeeId || e.id === employeeId);
+    if (!employee) {
+      return res.status(404).json({ success: false, message: 'Employee not found.' });
+    }
+
+    if (Array.isArray(skillMatrix)) {
+      employee.skillMatrix = skillMatrix;
+      employee.skills = skillMatrix.map(s => s.skill);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Skill development matrix updated.',
+      data: employee.skillMatrix,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Department Performance Analytics
+export const getPerformanceAnalytics = async (req, res) => {
+  try {
+    const employees = memoryStore.employees;
+    const depts = [...new Set(employees.map(e => e.department))];
+
+    const departmentScores = depts.map(dept => {
+      const members = employees.filter(e => e.department === dept);
+      const avgScore = Math.round(
+        members.reduce((sum, e) => sum + (e.performanceScore || 88), 0) / (members.length || 1)
+      );
+      const deptGoals = memoryStore.goals.filter(g => members.some(m => m._id === g.employeeId));
+      const avgGoalProgress = deptGoals.length > 0
+        ? Math.round(deptGoals.reduce((s, g) => s + (g.progress || 0), 0) / deptGoals.length)
+        : 82;
+
+      return {
+        department: dept,
+        headcount: members.length,
+        averagePerformanceScore: avgScore,
+        averageGoalCompletion: avgGoalProgress,
+        topPerformer: [...members].sort((a, b) => (b.performanceScore || 0) - (a.performanceScore || 0))[0]?.name || 'N/A',
+      };
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        departmentScores,
+        totalReviews: memoryStore.performanceReviews.length,
+        totalGoals: memoryStore.goals.length,
+        completedGoals: memoryStore.goals.filter(g => g.status === 'Completed' || g.progress >= 100).length,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};

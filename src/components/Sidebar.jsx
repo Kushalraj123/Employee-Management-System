@@ -21,6 +21,9 @@ import {
   Bell,
   Shield,
   User,
+  Network,
+  Briefcase,
+  Bot,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -31,14 +34,17 @@ export default function Sidebar({
   mobileOpen,
   setMobileOpen,
 }) {
-  const { user, role, isAdmin, isHR, isEmployee } = useAuth();
+  const { user, role, isAdmin, isHR, isManager, isEmployee } = useAuth();
 
   const navSections = [
     {
       title: 'Core Workspace',
       items: [
         { name: 'Dashboard', path: '/', icon: LayoutDashboard },
+        { name: '3D Org Network', path: '/org-network', icon: Network, badge: '3D' },
         { name: 'Employee Directory', path: '/employees', icon: Users },
+        { name: 'Recruitment ATS', path: '/recruitment', icon: Briefcase, badge: 'AI' },
+        { name: 'AI Copilot Studio', path: '/ai-copilot', icon: Bot, badge: 'GenAI' },
       ],
     },
     {
@@ -47,7 +53,7 @@ export default function Sidebar({
         { name: 'Attendance Punch', path: '/attendance', icon: Clock },
         { name: 'Monthly Calendar', path: '/attendance/calendar', icon: Calendar },
         { name: 'Apply for Leave', path: '/leave/apply', icon: Send },
-        ...((isAdmin || isHR) ? [{ name: 'Leave Approvals', path: '/leave/approvals', icon: CheckSquare, badge: 'HR' }] : []),
+        ...((isAdmin || isHR || isManager) ? [{ name: 'Leave Approvals', path: '/leave/approvals', icon: CheckSquare, badge: isManager ? 'MGR' : 'HR' }] : []),
       ],
     },
     {
@@ -59,11 +65,11 @@ export default function Sidebar({
     {
       title: 'Growth & Culture',
       items: [
-        { name: 'Announcements', path: '/announcements', icon: Bell },
+        { name: 'Announcements & Kudos', path: '/announcements', icon: Bell },
         { name: 'Performance Reviews', path: '/performance/reviews', icon: Award },
         { name: 'Goals & OKRs', path: '/performance/goals', icon: Target },
         { name: 'Departments', path: '/departments', icon: Building2 },
-        ...((isAdmin || isHR) ? [{ name: 'Executive Reports', path: '/reports', icon: BarChart3 }] : []),
+        ...((isAdmin || isHR || isManager) ? [{ name: 'Executive Analytics', path: '/reports', icon: BarChart3 }] : []),
       ],
     },
     ...((isAdmin) ? [{
@@ -153,11 +159,11 @@ export default function Sidebar({
         </div>
 
         {/* Scrollable Navigation Groups */}
-        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
+        <div className="flex-1 overflow-y-auto px-3 py-2.5 space-y-3">
           {navSections.map((section, sIdx) => (
-            <div key={sIdx} className="space-y-1">
+            <div key={sIdx} className="space-y-0.5">
               {!collapsed && (
-                <p className="px-3 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 font-mono mb-1.5">
+                <p className="px-3 text-[9px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 font-mono mb-1">
                   {section.title}
                 </p>
               )}
@@ -168,11 +174,11 @@ export default function Sidebar({
                   to={item.path}
                   onClick={() => setMobileOpen(false)}
                   className={({ isActive }) =>
-                    `group relative flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold transition-all duration-200 ${
+                    `group relative flex items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
                       isActive
                         ? 'bg-indigo-50 dark:bg-indigo-600/20 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 shadow-sm'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-white/5 border border-transparent'
-                    } ${collapsed ? 'justify-center px-0 py-2.5' : ''}`
+                    } ${collapsed ? 'justify-center px-0 py-2' : ''}`
                   }
                   title={collapsed ? item.name : undefined}
                 >

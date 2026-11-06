@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import Sidebar from './components/Sidebar';
+import Header from './components/Header';
 import HorizontalNavbar from './components/HorizontalNavbar';
 import CommandPalette from './components/CommandPalette';
 import EmployeeModal from './components/EmployeeModal';
@@ -9,8 +11,11 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import EmployeeDashboard from './pages/EmployeeDashboard';
+import ManagerDashboard from './pages/ManagerDashboard';
 import HRDashboard from './pages/HRDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import OrgNetwork3D from './pages/OrgNetwork3D';
+import Recruitment from './pages/Recruitment';
 import EmployeeList from './pages/EmployeeList';
 import EmployeeDetails from './pages/EmployeeDetails';
 import Attendance from './pages/Attendance';
@@ -40,16 +45,25 @@ export default function App() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBackendLive, setIsBackendLive] = useState(false);
+
+  // Support Top Horizontal Navbar (default) and Sidebar Navigation
+  const [navLayout, setNavLayout] = useState(
+    () => localStorage.getItem('nexus_nav_mode') || 'horizontal'
+  );
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const { showSuccess, showError } = useToast();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const isLoginPage = location.pathname === '/login';
 
-  // Ensure persistent horizontal layout mode
-  useEffect(() => {
-    localStorage.removeItem('nexus_nav_layout');
-  }, []);
+  const toggleNavLayout = () => {
+    const next = navLayout === 'sidebar' ? 'horizontal' : 'sidebar';
+    setNavLayout(next);
+    localStorage.setItem('nexus_nav_mode', next);
+  };
 
   // Test backend status on initial load
   useEffect(() => {
@@ -92,9 +106,8 @@ export default function App() {
         <div className="absolute -bottom-[20%] left-[20%] h-[500px] w-[500px] rounded-full bg-gradient-to-tr from-purple-600/10 to-indigo-600/5 blur-[120px]" />
       </div>
 
-      {/* Main Full-Width Horizontal Layout Container */}
-      <div className="relative z-10 flex min-h-screen flex-col w-full">
-        {/* Horizontal Navigation Bar */}
+      {/* Main Content Container */}
+      <div className="relative z-10 flex min-h-screen flex-col transition-all duration-300 w-full">
         <HorizontalNavbar
           onOpenSearch={() => setSearchOpen(true)}
           isBackendLive={isBackendLive}
@@ -103,11 +116,16 @@ export default function App() {
         {/* Dynamic Route View */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
           <Routes>
-            {/* Core Dashboards */}
+            {/* Core Dashboards (4 Roles) */}
             <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/dashboard/employee" element={<ProtectedRoute><EmployeeDashboard /></ProtectedRoute>} />
+            <Route path="/dashboard/manager" element={<ProtectedRoute allowedRoles={['manager', 'hr', 'admin']}><ManagerDashboard /></ProtectedRoute>} />
             <Route path="/dashboard/hr" element={<ProtectedRoute allowedRoles={['hr', 'admin']}><HRDashboard /></ProtectedRoute>} />
             <Route path="/dashboard/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+
+            {/* 3D Organizational Network & Recruitment ATS */}
+            <Route path="/org-network" element={<ProtectedRoute><OrgNetwork3D /></ProtectedRoute>} />
+            <Route path="/recruitment" element={<ProtectedRoute><Recruitment /></ProtectedRoute>} />
 
             {/* Employee Management */}
             <Route path="/employees" element={<ProtectedRoute><EmployeeList /></ProtectedRoute>} />
@@ -119,13 +137,13 @@ export default function App() {
 
             {/* Leave Management */}
             <Route path="/leave/apply" element={<ProtectedRoute><LeaveApply /></ProtectedRoute>} />
-            <Route path="/leave/approvals" element={<ProtectedRoute allowedRoles={['hr', 'admin']}><LeaveApprovals /></ProtectedRoute>} />
+            <Route path="/leave/approvals" element={<ProtectedRoute allowedRoles={['manager', 'hr', 'admin']}><LeaveApprovals /></ProtectedRoute>} />
 
             {/* Payroll & Compensation */}
             <Route path="/payroll" element={<ProtectedRoute><PayrollDashboard /></ProtectedRoute>} />
             <Route path="/payroll/slips/:id" element={<ProtectedRoute><SalarySlip /></ProtectedRoute>} />
 
-            {/* Announcements & Culture */}
+            {/* Announcements, Kudos & Culture */}
             <Route path="/announcements" element={<ProtectedRoute><Announcements /></ProtectedRoute>} />
 
             {/* Performance & Growth */}
@@ -135,13 +153,13 @@ export default function App() {
             {/* Notifications */}
             <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
 
-            {/* Admin Management */}
+            {/* Admin & Analytics */}
             <Route path="/users" element={<ProtectedRoute allowedRoles={['admin']}><UserManagement /></ProtectedRoute>} />
             <Route path="/departments" element={<ProtectedRoute><Departments /></ProtectedRoute>} />
-            <Route path="/reports" element={<ProtectedRoute allowedRoles={['hr', 'admin']}><Reports /></ProtectedRoute>} />
+            <Route path="/reports" element={<ProtectedRoute allowedRoles={['manager', 'hr', 'admin']}><Reports /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute allowedRoles={['admin']}><Settings /></ProtectedRoute>} />
 
-            {/* Profile & AI Copilot */}
+            {/* Profile & AI Copilot Studio */}
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/ai-copilot" element={<ProtectedRoute><AIAgentStudio /></ProtectedRoute>} />
 
@@ -154,11 +172,11 @@ export default function App() {
         <footer className="border-t border-white/5 bg-slate-950/60 backdrop-blur-md px-6 py-5 text-center text-xs text-slate-500">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-white font-mono">NEXUS HR</span>
-              <span>— People. Performance. Connected.</span>
+              <span className="font-extrabold text-white font-mono">NEXUS 3.0</span>
+              <span>— Next-Gen 3D Digital Workplace & Enterprise HRMS</span>
             </div>
             <p className="text-[11px] text-slate-400">
-              Enterprise Full-Stack HRMS &bull; Role-Based Authorization &bull; &copy; {new Date().getFullYear()} NEXUS Systems.
+              4-Tier RBAC &bull; 3D Org Topology &bull; AI Studio &bull; &copy; {new Date().getFullYear()} NEXUS Systems.
             </p>
           </div>
         </footer>

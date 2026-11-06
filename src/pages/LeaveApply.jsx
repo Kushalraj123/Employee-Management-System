@@ -17,6 +17,8 @@ export default function LeaveApply() {
   const { user } = useAuth();
   const { showSuccess, showError } = useToast();
   const [leaves, setLeaves] = useState([]);
+  const [teamCalendar, setTeamCalendar] = useState([]);
+  const [holidays, setHolidays] = useState([]);
   const [balance, setBalance] = useState({ casualTotal: 0, casualUsed: 0, sickTotal: 0, sickUsed: 0, earnedTotal: 0, earnedUsed: 0, unpaidUsed: 0 });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -30,9 +32,14 @@ export default function LeaveApply() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const res = await api.getMyLeaves();
+      const [res, calRes] = await Promise.all([
+        api.getMyLeaves(),
+        api.getTeamLeaveCalendar(),
+      ]);
       setLeaves(res.data || []);
       if (res.balance) setBalance(res.balance);
+      setTeamCalendar(calRes?.data || []);
+      setHolidays(calRes?.holidays || []);
     } catch (e) {
       console.warn('Leaves load error:', e);
     } finally {
@@ -246,6 +253,62 @@ export default function LeaveApply() {
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Team Leave Calendar & Holiday Schedule */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="glass-panel rounded-3xl p-6 border border-slate-700/50 bg-slate-900/60 space-y-4">
+          <h3 className="font-bold text-white text-base flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-indigo-400" />
+            <span>Team Leave Calendar (Who's Out)</span>
+          </h3>
+          <div className="space-y-2.5 max-h-64 overflow-y-auto">
+            {teamCalendar.map((item) => (
+              <div
+                key={item._id}
+                className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center justify-between text-xs"
+              >
+                <div>
+                  <span className="font-bold text-white">{item.employeeName}</span>
+                  <span className="text-slate-400 ml-2">({item.department})</span>
+                  <p className="text-[11px] text-indigo-300 font-mono mt-0.5">
+                    {item.startDate} &rarr; {item.endDate} ({item.daysCount}d {item.leaveType})
+                  </p>
+                </div>
+                <span
+                  className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
+                    item.status === 'Approved'
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                      : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                  }`}
+                >
+                  {item.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="glass-panel rounded-3xl p-6 border border-slate-700/50 bg-slate-900/60 space-y-4">
+          <h3 className="font-bold text-white text-base flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-purple-400" />
+            <span>Upcoming Public Holidays</span>
+          </h3>
+          <div className="space-y-2.5 max-h-64 overflow-y-auto">
+            {holidays.map((hol) => (
+              <div
+                key={hol.id}
+                className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center justify-between text-xs"
+              >
+                <div>
+                  <div className="font-bold text-white">{hol.name}</div>
+                  <div className="text-[11px] text-purple-300">{hol.type}</div>
+                </div>
+                <span className="font-mono font-bold text-indigo-300">{hol.date}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

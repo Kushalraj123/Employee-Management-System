@@ -16,13 +16,22 @@ import {
 import { motion } from 'framer-motion';
 
 export default function Attendance() {
-  const { user } = useAuth();
+  const { user, isAdmin, isHR, isManager } = useAuth();
   const { showSuccess, showError } = useToast();
   const [attendance, setAttendance] = useState(null);
   const [history, setHistory] = useState([]);
+  const [allRecords, setAllRecords] = useState([]);
+  const [holidays, setHolidays] = useState([]);
   const [policy, setPolicy] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+
+  // Regularization Modal
+  const [regModalOpen, setRegModalOpen] = useState(false);
+  const [regDate, setRegDate] = useState(new Date().toISOString().split('T')[0]);
+  const [regCheckIn, setRegCheckIn] = useState('09:00 AM');
+  const [regCheckOut, setRegCheckOut] = useState('06:00 PM');
+  const [regReason, setRegReason] = useState('');
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -34,14 +43,21 @@ export default function Attendance() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [todayRes, historyRes, policyRes] = await Promise.all([
+      const promises = [
         api.getTodayAttendance(),
         api.getMyAttendanceHistory(),
         api.getAttendancePolicy(),
-      ]);
+        api.getHolidays(),
+      ];
+      if (isAdmin || isHR || isManager) {
+        promises.push(api.getAllAttendance());
+      }
+      const [todayRes, historyRes, policyRes, holRes, allRes] = await Promise.all(promises);
       setAttendance(todayRes.data);
       setHistory(historyRes.data || []);
       setPolicy(policyRes.data);
+      setHolidays(holRes?.data || []);
+      if (allRes) setAllRecords(allRes.data || []);
     } catch (err) {
       console.warn('Attendance load error:', err);
     } finally {
@@ -75,6 +91,38 @@ export default function Attendance() {
     }
   };
 
+  const handleRegularizeSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await api.regularizeAttendance({
+        date: regDate,
+        checkInTime: regCheckIn,
+        checkOutTime: regCheckOut,
+        reason: regReason,
+      });
+      showSuccess(res.message);
+      setRegModalOpen(false);
+      setRegReason('');
+      loadData();
+    } catch (err) {
+      showError(err.response?.data?.message || 'Failed to submit regularization');
+    }
+  };
+
+  const handleManagerApprove = async (id, action = 'Approved') => {
+    try {
+      const res = await api.approveAttendance(id, {
+        action,
+        status: 'Present',
+        comments: `${action} by ${user?.name || 'Manager/HR'}`,
+      });
+      showSuccess(res.message);
+      loadData();
+    } catch (err) {
+      showError('Failed to update attendance approval');
+    }
+  };
+
   const isCheckedIn = Boolean(attendance?.checkInTime);
   const isCheckedOut = Boolean(attendance?.checkOutTime);
 
@@ -90,13 +138,22 @@ export default function Attendance() {
             Server-side timestamping according to fixed-time office rules.
           </p>
         </div>
-        <Link
-          to="/attendance/calendar"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800/60 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-sm"
-        >
-          <Calendar className="w-4 h-4 text-indigo-400" />
-          <span>Monthly Attendance Calendar</span>
-        </Link>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            onClick={() => setRegModalOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-indigo-500/40 bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 text-xs font-bold transition-all cursor-pointer"
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span>Request Regularization</span>
+          </button>
+          <Link
+            to="/attendance/calendar"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800/60 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-sm"
+          >
+            <Calendar className="w-4 h-4 text-indigo-400" />
+            <span>Monthly Attendance Calendar</span>
+          </Link>
+        </div>
       </div>
 
       {/* Main Interactive Check-In/Out Hero */}
@@ -207,6 +264,7 @@ export default function Attendance() {
                 <th className="py-3 px-4">Check Out</th>
                 <th className="py-3 px-4">Working Hours</th>
                 <th className="py-3 px-4">Status</th>
+                <th className="py-3 px-4">Notes</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-slate-300">
@@ -227,12 +285,144 @@ export default function Attendance() {
                       {row.status}
                     </span>
                   </td>
+                  <td className="py-3.5 px-4 text-slate-400">{row.notes || '—'}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Manager / HR Attendance Approval Queue + Official Holidays */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {(isAdmin || isHR || isManager) && (
+          <div className="glass-panel rounded-3xl p-6 border border-slate-700/50 bg-slate-900/60 space-y-4">
+            <h3 className="font-bold text-white text-base flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-emerald-400" />
+              <span>Manager / HR Attendance Approval Queue</span>
+            </h3>
+            <div className="space-y-3 max-h-72 overflow-y-auto">
+              {allRecords
+                .filter((r) => r.status === 'Late' || r.regularizationStatus === 'Pending')
+                .map((rec) => (
+                  <div
+                    key={rec._id}
+                    className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center justify-between gap-3 text-xs"
+                  >
+                    <div>
+                      <div className="font-bold text-white">
+                        {rec.employeeName}{' '}
+                        <span className="text-amber-400 font-mono">({rec.date})</span>
+                      </div>
+                      <p className="text-slate-400 text-[11px] mt-0.5">
+                        Check-in: {rec.checkInTime || 'N/A'} &bull; {rec.notes}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleManagerApprove(rec._id, 'Approved')}
+                      className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shrink-0 cursor-pointer"
+                    >
+                      Approve Present
+                    </button>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+
+        {/* Official Holiday Integration */}
+        <div className="glass-panel rounded-3xl p-6 border border-slate-700/50 bg-slate-900/60 space-y-4">
+          <h3 className="font-bold text-white text-base flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-purple-400" />
+            <span>Official Enterprise Holidays ({holidays.length})</span>
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {holidays.map((hol) => (
+              <div
+                key={hol.id}
+                className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 flex items-center justify-between text-xs"
+              >
+                <div>
+                  <div className="font-bold text-white">{hol.name}</div>
+                  <div className="text-[10px] text-purple-300">{hol.type}</div>
+                </div>
+                <span className="font-mono text-indigo-300 font-semibold">{hol.date}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Regularization Request Modal */}
+      {regModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+          <form
+            onSubmit={handleRegularizeSubmit}
+            className="w-full max-w-md rounded-3xl bg-slate-900 border border-slate-700 p-6 space-y-4"
+          >
+            <h3 className="text-lg font-extrabold text-white">Request Attendance Regularization</h3>
+            <p className="text-xs text-slate-400">
+              Submit a shift correction or late arrival regularization for Manager/HR approval.
+            </p>
+            <div>
+              <label className="block text-xs text-slate-300 mb-1">Attendance Date</label>
+              <input
+                type="date"
+                required
+                value={regDate}
+                onChange={(e) => setRegDate(e.target.value)}
+                className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-slate-300 mb-1">Actual Check-In</label>
+                <input
+                  type="text"
+                  value={regCheckIn}
+                  onChange={(e) => setRegCheckIn(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-slate-300 mb-1">Actual Check-Out</label>
+                <input
+                  type="text"
+                  value={regCheckOut}
+                  onChange={(e) => setRegCheckOut(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs text-slate-300 mb-1">Reason for Regularization</label>
+              <textarea
+                rows={3}
+                required
+                placeholder="e.g. Client onsite deployment / VPN token sync issue..."
+                value={regReason}
+                onChange={(e) => setRegReason(e.target.value)}
+                className="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setRegModalOpen(false)}
+                className="px-4 py-2 rounded-xl border border-slate-700 text-xs text-slate-300"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white cursor-pointer"
+              >
+                Submit Request
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

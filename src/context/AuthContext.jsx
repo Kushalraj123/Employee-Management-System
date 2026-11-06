@@ -90,6 +90,7 @@ export const AuthProvider = ({ children }) => {
   const isAuthenticated = Boolean(user);
   const isAdmin = role === 'admin';
   const isHR = role === 'hr';
+  const isManager = role === 'manager';
   const isEmployee = role === 'employee';
 
   return (
@@ -102,6 +103,7 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated,
         isAdmin,
         isHR,
+        isManager,
         isEmployee,
         login,
         demoLogin,

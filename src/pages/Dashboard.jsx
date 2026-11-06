@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import EmployeeDashboard from './EmployeeDashboard';
+import ManagerDashboard from './ManagerDashboard';
 import HRDashboard from './HRDashboard';
 import AdminDashboard from './AdminDashboard';
-import Employee3DCanvas from '../components/Employee3DCanvas';
-import { Shield, Briefcase, UserCheck, Eye, Sparkles } from 'lucide-react';
 
 export default function Dashboard() {
   const { role } = useAuth();
@@ -14,6 +13,7 @@ export default function Dashboard() {
     <div className="space-y-6">
       {/* Render Dynamic Role Dashboard */}
       {activeView === 'employee' && <EmployeeDashboard />}
+      {activeView === 'manager' && <ManagerDashboard />}
       {activeView === 'hr' && <HRDashboard />}
       {activeView === 'admin' && <AdminDashboard />}
     </div>

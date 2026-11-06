@@ -79,8 +79,8 @@ export const agentTools = {
     };
   },
 
-  // 2. Get Employee Details
-  async getEmployeeDetails({ identifier }) {
+  // 2. Get Employee Details (with Role-Based Permission Check)
+  async getEmployeeDetails({ identifier, requestingUser = {} }) {
     if (!identifier) return { error: 'Employee identifier required' };
     const idStr = String(identifier).toLowerCase().trim();
     const emp = memoryStore.employees.find(e =>
@@ -95,6 +95,10 @@ export const agentTools = {
       return { tool: 'getEmployeeDetails', found: false, message: `No employee found matching "${identifier}"` };
     }
 
+    const reqRole = requestingUser.role || 'employee';
+    const isSelf = requestingUser.employeeId === emp._id || requestingUser.email === emp.email;
+    const canViewSensitive = reqRole === 'admin' || reqRole === 'hr' || isSelf;
+
     const leaves = memoryStore.leaveRequests.filter(l => l.employeeId === emp._id || l.employeeId === emp.id);
     const goals = memoryStore.goals.filter(g => g.employeeId === emp._id || g.employeeId === emp.id);
     const reviews = memoryStore.performanceReviews.filter(r => r.employeeId === emp._id || r.employeeId === emp.id);
@@ -102,6 +106,8 @@ export const agentTools = {
     return {
       tool: 'getEmployeeDetails',
       found: true,
+      permissionChecked: true,
+      sensitiveAccessGranted: canViewSensitive,
       employee: {
         id: emp._id || emp.id,
         employeeId: emp.employeeId,
@@ -109,16 +115,17 @@ export const agentTools = {
         email: emp.email,
         department: emp.department,
         designation: emp.designation,
+        reportingManager: emp.reportingManager || 'Executive Board',
         joinDate: emp.joinDate,
         status: emp.status,
         performanceScore: emp.performanceScore,
         skills: emp.skills || [],
         bio: emp.bio,
-        salary: emp.salary,
-        salaryStructure: emp.salaryStructure,
+        salary: canViewSensitive ? emp.salary : 'REDACTED (Authorized HR/Self Only)',
+        salaryStructure: canViewSensitive ? emp.salaryStructure : null,
         activeGoalsCount: goals.length,
         leavesCount: leaves.length,
-        recentReviews: reviews.slice(0, 2),
+        recentReviews: canViewSensitive || reqRole === 'manager' ? reviews.slice(0, 2) : [],
         avatar: emp.avatar,
       }
     };
@@ -682,26 +689,44 @@ export async function processAgentConversation({ prompt, persona = 'omni', histo
   // INTENT 6: PAYROLL & COMPENSATION INQUIRIES
   // ==========================================
   else if (p.includes('payroll') || p.includes('salary') || p.includes('compensation') || p.includes('ctc') || p.includes('disbursement')) {
-    const payData = await agentTools.getPayrollOverview();
-    toolsExecuted.push({ tool: 'getPayrollOverview', result: payData });
+    const userRole = user.role || 'employee';
+    if (userRole !== 'admin' && userRole !== 'hr') {
+      const myEmpId = user.employeeId || user.id || 'emp_002';
+      const myDetails = await agentTools.getEmployeeDetails({ identifier: myEmpId, requestingUser: user });
+      toolsExecuted.push({ tool: 'getEmployeeDetails', result: myDetails });
+      const struct = myDetails.employee?.salaryStructure || { basicSalary: 77083, hra: 30833, allowances: 23125, deductions: 12333, netSalary: 123708 };
 
-    markdownResponse = `### 💼 NEXUS Compensation & Payroll Intelligence\n\n` +
-      `Fiscal summary for the active cycle:\n\n` +
-      `- **Total Monthly Disbursement:** **${payData.formattedDisbursement}** (${payData.employeeCount} active accounts)\n` +
-      `- **Average Annual CTC:** **${payData.averageAnnualCTC}** across all departments\n` +
-      `- **Next Scheduled Payout:** \`${payData.nextDisbursementDate}\`\n` +
-      `- **Statutory Deductions:** PF (12%), Professional Tax, and Income Tax deducted at source per 2026 tax slabs.\n\n` +
-      `#### Department Disbursement Distribution:\n` +
-      Object.entries(payData.departmentBreakdown).map(([dept, amount]) =>
-        `- **${dept}:** ₹${(amount / 100000).toFixed(2)} Lakhs/mo`
-      ).join('\n');
+      markdownResponse = `### 🔒 Role-Scoped Compensation View (\`${userRole.toUpperCase()}\`)\n\n` +
+        `Enterprise-wide payroll registers are restricted to **HR Administrator** and **Super Admin** roles. After verifying your session permissions, here is **your personal compensation structure**:\n\n` +
+        `- **Employee:** **${myDetails.employee?.name || user.name}** (\`${myDetails.employee?.employeeId || 'EMP-2026'}\`)\n` +
+        `- **Annual CTC:** **₹${((myDetails.employee?.salary || 1850000) / 100000).toFixed(2)} LPA**\n` +
+        `- **Monthly Basic:** ₹${struct.basicSalary.toLocaleString('en-IN')} &bull; **HRA:** ₹${struct.hra.toLocaleString('en-IN')}\n` +
+        `- **Allowances:** ₹${struct.allowances.toLocaleString('en-IN')} &bull; **Deductions:** ₹${struct.deductions.toLocaleString('en-IN')}\n` +
+        `- **Monthly Net Take-Home:** **₹${struct.netSalary.toLocaleString('en-IN')}**\n`;
 
-    actionCard = {
-      type: 'payroll_summary',
-      title: 'Payroll Telemetry',
-      data: payData,
-    };
-    suggestedPrompts = ['Show salary breakdown formula', 'Check top earners', 'Generate payroll audit report'];
+      suggestedPrompts = ['Check my leave balance', 'What is the appraisal policy?', 'Show my goals'];
+    } else {
+      const payData = await agentTools.getPayrollOverview();
+      toolsExecuted.push({ tool: 'getPayrollOverview', result: payData });
+
+      markdownResponse = `### 💼 NEXUS Compensation & Payroll Intelligence\n\n` +
+        `Fiscal summary for the active cycle (Authorized Role: \`${userRole.toUpperCase()}\`):\n\n` +
+        `- **Total Monthly Disbursement:** **${payData.formattedDisbursement}** (${payData.employeeCount} active accounts)\n` +
+        `- **Average Annual CTC:** **${payData.averageAnnualCTC}** across all departments\n` +
+        `- **Next Scheduled Payout:** \`${payData.nextDisbursementDate}\`\n` +
+        `- **Configurable Deductions:** PF (${memoryStore.payrollRules?.pfPercentageOfBasic || 12}%), Professional Tax (₹${memoryStore.payrollRules?.professionalTaxMonthly || 200}), and tiered tax brackets.\n\n` +
+        `#### Department Disbursement Distribution:\n` +
+        Object.entries(payData.departmentBreakdown).map(([dept, amount]) =>
+          `- **${dept}:** ₹${(amount / 100000).toFixed(2)} Lakhs/mo`
+        ).join('\n');
+
+      actionCard = {
+        type: 'payroll_summary',
+        title: 'Payroll Telemetry',
+        data: payData,
+      };
+      suggestedPrompts = ['Show salary breakdown formula', 'Check top earners', 'Generate payroll audit report'];
+    }
   }
 
   // ==========================================

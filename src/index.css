@@ -1,12 +1,12 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
   :root {
-    --bg-base: #080B11;
-    --bg-surface: #0E131F;
-    --bg-surface-elevated: #141B2D;
+    --bg-base: #090D16;
+    --bg-surface: #0E1422;
+    --bg-surface-elevated: #141C2E;
     --bg-card: rgba(20, 27, 45, 0.7);
     --bg-card-hover: rgba(26, 35, 58, 0.85);
     

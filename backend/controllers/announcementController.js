@@ -137,3 +137,99 @@ export const deleteAnnouncement = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// Get Employee Recognition & Kudos Wall
+export const getKudos = async (req, res) => {
+  try {
+    return res.status(200).json({
+      success: true,
+      count: (memoryStore.kudos || []).length,
+      data: memoryStore.kudos || [],
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Send Kudos / Peer Recognition
+export const sendKudos = async (req, res) => {
+  try {
+    const user = req.user;
+    const { toEmployeeId, badge = 'Team Player', message, points = 50 } = req.body;
+
+    if (!toEmployeeId || !message) {
+      return res.status(400).json({
+        success: false,
+        message: 'Recipient employee and recognition message are required.',
+      });
+    }
+
+    const recipient = memoryStore.employees.find(e => e._id === toEmployeeId || e.id === toEmployeeId);
+    const sender = memoryStore.employees.find(e => e._id === user.employeeId || e.email === user.email);
+
+    const newKudos = {
+      _id: 'kud_' + Date.now(),
+      fromEmployeeId: user.employeeId || user.id,
+      fromName: user.name,
+      fromAvatar: sender?.avatar || user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      toEmployeeId,
+      toName: recipient ? recipient.name : 'Colleague',
+      toDepartment: recipient ? recipient.department : 'Engineering',
+      toAvatar: recipient?.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+      badge,
+      message: message.trim(),
+      points: Number(points) || 50,
+      likes: [],
+      createdAt: new Date().toISOString(),
+    };
+
+    if (!memoryStore.kudos) memoryStore.kudos = [];
+    memoryStore.kudos.unshift(newKudos);
+
+    memoryStore.notifications.unshift({
+      _id: 'notif_kud_' + Date.now(),
+      userId: toEmployeeId,
+      title: `🏆 You Received Kudos (${badge})!`,
+      message: `${user.name} recognized you: "${message.substring(0, 80)}" (+${newKudos.points} pts)`,
+      type: 'success',
+      link: '/announcements',
+      read: false,
+      createdAt: new Date().toISOString(),
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: `Kudos sent to ${newKudos.toName}!`,
+      data: newKudos,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Like / Celebrate Kudos
+export const likeKudos = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.employeeId || req.user.id || 'usr_current';
+
+    const item = (memoryStore.kudos || []).find(k => k._id === id || k.id === id);
+    if (!item) {
+      return res.status(404).json({ success: false, message: 'Kudos entry not found.' });
+    }
+
+    if (!item.likes) item.likes = [];
+    if (item.likes.includes(userId)) {
+      item.likes = item.likes.filter(u => u !== userId);
+    } else {
+      item.likes.push(userId);
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: item,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};

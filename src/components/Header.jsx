@@ -52,6 +52,9 @@ export default function Header({ setMobileOpen, onOpenSearch, isBackendLive = fa
   const getPageMeta = () => {
     const path = location.pathname;
     if (path === '/') return { title: 'Dashboard Overview', breadcrumb: 'Overview' };
+    if (path === '/org-network') return { title: '3D Organizational Network', breadcrumb: 'Topology / 3D Network' };
+    if (path === '/recruitment') return { title: 'Recruitment & ATS Pipeline', breadcrumb: 'Talent / ATS' };
+    if (path === '/ai-copilot') return { title: 'NEXUS AI Studio & Analytics', breadcrumb: 'Intelligence / AI Studio' };
     if (path === '/employees') return { title: 'Workforce Directory', breadcrumb: 'Employees / Directory' };
     if (path.startsWith('/employees/')) return { title: 'Employee Profile', breadcrumb: 'Employees / Details' };
     if (path === '/attendance') return { title: 'Attendance Time Tracker', breadcrumb: 'Time & Absence / Punch' };
@@ -256,7 +259,16 @@ export default function Header({ setMobileOpen, onOpenSearch, isBackendLive = fa
                       }`}
                     >
                       <Briefcase className="w-3.5 h-3.5" />
-                      <span>Switch to HR Lead</span>
+                      <span>Switch to HR Admin</span>
+                    </button>
+                    <button
+                      onClick={() => handleRoleSwitch('manager')}
+                      className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                        role === 'manager' ? 'bg-emerald-600 text-white' : 'text-slate-300 hover:bg-slate-800'
+                      }`}
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Switch to Dept Manager</span>
                     </button>
                     <button
                       onClick={() => handleRoleSwitch('employee')}

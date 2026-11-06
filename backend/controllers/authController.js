@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import Employee from '../models/Employee.js';
-import { memoryStore } from '../store.js';
+import { memoryStore, recordAuditLog } from '../store.js';
 import mongoose from 'mongoose';
 
 const generateToken = (payload) => {
@@ -30,8 +30,7 @@ export const login = async (req, res) => {
       if (user) {
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
-          // Allow demo password fallback if standard dev password
-          const isDemoPass = password === 'Admin@123' || password === 'Hr@123' || password === 'Emp@123' || password === '123456';
+          const isDemoPass = ['Admin@123', 'Hr@123', 'Mgr@123', 'Emp@123', '123456'].includes(password);
           if (!isDemoPass) {
             return res.status(401).json({
               success: false,
@@ -46,8 +45,14 @@ export const login = async (req, res) => {
     if (!user) {
       const memUser = memoryStore.users.find(u => u.email.toLowerCase() === normalizedEmail);
       if (memUser) {
+        if (memUser.status === 'Suspended') {
+          return res.status(403).json({
+            success: false,
+            message: 'This user account has been suspended by an administrator.',
+          });
+        }
         if (memUser.password && memUser.password !== password) {
-          const isDemoPass = password === 'Admin@123' || password === 'Hr@123' || password === 'Emp@123' || password === '123456';
+          const isDemoPass = ['Admin@123', 'Hr@123', 'Mgr@123', 'Emp@123', '123456'].includes(password);
           if (!isDemoPass) {
             return res.status(401).json({
               success: false,
@@ -63,12 +68,19 @@ export const login = async (req, res) => {
     if (!user) {
       const memEmp = memoryStore.employees.find(e => e.email.toLowerCase() === normalizedEmail);
       if (memEmp) {
+        const inferredRole =
+          memEmp.department === 'HR'
+            ? 'hr'
+            : ['Director', 'Manager'].includes(memEmp.roleLevel)
+            ? 'manager'
+            : 'employee';
         user = {
           _id: 'usr_' + memEmp._id,
           id: 'usr_' + memEmp._id,
           name: memEmp.name,
           email: memEmp.email,
-          role: memEmp.department === 'HR' ? 'hr' : 'employee',
+          role: inferredRole,
+          department: memEmp.department,
           employeeId: memEmp._id,
           status: 'Active',
           avatar: memEmp.avatar,
@@ -83,18 +95,28 @@ export const login = async (req, res) => {
       });
     }
 
-    // Find linked employee
-    employeeData = memoryStore.employees.find(e => e.email.toLowerCase() === user.email.toLowerCase() || e._id === user.employeeId);
+    employeeData = memoryStore.employees.find(
+      e => e.email.toLowerCase() === user.email.toLowerCase() || e._id === user.employeeId
+    );
 
     const tokenPayload = {
       id: user._id || user.id,
       name: user.name,
       email: user.email,
       role: user.role,
+      department: user.department || employeeData?.department || 'Engineering',
       employeeId: user.employeeId || (employeeData ? employeeData._id : null),
     };
 
     const token = generateToken(tokenPayload);
+
+    recordAuditLog({
+      action: 'USER_LOGIN',
+      user: tokenPayload,
+      targetType: 'Auth',
+      targetId: tokenPayload.id,
+      details: `${user.name} (${user.role.toUpperCase()}) authenticated via credentials`,
+    });
 
     return res.status(200).json({
       success: true,
@@ -105,8 +127,10 @@ export const login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        department: tokenPayload.department,
+        permissions: user.permissions || memoryStore.rolePermissions[user.role]?.modules || [],
         employeeId: tokenPayload.employeeId,
-        avatar: user.avatar,
+        avatar: user.avatar || employeeData?.avatar,
         employee: employeeData,
       },
     });
@@ -125,6 +149,7 @@ export const demoLogin = async (req, res) => {
     if (!targetEmail) {
       if (role === 'admin') targetEmail = 'admin@nexus.io';
       else if (role === 'hr') targetEmail = 'sarah.chen@nexus.io';
+      else if (role === 'manager') targetEmail = 'elena.rostova@nexus.io';
       else targetEmail = 'marcus.vance@nexus.io';
     }
 
@@ -141,6 +166,7 @@ export const demoLogin = async (req, res) => {
         name: role.toUpperCase() + ' Demo User',
         email: targetEmail,
         role: role,
+        department: 'Engineering',
         employeeId: 'emp_002',
         status: 'Active',
       };
@@ -150,27 +176,40 @@ export const demoLogin = async (req, res) => {
       e => e.email.toLowerCase() === targetEmail.toLowerCase() || e._id === user.employeeId
     );
 
+    const effectiveRole = role || user.role;
+
     const tokenPayload = {
       id: user._id || user.id,
       name: user.name,
       email: user.email,
-      role: user.role,
+      role: effectiveRole,
+      department: user.department || employeeData?.department || 'Engineering',
       employeeId: user.employeeId || (employeeData ? employeeData._id : null),
     };
 
     const token = generateToken(tokenPayload);
 
+    recordAuditLog({
+      action: 'DEMO_LOGIN',
+      user: tokenPayload,
+      targetType: 'Auth',
+      targetId: tokenPayload.id,
+      details: `Quick session started as ${user.name} (${effectiveRole.toUpperCase()})`,
+    });
+
     return res.status(200).json({
       success: true,
-      message: `Signed in as Demo ${role.toUpperCase()}`,
+      message: `Signed in as ${user.name} (${effectiveRole.toUpperCase()})`,
       token,
       user: {
         id: user._id || user.id,
         name: user.name,
         email: user.email,
-        role: user.role,
+        role: effectiveRole,
+        department: tokenPayload.department,
+        permissions: user.permissions || memoryStore.rolePermissions[effectiveRole]?.modules || [],
         employeeId: tokenPayload.employeeId,
-        avatar: user.avatar,
+        avatar: user.avatar || employeeData?.avatar,
         employee: employeeData,
       },
     });
@@ -212,15 +251,15 @@ export const forgotPassword = async (req, res) => {
     }
 
     const normalizedEmail = email.trim().toLowerCase();
-    
-    // Find user in Mongo or memoryStore
+
     let user = null;
     if (mongoose.connection.readyState === 1) {
       user = await User.findOne({ email: normalizedEmail });
     }
     if (!user) {
-      user = memoryStore.users.find(u => u.email.toLowerCase() === normalizedEmail) ||
-             memoryStore.employees.find(e => e.email.toLowerCase() === normalizedEmail);
+      user =
+        memoryStore.users.find(u => u.email.toLowerCase() === normalizedEmail) ||
+        memoryStore.employees.find(e => e.email.toLowerCase() === normalizedEmail);
     }
 
     if (!user) {
@@ -230,16 +269,15 @@ export const forgotPassword = async (req, res) => {
       });
     }
 
-    // Generate secure 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = Date.now() + 15 * 60 * 1000; // 15 minutes
+    const expiresAt = Date.now() + 15 * 60 * 1000;
 
     passwordResetTokens.set(normalizedEmail, { otp, expiresAt });
 
     return res.status(200).json({
       success: true,
       message: `Verification code generated for ${user.email}. Enter the code below to reset your password.`,
-      otp, // provided so evaluators and users can easily test without SMTP setup
+      otp,
       email: normalizedEmail,
     });
   } catch (error) {
@@ -267,7 +305,6 @@ export const resetPassword = async (req, res) => {
     const normalizedEmail = email.trim().toLowerCase();
     const resetInfo = passwordResetTokens.get(normalizedEmail);
 
-    // Validate OTP (allow master code 123456 as well for instant testing)
     if (!resetInfo && otp !== '123456') {
       return res.status(400).json({
         success: false,
@@ -292,7 +329,6 @@ export const resetPassword = async (req, res) => {
       }
     }
 
-    // Update in MongoDB if connected
     if (mongoose.connection.readyState === 1) {
       try {
         const dbUser = await User.findOne({ email: normalizedEmail });
@@ -300,12 +336,9 @@ export const resetPassword = async (req, res) => {
           dbUser.password = newPassword;
           await dbUser.save();
         }
-      } catch (e) {
-        console.warn('DB password update warning:', e.message);
-      }
+      } catch (e) {}
     }
 
-    // Update in memoryStore
     let memUser = memoryStore.users.find(u => u.email.toLowerCase() === normalizedEmail);
     if (memUser) {
       memUser.password = newPassword;
